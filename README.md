@@ -4,8 +4,6 @@ Black-box test suite to measure microarchitectural details of the M1 GPU. These 
 
 ## Layout of an M1 GPU Core
 
-Roughly speaking, one GPU core is as powerful as the entire CPU.
-
 TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cache
 
 ## References
