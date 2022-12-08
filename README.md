@@ -8,11 +8,11 @@ TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cach
 
 ## References
 
+https://github.com/dougallj/applegpu
+
 https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-143.pdf
 
 https://rosenzweig.io/blog/asahi-gpu-part-4.html
-
-https://github.com/dougallj/applegpu
 
 https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
 
