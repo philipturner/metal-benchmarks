@@ -15,3 +15,5 @@ https://rosenzweig.io/blog/asahi-gpu-part-4.html
 https://github.com/dougallj/applegpu
 
 https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
+
+https://github.com/AsahiLinux/docs/wiki/HW:AGX
