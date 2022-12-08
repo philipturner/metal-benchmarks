@@ -1,6 +1,6 @@
 # Metal Benchmarks
 
-Black-box test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares Apple7 to generations of AMD and Nvidia microarchitectures, and other matrix accelerators on the M1 chip.
+Black-box test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares the M1 to generations of AMD and Nvidia microarchitectures.
 
 ## Layout of an M1 GPU Core
 
