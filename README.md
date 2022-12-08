@@ -4,7 +4,7 @@ Black-box test suite to measure microarchitectural details of the M1 GPU. These 
 
 ## Layout of an M1 GPU Core
 
-TODO
+TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cache
 
 ## References
 
