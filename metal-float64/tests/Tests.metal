@@ -34,6 +34,8 @@ kernel void testCallStackOverFlow(device uint *flags [[buffer(0)]],
 
 #pragma mark - Performance Tests
 
+// All benchmarks were run with a call stack of 5. This may have harmed performance.
+
 // The benchmarks below use 100_000 threads/30 trials on the M1 Max. This seems
 // to starve the GPU (~96,000 threads). You can re-run with more threads to find
 // the greatest performance (~10% faster).
