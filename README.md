@@ -23,3 +23,7 @@ https://rosenzweig.io/blog/asahi-gpu-part-4.html
 https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
 
 https://github.com/AsahiLinux/docs/wiki/HW:AGX
+
+https://arxiv.org/pdf/1804.06826.pdf
+
+https://arxiv.org/pdf/1905.08778.pdf
