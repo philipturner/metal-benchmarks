@@ -28,4 +28,6 @@ https://arxiv.org/pdf/1804.06826.pdf
 
 https://arxiv.org/pdf/1905.08778.pdf
 
+## US Patents
+
 https://www.freepatentsonline.com/y2019/0057484.html
