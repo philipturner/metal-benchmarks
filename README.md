@@ -61,3 +61,5 @@ M1 (7-core): https://gist.github.com/IMS212/04d2a96a06eb2c8062029e5680d144f6
 M1 (8-core): https://gist.github.com/tommythorn/0ba150bd7a377a6bed4443f412825e20
 
 M1 Pro (14-core): https://gist.github.com/useraccessdenied/60e211cc13f6986867b6a43ad08fd798
+
+M1 Max (32-core): https://gist.github.com/philipturner/48c72e3fcce0ce9489071eb083a5086e
