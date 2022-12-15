@@ -27,3 +27,5 @@ https://github.com/AsahiLinux/docs/wiki/HW:AGX
 https://arxiv.org/pdf/1804.06826.pdf
 
 https://arxiv.org/pdf/1905.08778.pdf
+
+https://www.freepatentsonline.com/y2019/0057484.html
