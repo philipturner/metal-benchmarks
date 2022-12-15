@@ -33,8 +33,6 @@ https://arxiv.org/pdf/1905.08778.pdf
 <details>
  
 <summary>List of patents that may reveal unique design characteristics of the Apple GPU</summary>
-
-  
   
 https://www.freepatentsonline.com/y2019/0057484.html
 
@@ -56,4 +54,6 @@ https://patents.justia.com/patent/9727944
 
 </details>
 
+## GPU Configurations
 
+M1 (7-core): https://gist.github.com/IMS212/04d2a96a06eb2c8062029e5680d144f6
