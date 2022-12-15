@@ -57,3 +57,5 @@ https://patents.justia.com/patent/9727944
 ## GPU Configurations
 
 M1 (7-core): https://gist.github.com/IMS212/04d2a96a06eb2c8062029e5680d144f6
+
+M1 Pro (14-core): https://gist.github.com/useraccessdenied/60e211cc13f6986867b6a43ad08fd798
