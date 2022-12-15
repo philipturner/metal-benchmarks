@@ -42,4 +42,6 @@ https://patents.justia.com/patent/9442706
 
 https://patents.justia.com/patent/9508112
 
-[https://patents.justia.com/patent/9978343](https://patents.justia.com/patent/10515611)
+https://patents.justia.com/patent/9978343
+
+https://patents.justia.com/patent/9727944
