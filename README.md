@@ -30,6 +30,12 @@ https://arxiv.org/pdf/1905.08778.pdf
 
 ## US Patents
 
+<details>
+ 
+<summary>List of patents that may reveal unique design characteristics of the Apple GPU</summary>
+
+  
+  
 https://www.freepatentsonline.com/y2019/0057484.html
 
 https://patents.justia.com/patent/9633409
@@ -43,5 +49,9 @@ https://patents.justia.com/patent/9442706
 https://patents.justia.com/patent/9508112
 
 https://patents.justia.com/patent/9978343
-
+  
 https://patents.justia.com/patent/9727944
+
+</details>
+
+
