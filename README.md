@@ -8,6 +8,19 @@ TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cach
 
 https://github.com/dougallj/applegpu/issues/21
 
+| Instruction | Max Throughput (cycles) |
+| ----------- | ------------------- |
+| FADD32 | 1 |
+| FMUL32 | 1 |
+| FFMA32 | 1 |
+| IADD32 | 1 |
+| IMUL32 | 2 - 2.33 |
+| IMAD32 | 3 - 3.67 |
+| IMADHI32 | 8 |
+| IMAD (32x32+??->64) | 11 |
+| IADD64 | 4 |
+| IMUL64 | ~13.4 |
+
 The Apple GPU not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Benchmarks of concurrency suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
 
 ## Power Efficiency
