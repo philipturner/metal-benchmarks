@@ -6,9 +6,9 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cache
 
-<!-- ## Power Efficiency
+## Power Efficiency
 
-TODO: higher occupancy, less threadgroup memory, int64 arithmetic, power varying with clock speed, concurrent command execution -->
+TODO: higher occupancy, less threadgroup memory, int64 arithmetic, power varying with clock speed, concurrent command execution
 
 ## References
 
