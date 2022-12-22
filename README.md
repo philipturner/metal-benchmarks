@@ -6,6 +6,10 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cache
 
+<!-- | Register Memory | Threadgroup Memory | Max Threads | -->
+
+
+
 https://github.com/dougallj/applegpu/issues/21
 
 | Instruction | Max Throughput (cycles) |
