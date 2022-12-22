@@ -8,7 +8,9 @@ TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cach
 
 <!-- | Register Memory | Threadgroup Memory | Max Threads | -->
 
-
+| Statistic (per core) | Apple 7 | RDNA 2 | RDNA 3 | Ampere | Lovelace |
+| -------------------- | ------- | ------ | ------ | ------ | -------- |
+| Register File | 624 KB | 256 KB | 384 KB | - | - |
 
 https://github.com/dougallj/applegpu/issues/21
 
@@ -26,6 +28,8 @@ https://github.com/dougallj/applegpu/issues/21
 | IMUL64 | ~13.4 |
 
 The Apple GPU not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Benchmarks of concurrency suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
+
+This suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both types share the same circuitry. 64-bit integer operations are one instruction in assembly code, but 4x slower than 32-bit integer ops. This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry. Also like the AMX, F16 is neither faster nor slower than F32.
 
 ## Power Efficiency
 
