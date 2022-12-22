@@ -9,8 +9,8 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | Max Threads | 1152-3072 | 1024-2560 | ???-2048 | ???-2048 |
 | FP32 ALUs | 128 | 64 | 128 | 128 | 256 | 256 |
 | Register File | 624 KB | 256 KB | 384 KB | - | - |
-| Threadgroup Memory | 96 KB | - | - | - |
-| L1 Instruction Cache | 24 - 32 KB ? | 32 KB | 32 KB | 32 KB |
+| Threadgroup Memory | 32 - 96 KB ?? | 64 KB | - | - |
+| L1 Instruction Cache | 24 - 32 KB ?? | 32 KB | 32 KB | 32 KB |
 
 https://github.com/dougallj/applegpu/issues/21
 
