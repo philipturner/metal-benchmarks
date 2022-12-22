@@ -6,10 +6,10 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 | Per Core | Apple 7 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
 | -------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
-| Max Threads | 1152-3072 | 1024-2560 | ???-2048 | ???-2048 | 256-2048 | 256-1536/2048 ??? | 256-1536/2048 ??? |
+| Max Threads | 1152-3072 | 1024-2560 | ???-2048 | ???-2048 | 256-1024 | 256-1536 | 256-1536 |
 | FP32 ALUs | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
 | Register File | 624 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
-| Threadgroup Memory | 32/96 KB ??? | 64 KB | 128 KB | 128 KB | 64 KB | 100 KB | 100 KB |
+| Shared Memory | 32/96 KB ??? | 64 KB | 128 KB | 128 KB | 64 KB | 100 KB | 100 KB |
 | L1 Instruction Cache | 24?32 KB ??? | 32 KB | 32 KB | 32 KB |
 | L1 Data Cache | ??? | 16 KB ??? | 128 KB | - | 96 KB | 128 KB | 128 KB
 
