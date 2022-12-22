@@ -10,6 +10,8 @@ TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cach
 
 TODO: higher occupancy, less threadgroup memory, int64 arithmetic, power varying with clock speed, concurrent command execution
 
+![Graph of power vs. performance for an M1 Max at 1296 MHz](./Documentation/Power_Performance_M1_Max.png)
+
 ## References
 
 https://github.com/dougallj/applegpu
