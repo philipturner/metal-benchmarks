@@ -4,13 +4,13 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
-TODO: register file, threadgroup memory, arithmetic subunits, occupancy, L1 cache
-
-<!-- | Register Memory | Threadgroup Memory | Max Threads | -->
-
-| Statistic (per core) | Apple 7 | RDNA 2 | RDNA 3 | Ampere | Lovelace |
-| -------------------- | ------- | ------ | ------ | ------ | -------- |
+| Statistic (per core) | Apple 7 | GCN | RDNA 2 | RDNA 3 | Ampere | Lovelace |
+| -------------------- | ------- | --- | ------ | ------ | ------ | -------- |
+| Max Threads | 1152-3072 | 1024-2560 | ???-2048 | ???-2048 |
+| FP32 ALUs | 128 | 64 | 128 | 128 | 256 | 256 |
 | Register File | 624 KB | 256 KB | 384 KB | - | - |
+| Threadgroup Memory | 96 KB | - | - | - |
+| L1 Instruction Cache | 24 - 32 KB ? | 32 KB | 32 KB | 32 KB |
 
 https://github.com/dougallj/applegpu/issues/21
 
