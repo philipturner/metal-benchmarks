@@ -12,7 +12,6 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | Shared Memory | 32/96 KB ??? | 64 KB | 128 KB | 128 KB | 64 KB | 100 KB | 100 KB |
 | L1 Instruction Cache | ~19-28 KB ??? | 32 KB | 32 KB | 32 KB |
 | L1 Data Cache | ~8-16 KB ??? | 16 KB ??? | 128 KB | - | 96 KB | 128 KB | 128 KB
-| L2 Data Cache | ~0.8-2 MB ??? | - | - | - | - | - | - |
 
 https://github.com/dougallj/applegpu/issues/21
 
