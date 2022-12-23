@@ -1,18 +1,18 @@
 # Metal Benchmarks
 
-Test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares the M1 to generations of AMD and Nvidia microarchitectures. <!-- Finally, it examines how Apple's design choices improve power efficiency compared to other vendors. -->
+Test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares the M1 to generations of AMD and Nvidia microarchitectures. Finally, it examines how Apple's design choices improve power efficiency compared to other vendors.
 
 ## Layout of an M1 GPU Core
 
 | Per Core | Apple7 | Apple8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
 | -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
 | Max Threads (Occupancy) | 1152-3072 ??? | TBD | 256-2560 | TBD-2048 | TBD-2048 | 256-1024 | 256-1536 | 256-1536 |
-| FP32 ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
+| ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
 | Register File | 624 KB ??? | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB | 8-100 KB |
-| L1 Instruction Cache | ~19-32 KB ??? | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB | 32 KB |
-| L1 Data Cache | ~8-16 KB ??? | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB | 28-128 KB |
-| Total SRAM | ~728 KB ??? | TBD | >368 KB | >432 KB | >576 KB | 364 KB | 416 KB | 416 KB |
+| L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB | 32 KB |
+| L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB | 28-128 KB |
+| Total SRAM | 712 KB ??? | TBD | >368 KB | >432 KB | >576 KB | 364 KB | 416 KB | 416 KB |
 
 | Instruction | Max Throughput (cycles) |
 | ----------- | ------------------- |
@@ -60,6 +60,8 @@ https://arxiv.org/pdf/1804.06826.pdf
 https://arxiv.org/pdf/1905.08778.pdf
 
 https://github.com/dougallj/applegpu/issues/21
+
+https://chipsandcheese.com/2022/05/21/igpu-cache-setups-compared-including-m1/
 
 ## US Patents
 
