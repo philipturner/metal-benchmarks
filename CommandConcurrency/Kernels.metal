@@ -21,10 +21,11 @@ constant int transformIndex [[function_constant(1)]];
 kernel void testThroughput1(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[0] += 1;
+  value[0] += 1 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
@@ -35,11 +36,12 @@ kernel void testThroughput1(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput2(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
   float4x4 transform = transformMatrices[transformIndex];
-  transform[0] += 1;
+  transform[0] += 1 + tg_mem[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
@@ -49,6 +51,7 @@ kernel void testThroughput2(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput3(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
@@ -56,7 +59,7 @@ kernel void testThroughput3(device float4x4 *inputMatrices [[buffer(0)]],
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
-  value[0] += 1;
+  value[0] += 1 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
   
 }
@@ -64,10 +67,11 @@ kernel void testThroughput3(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput4(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[1] += 2;
+  value[1] += 2 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
@@ -78,11 +82,12 @@ kernel void testThroughput4(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput5(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
   float4x4 transform = transformMatrices[transformIndex];
-  transform[1] += 2;
+  transform[1] += 2 + tg_mem[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
@@ -92,6 +97,7 @@ kernel void testThroughput5(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput6(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
@@ -99,17 +105,18 @@ kernel void testThroughput6(device float4x4 *inputMatrices [[buffer(0)]],
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
-  value[1] += 2;
+  value[1] += 2 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
 }
 
 kernel void testThroughput7(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[2] += 3;
+  value[2] += 3 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
@@ -120,11 +127,12 @@ kernel void testThroughput7(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput8(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
   float4x4 transform = transformMatrices[transformIndex];
-  transform[2] += 3;
+  transform[2] += 3 + tg_mem[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
@@ -134,6 +142,7 @@ kernel void testThroughput8(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput9(device float4x4 *inputMatrices [[buffer(0)]],
                             constant float4x4 *transformMatrices [[buffer(1)]],
                             device float4x4 *outputMatrices [[buffer(2)]],
+                            threadgroup float *tg_mem [[threadgroup(0)]],
                             uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
@@ -141,17 +150,18 @@ kernel void testThroughput9(device float4x4 *inputMatrices [[buffer(0)]],
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
-  value[2] += 3;
+  value[2] += 3 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
 }
 
 kernel void testThroughput10(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[3] += 4;
+  value[3] += 4 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
@@ -162,11 +172,12 @@ kernel void testThroughput10(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput11(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
   float4x4 transform = transformMatrices[transformIndex];
-  transform[3] += 4;
+  transform[3] += 4 + tg_mem[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
@@ -176,6 +187,7 @@ kernel void testThroughput11(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput12(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
@@ -183,17 +195,18 @@ kernel void testThroughput12(device float4x4 *inputMatrices [[buffer(0)]],
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
-  value[3] += 4;
+  value[3] += 4 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
 }
 
 kernel void testThroughput13(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[0] += 5;
+  value[0] += 5 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
@@ -204,11 +217,12 @@ kernel void testThroughput13(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput14(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
   float4x4 transform = transformMatrices[transformIndex];
-  transform[0] += 5;
+  transform[0] += 5 + tg_mem[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
@@ -218,6 +232,7 @@ kernel void testThroughput14(device float4x4 *inputMatrices [[buffer(0)]],
 kernel void testThroughput15(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
@@ -225,20 +240,321 @@ kernel void testThroughput15(device float4x4 *inputMatrices [[buffer(0)]],
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
-  value[0] += 5;
+  value[0] += 5 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
 }
 
 kernel void testThroughput16(device float4x4 *inputMatrices [[buffer(0)]],
                              constant float4x4 *transformMatrices [[buffer(1)]],
                              device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
                              uint tid [[thread_position_in_grid]])
 {
   float4x4 value = inputMatrices[tid];
-  value[1] += 6;
+  value[1] += 6 + tg_mem[transformIndex];
   float4x4 transform = transformMatrices[transformIndex];
   for (int i = 0; i < numIterations; ++i) {
     value = transform * value;
   }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput17(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[1] += 6 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput18(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[1] += 6 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput19(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[2] += 7 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput20(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[2] += 7 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput21(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[2] += 7 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput22(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[3] += 8 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput23(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[3] += 8 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput24(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[3] += 8 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput25(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[0] += 9 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput26(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[0] += 9 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput27(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[0] += 9 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput28(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[1] += 10 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput29(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[1] += 10 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput30(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[1] += 10 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput31(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[2] += 11 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput32(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[2] += 11 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput33(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[2] += 11 + tg_mem[transformIndex];
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput34(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  value[3] += 12 + tg_mem[transformIndex];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput35(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  transform[3] += 12 + tg_mem[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  outputMatrices[tid] = value;
+}
+
+kernel void testThroughput36(device float4x4 *inputMatrices [[buffer(0)]],
+                             constant float4x4 *transformMatrices [[buffer(1)]],
+                             device float4x4 *outputMatrices [[buffer(2)]],
+                             threadgroup float *tg_mem [[threadgroup(0)]],
+                             uint tid [[thread_position_in_grid]])
+{
+  float4x4 value = inputMatrices[tid];
+  float4x4 transform = transformMatrices[transformIndex];
+  for (int i = 0; i < numIterations; ++i) {
+    value = transform * value;
+  }
+  value[3] += 12 + tg_mem[transformIndex];
   outputMatrices[tid] = value;
 }
