@@ -6,7 +6,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
 | -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
-| Max Threads | 1152-3072 | TBD-6144??? | 256-2560 | TBD-2048 | TBD-2048 | 256-1024 | 256-1536 | 256-1536 |
+| Max Threads | 1152-3072 | TBD | 256-2560 | TBD-2048 | TBD-2048 | 256-1024 | 256-1536 | 256-1536 |
 | FP32 ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
 | Register File | 624 KB | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB | 8-100 KB |
@@ -37,6 +37,8 @@ This suggests an ALU has four concurrent pipelines. Each can execute either F32 
 TODO: higher occupancy, less threadgroup memory, int64 arithmetic, power varying with clock speed, concurrent command execution
 
 ![Graph of power vs. performance for an M1 Max at 1296 MHz](./Documentation/Power_Performance_M1_Max.png)
+
+The M1 Max has 32 GPU cores, but can perform up to 96 compute commands simultaneously. The A15 has double the concurrency, performing 30 commands on 5 GPU cores. In comparison, all Nvidia GPUs top out at 128 concurrent commands. To reach the same concurrency, an Nvidia GPU must have at most 42 SMs. This is true for the RTX 3060, but not for more powerful GPUs. This sub-core concurrency only happens among commands within the same `MTLComputeCommandEncoder`. For commands on different Metal command queues, there's only 2x concurrency across the entire GPU. This makes it similar to early dual-core CPUs, designed in part to be more responsive. Even if one command is taking several frames, a high-priority UI command can quickly seize half the GPU cores. Beyond that purpose, there's little motive to create any circuitry for 3+ concurrent command queues.
 
 ## References
 
