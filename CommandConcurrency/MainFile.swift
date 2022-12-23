@@ -69,8 +69,7 @@ func mainFunc() {
   //
   // For A15:
   // This chip will test whether maximum concurrency relates to the number of
-  // GPU cores. It has 5 cores, while the M1 Max has 32. The benchmark only
-  // generates 16 unique pipeline states.
+  // GPU cores. It has 5 cores, while the M1 Max has 32.
   //
   // Potentially useful for power profiling:
   // https://developer.apple.com/forums/thread/91160
@@ -87,24 +86,110 @@ func mainFunc() {
   // macOS for "hanging", although some ~100,000-thread benchmarks on the M1 Max
   // were aborted at random.
   
-  let numTransforms = 1
-  let baseNumThreads = 128
+  // M1 Max, 197 transforms, 32 threads, max GFLOPS based on tgmem allocation
+  // 20 KB - 2816
+  // 17 KB - 2812
+  // 16 KB - 2829
+  // 14 KB - 2872
+  // 12 KB - 2834
+  // 10 KB - 2875
+  //  4 KB - 2851
+  
+  let numTransforms = 197
+  let baseNumThreads = 32
+  let tgmemPerSimdgroup = 1024 * 17 // 32
   let usingSerial = false
   
   // Number of concurrent commands - (GFLOPS - seconds) M1 Max, A15
   
+  // 16 threads/command
+  // 32 -  712 - 0.0920
+  // 64 - 1394 - 0.0940
+  // 80 - 1502 - 0.1090
+  // 96 - 1803 - 0.1090
+  //112 - 1224 - 0.1874
+  
+  // 32 threads/command
+  //  1 -   44 - 0.0918,   46 - 0.0890
+  //  2 -   89 - 0.0918,   92 - 0.0889
+  //  3 -                 138 - 0.0889
+  //  4 -  178 - 0.0918,  184 - 0.0890
+  //  5 -                 230 - 0.0890
+  //  6 -                 276 - 0.0890
+  //  8 -  356 - 0.0918,  368 - 0.0890
+  // 10 -                 460 - 0.0890, never jumps from tgmem allocation
+  // 12 -                 500 - 0.0983, jumps when tgmem/simdgroup exceeds 20 KB
+  // 14 -                 572 - 0.1003
+  // 15 -                 589 - 0.1042, jumps when tgmem/simdgroup exceeds 20 KB
+  // 16 -  713 - 0.0918,  615 - 0.1065, jumps when tgmem/simdgroup exceeds 16 KB
+  // 20 -                 801 - 0.1022, jumps when tgmem/simdgroup exceeds 16 KB
+  // 21 -                 603 - 0.1425, jumps when tgmem/simdgroup exceeds 12 KB
+  // 24 -                 689 - 0.1426
+  // 25 -                 714 - 0.1434, jumps when tgmem/simdgroup exceeds 12 KB, 20 KB
+  // 30 -                 825 - 0.1488, jumps when tgmem/simdgroup exceeds 10 KB, 12 KB, 20 KB
+  // 31 -                 722 - 0.1756, jumps when tgmem/simdgroup exceeds 8 KB, 16 KB, 20 KB
+  // 32 - 1427 - 0.0918,  737 - 0.1777
+  // 40                                 jumps when tgmem/simdgroup exceeds 8 KB
+  // 41                                 jumps when tgmem/simdgroup exceeds 6 KB, 12 KB
+  // 48 - 2107 - 0.0933
+  // 64 - 2827 - 0.0927, never jumps from tgmem allocation
+  // 65 - 2641 - 0.1008, jumps when tgmem/simdgroup exceeds 20 KB
+  // 66 - 2620 - 0.1032
+  // 67 - 2641 - 0.1039
+  // 68 - 2642 - 0.1054
+  // 71 - 2687 - 0.1082
+  // 72 - 2694 - 0.1094
+  // 80 - 2946 - 0.1112
+  // 96 - 3568 - 0.1102, jumps when tgmem/simdgroup exceeds 20 KB
+  // 97 - 2146 - 0.1851, jumps when tgmem/simdgroup exceeds 24 KB
+  // 98 - 2173 - 0.1847
+  //100 - 2208 - 0.1855, jumps when tgmem/simdgroup exceeds 24 KB
+  //108 - 2208 - 0.1855, jumps when tgmem/simdgroup exceeds 24 KB
+  //109 - 2208 - 0.1855, jumps when tgmem/simdgroup exceeds 24 KB
+  //112 - 2458 - 0.1866, jumps when tgmem/simdgroup exceeds 24 KB
+  //114 -       (barely) jumps when tgmem/simdgroup exceeds 24 KB
+  //115 -       (barely) jumps when tgmem/simdgroup exceeds 20 KB
+  //128 -       (barely) jumps when tgmem/simdgroup exceeds 20 KB
+  //196 -       (barely) jumps when tgmem/simdgroup exceeds 20 KB
+  //197 -       (barely) jumps when tgmem/simdgroup exceeds 16 KB
+  //256 -       (barely) jumps when tgmem/simdgroup exceeds 16 KB
+  
+  // 64 threads/command
+  //  1 -   89 - 0.0918,
+  //  2 -  178 - 0.0918,
+  //  4 -  356 - 0.0918,
+  //  8 -  713 - 0.0918
+  // 16 - 1426 - 0.0919
+  // 32 - 2825 - 0.0928
+  // 48 - 3609 - 0.1090
+  // 64 - 4872 - 0.1076
+  // 80 - 4389 - 0.1493
+  // 96 - 4921 - 0.1598
+  
   // 128 threads/command
   //  1 -  178 - 0.0918,  184 - 0.0890
   //  2 -  356 - 0.0918,  362 - 0.0904
-  //  4 -  713 - 0.0919,  656 - 0.0998
+  //  3 -                 506 - 0.0971
+  //  4 -  713 - 0.0919,  669 - 0.0979
+  //  5 -                 604 - 0.1355
+  //  6 -                 726 - 0.1353
+  //  7 -                 770 - 0.1488
   //  8 - 1427 - 0.0918,  765 - 0.1712
+  //  9 -                 822 - 0.1793
   // 10 -                 870 - 0.1881
-  // 12 -                 842 - 0.2333
+  // 11 -                 831 - 0.2167
+  // 12 - 2190 - 0.0918,  842 - 0.2333
   // 16 - 2843 - 0.0922
+  // 18 - 2695 - 0.1094
+  // 24 - 3600 - 0.1092
+  // 32 - 4876 - 0.1075
+  // 36 - 4009 - 0.1471
+  // 48 - 5054 - 0.1556
   
   // 256 threads/command
   //  1 -  356 - 0.0918,  368 - 0.0890
   //  2 -  713 - 0.0918,  637 - 0.1027
+  //  3
   //  4 - 1424 - 0.0920,  759 - 0.1726
   //  5 -                 874 - 0.1874
   //  6 -                 844 - 0.2329
@@ -141,7 +226,7 @@ func mainFunc() {
   // 16 - 6018 - 1.3939
   
   // Create all the pipelines we'll use
-  let numIterations = 1000000
+  let numIterations = 1_000_000
   let constants = MTLFunctionConstantValues()
   var pipelines: [MTLComputePipelineState] = []
   do {
@@ -152,7 +237,7 @@ func mainFunc() {
       var _transformIndex = Int32(transformIndex)
       constants.setConstantValue(&_transformIndex, type: .int, index: 1)
       
-      let name = "testThroughput\(transformIndex + 1)"
+      let name = "testThroughput\((transformIndex % 36) + 1)"
       let function = try! library
         .makeFunction(name: name, constantValues: constants)
       let pipeline = try! device
@@ -215,9 +300,10 @@ func mainFunc() {
       encoder.setBuffer(inputBuffers[bufferIndex], offset: bufferOffset, index: 0)
       encoder.setBuffer(transformBuffers[bufferIndex], offset: 0, index: 1)
       encoder.setBuffer(outputBuffers[bufferIndex], offset: bufferOffset, index: 2)
+      encoder.setThreadgroupMemoryLength(tgmemPerSimdgroup, index: 0)
       encoder.dispatchThreads(
         MTLSizeMake(dispatchSize, 1, 1),
-        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
+        threadsPerThreadgroup: MTLSizeMake(32, 1, 1))
       if usingSerial {
         encoder.endEncoding()
       }
