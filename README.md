@@ -6,9 +6,16 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | - | 256-1024 | 256-1536 |
 | ALUs | 128 | 128 | 64 | 64 | 128 | - | 128 | 128 |
 | FP32/Int32 Dual Issue | n/a | TBD | n/a | n/a | n/a | n/a | 2x | 1.5x |
+| FP16/FP32 Ratio | 1 | TBD | - | 2 | 2 | 1/64 | 2 | 1 | 1 |
+| FP64/FP32 Ratio (Native) | 0 | 0 | - | 1/16 | 1/16 | 1/32 | 1/64 | 1/64 |
+| Int16/Int32 Ratio | 1 | TBD | - | 2 | 2 | 0 | 0 | 0
+| Int64/Int32 Ratio (Native) | ~1/5 | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
+
+| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | - | 256-1024 | 256-1536 |
 | Register File | 384 KB | TBD | 256 KB | 256 KB | 384 KB | - | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | - | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | - | ~12 KB | 32 KB |
