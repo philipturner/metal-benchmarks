@@ -21,14 +21,18 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 | ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 408 KB | 364 KB | 416 KB |
 
+## Instruction Throughputs
+
+If listed with a comma, throughputs differ between Apple 7 and Apple 8.
+
 | Float Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | -------------------------- | ------ | ------- | ----------- |
 | FADD16 |
 | FMUL16 |
 | FFMA16 |
-| FADD32 | 1 |
-| FMUL32 | 1 |
-| FFMA32 | 1 |
+| FADD32 | 1, TBD |
+| FMUL32 | 1, TBD |
+| FFMA32 | 1, TBD |
 | ROUND |
 | RECIP |
 | FDIV |
@@ -44,12 +48,12 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | IADD16 |
 | IMUL16 |
 | IMAD16 |
-| IADD32 | 1 |
-| IMUL32 | 2 - 2.33 ??? |
-| IMAD32 | 3 - 3.67 ??? |
-| IMADHI32 | 8 |
-| IMAD (32x32+??->64) | 11 |
-| IADD64 | 4 |
+| IADD32 | 1, TBD |
+| IMUL32 | 2 - 2.33 ???, TBD |
+| IMAD32 | 3 - 3.67 ???, TBD |
+| IMADHI32 | 8, TBD |
+| IMAD (32x32+??->64) | 11, TBD |
+| IADD64 | 4, TBD |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 |
@@ -58,7 +62,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 | Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
-| IMUL64 | 13.4 ??? |
+| IMUL64 | 13.4 ???, TBD |
 | IMULHI64 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
