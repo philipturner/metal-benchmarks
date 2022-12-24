@@ -11,7 +11,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | FP64/FP32 Ratio (Native) | 0 | 0 | - | 1/16 | 1/16 | 1/32 | 1/64 | 1/64 |
 | Transcendental/ALU FLOPS | TBD | TBD | - | - | - | 1/8 | 1/8 | 1/16 |
 | Int16/Int32 Ratio | 1 | TBD | - | 2 | 2 | 0 | 0 | 0
-| Int64/Int32 Ratio (Native) | 1/4-1/6 | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
+| Int64/Int32 Ratio (Native) | 1/4-1/6 ??? | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -22,8 +22,8 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | - | 32-64 KB | 28-128 KB |
 | ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | - | 364 KB | 416 KB |
 
-| Instruction | Max Throughput (cycles) |
-| ----------- | ------------------- |
+| ALU Instruction | Max Throughput (cycles) | Transcendental Instruction | Max Throughput (cycles) |
+| ----------- | ------------------- | - | - |
 | FADD32 | 1 |
 | FMUL32 | 1 |
 | FFMA32 | 1 |
