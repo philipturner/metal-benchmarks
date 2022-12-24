@@ -21,7 +21,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 | ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 408 KB | 364 KB | 416 KB |
 
-| Float Throughput (M1, A15) | Cycles | Latency | Concurrency |
+| Float Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | -------------------------- | ------ | ------- | ----------- |
 | FADD16 |
 | FMUL16 |
@@ -39,7 +39,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | EXP2 |
 | LOG2 |
 
-| Int Throughput (M1, A15) | Cycles | Latency | Concurrency |
+| Int Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------ | ------ | ------- | ----------- |
 | IADD16 |
 | IMUL16 |
@@ -56,7 +56,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | BITREV32 |
 | POPCOUNT32 |
 
-| Multiple Instructions (M1, A15) | Cycles | Latency | Concurrency |
+| Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
 | IMUL64 | 13.4 ??? |
 | IMULHI64 |
