@@ -105,6 +105,81 @@ func mainFunc() {
   // Helpful resource:
   // https://research.nvidia.com/sites/default/files/pubs/2012-12_Unifying-Primary-Cache/Gebhart_MICRO_2012.pdf
   //
+  // A15: 15 transforms
+  // 690: 1, 2, 4, 8, 12, 20, 24, 28
+  // 480: 16
+  // 380: 30, 32
+  // Max active threads underestimate: 3x28x32 = 2688
+  //
+  // A15: 20 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
+  // 880: 1-5, 8, 10-13, 15, 17-20
+  // 650: 6, 14
+  // 540: 7, 9, 16
+  // 21 - 510
+  // 22 - 525
+  // 23 - 483
+  // 24 - 523
+  // 25 - 483
+  // 26 - 528
+  // 27 - 521
+  // 28 - 486
+  // 29 - 528
+  // 30 - 493
+  // 31 - 490
+  // 32 - 481
+  // Max active threads underestimate: 4x20x32 = 2560
+  // Register file underestimate: 4x20x32 threads, 80 bytes = 200 KB
+  // Register file underestimate: 4x20x32 threads, 96 bytes = 240 KB
+  // Drops off @ 30-32 simds.
+  // - redone with the matrix in device memory instead of constant
+  // 760: 1, 2, 4, 8, 10, 12, 13
+  // 520: 20, 24, 26, 29
+  // 440: 14, 18, 22
+  // 380: 16, 28, 30, 32
+  // 300: 25, 27
+  // Register file underestimate: 4x13x32 threads, 144 bytes = 234 KB
+  // Register file underestimate: 4x13x32 threads, 160 bytes = 260 KB
+  // Register file underestimate: 2x29x32 threads, 144 bytes = 261 KB
+  // Register file underestimate: 2x29x32 threads, 160 bytes = 290 KB
+  // - redone with two transforms in registers
+  //  1 - 772
+  //  2 - 774
+  //  4 - 802
+  //  8 - 784
+  //  9 - 415
+  // 10 - 517
+  // 11 - 463
+  // 12 - 471
+  // 13 - 513
+  // 14 - 402
+  // 15 - 328
+  // 16 - 407
+  // 17 - 351
+  // 18 - 390
+  // 19 - 350
+  // 20 - 323
+  // 21 - 324
+  // 22 - 329
+  // 23 - 400
+  // 24 - 349
+  // 25 - 377
+  // 26 - 352
+  // 27 - 395
+  // 28 - 259
+  // Register file underestimate:  4x8x32 threads, 208 bytes = 204 KB
+  // Register file underestimate:  4x8x32 threads, 224 bytes = 224 KB
+  // Register file close estimate: 2x27x32 threads, 208 bytes = 351 KB
+  // Register file close estimate: 2x27x32 threads, 224 bytes = 378 KB
+  // Register file overestimate:   2x28x32 threads, 224 bytes = 392 KB
+  
+  let numTransforms = 20
+  let baseNumThreads = 32
+  let tgmemPerSimdgroup = 1024
+  let simdsPerThreadgroup = 28
+  
+  let usingSerial = false
+  
+  //
   // M1 Max: 32 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
   // 1660: all tested combinations (1, 11, 32)
   // - redone with the matrix in device memory instead of constant
@@ -127,6 +202,7 @@ func mainFunc() {
   // ~4300: 1-6, 8, 10-13, 15, 17-22, 24, 26-28
   // ~3020: 7, 9, 14, 16, 23, 25
   // ~2400: 29-32
+  // Max active threads underestimate: 3x28x32 = 2688
   // Register file underestimate: 3x28x32 threads, 80 bytes = 210 KB
   // Register file underestimate: 3x28x32 threads, 96 bytes = 252 KB
   // - redone with the matrix in device memory instead of constant
@@ -157,6 +233,9 @@ func mainFunc() {
   // ~3000: 7, 9, 11, 14, 25, 27-28
   // ~2650: 16, 23
   // ~2200: 30-32
+  // Max active threads underestimate: 4x20x32 = 2560
+  // Register file underestimate: 4x20x32 threads, 80 bytes = 200 KB
+  // Register file underestimate: 4x20x32 threads, 96 bytes = 240 KB
   // Like with 96 transforms, this also drops off @ 29-30 simds.
   // - redone with two transforms in registers
   //  1 - 3207
@@ -196,12 +275,6 @@ func mainFunc() {
   // *These two data points appear to be outliers. Perhaps the ALU was more
   // efficient at dispatching instructions, because we do have room for
   // improvement. Even with 2 simds/core, we could reach 5308 GFLOPS.
-  
-  let numTransforms = 128
-  let baseNumThreads = 32
-  let tgmemPerSimdgroup = 1024
-  let simdsPerThreadgroup = 28
-  let usingSerial = false
   
   // Number of concurrent commands - (GFLOPS - seconds) M1 Max, A15
   
