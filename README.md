@@ -42,6 +42,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | COS |
 | EXP2 |
 | LOG2 |
+| FCMPSEL |
+| FMAX |
+| FMIN |
 
 | Int Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------ | ------ | ------- | ----------- |
@@ -59,6 +62,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | BITWISE32 |
 | BITREV32 |
 | POPCOUNT32 |
+| ICMPSEL |
+| IMAX |
+| IMIN |
 
 | Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
@@ -72,6 +78,17 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | 3 FFMA32 + IADD64 |
 | 3 IADD32 + IADD64 |
 | 3 IMUL16 + 2 IADD64 |
+| Precise RECIP |
+| Precise FDIV |
+| Precise RSQRT |
+| Precise SQRT |
+| Precise SIN |
+| Precise COS |
+| Precise EXP2 |
+| Precse LOG2 |
+| FMAX3 |
+| FMIN3 |
+| FMEDIAN |
 
 
 The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Command concurrency benchmarks suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
