@@ -85,7 +85,7 @@ func mainFunc() {
   // feature exclusive to iOS. I have never seen a command buffer aborted on
   // macOS for "hanging", although some ~100,000-thread benchmarks on the M1 Max
   // were aborted at random.
-  
+  //
   // M1 Max, 197 transforms, 32 threads, max GFLOPS based on tgmem allocation
   // 20 KB - 2816
   // 17 KB - 2812
@@ -95,9 +95,112 @@ func mainFunc() {
   // 10 KB - 2875
   //  4 KB - 2851
   
-  let numTransforms = 197
+  // Testing behavior of registers, threadgroup size, and occupancy. From
+  // Rozenweig's blog, assume register bank size is 8 x 16 bit in thread-space.
+  // That means 16 bytes in thread-space and 512 bytes in simd-space. My small
+  // kernels should round to 80-96 bytes (thread-space) and 2560-3072 bytes
+  // (simd-space). The data below should help determine the register bank
+  // stride, and maybe validate register file size.
+  //
+  // Helpful resource:
+  // https://research.nvidia.com/sites/default/files/pubs/2012-12_Unifying-Primary-Cache/Gebhart_MICRO_2012.pdf
+  //
+  // M1 Max: 32 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
+  // 1660: all tested combinations (1, 11, 32)
+  // - redone with the matrix in device memory instead of constant
+  // 1640: all tested combinations (1, 11, 32)
+  // - redone with two transforms in registers
+  // 1650: all tested combinations (1, 11, 28)
+  //
+  // M1 Max: 64 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
+  // 3320: 1, 3, 4, 6, 8, 10, 13, 15, 17, 19, 20, 22, 24, 26, 29, 31
+  // 2900: 2, 5, 7, 9, 11, 12, 14, 16, 18, 21, 23, 25, 27, 28, 30, 32
+  // - redone with the matrix in device memory instead of constant
+  // 3300: 1, 3, 4, 6 ... 31
+  // 2350: 2 ... 7 ... 30, 32
+  // - redone with two transforms in registers
+  // 3250: 1, 3, 4, 6, 8 ... 26
+  // 2400: 2, 5, 7, 9 ... 25, 27
+  // 1600: 28
+  //
+  // M1 Max: 96 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
+  // ~4300: 1-6, 8, 10-13, 15, 17-22, 24, 26-28
+  // ~3020: 7, 9, 14, 16, 23, 25
+  // ~2400: 29-32
+  // Register file underestimate: 3x28x32 threads, 80 bytes = 210 KB
+  // Register file underestimate: 3x28x32 threads, 96 bytes = 252 KB
+  // - redone with the matrix in device memory instead of constant
+  // ~3400: 1-6, 8, 10-13, 15, 17-19
+  // ~2400: 20, 22, 24, 26, 29, 31
+  // ~2250: 7, 9, 14, 16
+  // ~2100: 21, 23, 27-28, 30
+  // ~2000: 25, 32
+  // Register file underestimate: 3x19x32 threads, 144 bytes = 256.5 KB
+  // Register file underestimate: 3x19x32 threads, 160 bytes = 285 KB
+  // - redone with two transforms in registers
+  // ~3600: 1-6, 8, 10-13
+  // ~2400: 7, 15, 17, 19, 20, 22, 24, 26
+  // ~2300: 9
+  // ~2200: 18
+  // ~2100: 14, 16, 21, 23, 25, 27
+  // ~1600: 28
+  // Register file underestimate: 3x13x32 threads, 208 bytes = 253.5 KB
+  // Register file underestimate: 3x13x32 threads, 224 bytes = 273 KB
+  // Register file underestimate: 2x26x32 threads, 208 bytes = 338 KB
+  // Register file underestimate: 2x26x32 threads, 224 bytes = 364 KB
+  // Register file overestimate:  2x28x32 threads, 224 bytes = 392 KB
+  //
+  // M1 Max: 128 transforms, 32 active threads, GFLOPS w.r.t. simds/threadgroup
+  // ~3250: 1-4, 6, 8, 10, 13, 17-20
+  // ~3170: 24, 26, 29
+  // ~3100: 5, 12, 15, 21-22
+  // ~3000: 7, 9, 11, 14, 25, 27-28
+  // ~2650: 16, 23
+  // ~2200: 30-32
+  // Like with 96 transforms, this also drops off @ 29-30 simds.
+  // - redone with two transforms in registers
+  //  1 - 3207
+  //  2 - 3242
+  //  3 - 3213
+  //  4 - 3204
+  //  5 - 3199
+  //  6 - 3214
+  //  7 - 2414
+  //  8 - 3195
+  //  9 - 2459
+  // 10 - 3192
+  // 11 - 2429
+  // 12 - 2601
+  // 13 - 3193
+  // 14 - 1844
+  // 15 - 2185
+  // 16 - 2003
+  // 17 - 2394
+  // 18 - 2118
+  // 19 - 2362
+  // 20 - 2637
+  // 21 - 2101
+  // 22 - 2530
+  // 23 - 2076
+  // 24 - 2708/3039*
+  // 25 - 2230
+  // 26 - 2169
+  // 27 - 2393
+  // 28 - 1608
+  // Register file underestimate:  4x13x32 threads, 208 bytes = 338 KB
+  // Register file underestimate:  4x13x32 threads, 224 bytes = 364 KB
+  // Register file close estimate: 2x27x32 threads, 208 bytes = 351 KB
+  // Register file close estimate: 2x27x32 threads, 224 bytes = 378 KB
+  // Register file overestimate:   2x28x32 threads, 224 bytes = 392 KB
+  //
+  // *These two data points appear to be outliers. Perhaps the ALU was more
+  // efficient at dispatching instructions, because we do have room for
+  // improvement. Even with 2 simds/core, we could reach 5308 GFLOPS.
+  
+  let numTransforms = 128
   let baseNumThreads = 32
-  let tgmemPerSimdgroup = 1024 * 17 // 32
+  let tgmemPerSimdgroup = 1024
+  let simdsPerThreadgroup = 28
   let usingSerial = false
   
   // Number of concurrent commands - (GFLOPS - seconds) M1 Max, A15
@@ -233,16 +336,25 @@ func mainFunc() {
     var _numIterations = Int32(numIterations)
     constants.setConstantValue(&_numIterations, type: .int, index: 0)
     
+    var maxThreadgroupSize: Int?
     for transformIndex in 0..<numTransforms {
       var _transformIndex = Int32(transformIndex)
       constants.setConstantValue(&_transformIndex, type: .int, index: 1)
       
-      let name = "testThroughput\((transformIndex % 36) + 1)"
+      let name = "testThroughput\((transformIndex % 32) + 1)"
       let function = try! library
         .makeFunction(name: name, constantValues: constants)
       let pipeline = try! device
         .makeComputePipelineState(function: function)
       pipelines.append(pipeline)
+      if let maxThreadgroupSize = maxThreadgroupSize {
+        precondition(pipeline.maxTotalThreadsPerThreadgroup == maxThreadgroupSize)
+      } else {
+        if pipeline.maxTotalThreadsPerThreadgroup != 1024 {
+          print("Max Threads/Threadgroup: \(pipeline.maxTotalThreadsPerThreadgroup)")
+        }
+        maxThreadgroupSize = pipeline.maxTotalThreadsPerThreadgroup
+      }
     }
   }
   
@@ -266,7 +378,7 @@ func mainFunc() {
     return output
   }
   let inputBuffers: [MTLBuffer] = makeBuffers(size: numThreads)
-  let transformBuffers: [MTLBuffer] = makeBuffers(size: numTransforms)
+  let transformBuffers: [MTLBuffer] = makeBuffers(size: numTransforms * 2)
   let outputBuffers: [MTLBuffer] = makeBuffers(size: numThreads)
   
   var outputFLOPS: Double = 0
@@ -302,8 +414,8 @@ func mainFunc() {
       encoder.setBuffer(outputBuffers[bufferIndex], offset: bufferOffset, index: 2)
       encoder.setThreadgroupMemoryLength(tgmemPerSimdgroup, index: 0)
       encoder.dispatchThreads(
-        MTLSizeMake(dispatchSize, 1, 1),
-        threadsPerThreadgroup: MTLSizeMake(32, 1, 1))
+        MTLSizeMake(dispatchSize * simdsPerThreadgroup, 1, 1),
+        threadsPerThreadgroup: MTLSizeMake(32 * simdsPerThreadgroup, 1, 1))
       if usingSerial {
         encoder.endEncoding()
       }
