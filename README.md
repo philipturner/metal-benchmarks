@@ -7,11 +7,10 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
-| FP16/FP32 Ratio | 1 | TBD | - | 2 | 2 | 1/64 | 2 | 1 | 1 |
-| FP64/FP32 Ratio (Native) | 0 | 0 | - | 1/16 | 1/16 | 1/32 | 1/32 | 1/64 |
-| Transcendental/ALU FLOPS | TBD | TBD | - | - | - | 1/8 | 1/8 | 1/16 |
-| Int16/Int32 Ratio | 1 | TBD | - | 2 | 2 | 0 | 0 | 0
-| Int64/Int32 Ratio (Native) | 1/4-1/6 ??? | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
+| FP16/FP32 Ratio | 1 | TBD | 2 | 2 | 2 | 1/64 | 2 | 1 | 1 |
+| FP64/FP32 Ratio (Native) | 0 | 0 | 1/16 | 1/16 | 1/16 | 1/32 | 1/32 | 1/64 |
+| Transcendental/ALU FLOPS | TBD | TBD | TBD | 1/8 | TBD | 1/8 | 1/8 | 1/16 |
+| Int16/Int32 Ratio | 1 | TBD | 2 | 2 | 2 | 0 | 0 | 0
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -22,11 +21,15 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 | ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 408 KB | 364 KB | 416 KB |
 
-| ALU Throughput (Cycles) | Apple 7 |
-| ----------- | ------------------- |
+| Float Throughput (M1, A15) | Cycles | Latency | Concurrency |
+| -------------------------- | ------ | ------- | ----------- |
 | FADD32 | 1 |
 | FMUL32 | 1 |
 | FFMA32 | 1 |
+
+
+| Int Throughput (M1, A15) | Cycles | Latency | Concurrency |
+| ------------------------ | ------ | ------- | ----------- |
 | IADD32 | 1 |
 | IMUL32 | 2 - 2.33 ??? |
 | IMAD32 | 3 - 3.67 ??? |
@@ -34,9 +37,6 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | IMAD (32x32+??->64) | 11 |
 | IADD64 | 4 |
 | IMUL64 | ~13.4 |
-
-| Transcendental Throughput | Apple 7 |
-| - | - |
 
 The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Command concurrency benchmarks suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
 
