@@ -11,7 +11,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | FP16/FP32 Ratio | 1 | TBD | - | 2 | 2 | 1/64 | 2 | 1 | 1 |
 | FP64/FP32 Ratio (Native) | 0 | 0 | - | 1/16 | 1/16 | 1/32 | 1/64 | 1/64 |
 | Int16/Int32 Ratio | 1 | TBD | - | 2 | 2 | 0 | 0 | 0
-| Int64/Int32 Ratio (Native) | ~1/5 | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
+| Int64/Int32 Ratio (Native) | 1/4-1/6 | TBD | - | 1/4 | 1/4 | 0 | 0 | 0 |
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
