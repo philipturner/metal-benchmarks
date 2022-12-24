@@ -4,15 +4,15 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
-| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
-| -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
-| Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | 256-1024 | 256-1536 | 256-1536 |
-| FP32 ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
-| Register File | 384 KB | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB | 8-100 KB |
-| L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB | 32 KB |
-| L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB | 28-128 KB |
-| ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 364 KB | 416 KB | 416 KB |
+| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Turing | Ampere, Ada |
+| -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ |
+| Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | 256-1024 | 256-1536 |
+| ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 |
+| Register File | 384 KB | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB |
+| Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB |
+| L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB |
+| L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB |
+| ~Total SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 364 KB | 416 KB |
 
 | Instruction | Max Throughput (cycles) |
 | ----------- | ------------------- |
@@ -29,7 +29,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Command concurrency benchmarks suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
 
-This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types share the same circuitry. 64-bit integer operations are one instruction in assembly code, but 4-6x slower than 32-bit integer ops. This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry. Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization.
+This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code, but 4-6x slower than 32-bit integer ops. This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry. Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, possibly with better multiply throughput than Apple. Nvidia emulates it.
 
 ## Power Efficiency
 
