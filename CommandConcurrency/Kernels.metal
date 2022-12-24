@@ -27,6 +27,13 @@ if (simd_index == CHOSEN_SIMD) { \
   } \
 } \
 
+//#define LOOP_BODY \
+//if (simd_index == CHOSEN_SIMD) { \
+//  for (int i = 0; i < numIterations; ++i) { \
+//    value = transform0 * value; \
+//  } \
+//} \
+
 // Number of floating point operations:
 //   numIterations * 2 * 64
 // You may need numerous iterations to cancel out the memory bandwidth cost of
