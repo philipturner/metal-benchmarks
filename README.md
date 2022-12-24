@@ -12,7 +12,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB | 8-100 KB |
 | L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB | 32 KB |
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB | 28-128 KB |
-| Total SRAM | 472 KB | TBD | >368 KB | >432 KB | >576 KB | 364 KB | 416 KB | 416 KB |
+| Minimum SRAM | 472 KB | TBD | 368 KB | 432 KB | 576 KB | 364 KB | 416 KB | 416 KB |
 
 | Instruction | Max Throughput (cycles) |
 | ----------- | ------------------- |
