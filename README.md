@@ -6,13 +6,13 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 | Per Core | Apple7 | Apple8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
 | -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
-| Max Threads (Occupancy) | 1152-3072 ??? | TBD | 256-2560 | TBD-2048 | TBD-2048 | 256-1024 | 256-1536 | 256-1536 |
+| Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | TBD-2048 | TBD-2048 | 256-1024 | 256-1536 | 256-1536 |
 | FP32 ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
-| Register File | 624 KB ??? | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
+| Register File | 384 KB | TBD | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 32-64 KB | 8-100 KB | 8-100 KB |
 | L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | ~12 KB | 32 KB | 32 KB |
 | L1 Data Cache | 8 KB | TBD | 16 KB | 16 KB | 32 KB | 32-64 KB | 28-128 KB | 28-128 KB |
-| Total SRAM | 712 KB ??? | TBD | >368 KB | >432 KB | >576 KB | 364 KB | 416 KB | 416 KB |
+| Total SRAM | 472 KB | TBD | >368 KB | >432 KB | >576 KB | 364 KB | 416 KB | 416 KB |
 
 | Instruction | Max Throughput (cycles) |
 | ----------- | ------------------- |
