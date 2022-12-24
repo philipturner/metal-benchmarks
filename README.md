@@ -20,8 +20,8 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | FMUL32 | 1 |
 | FFMA32 | 1 |
 | IADD32 | 1 |
-| IMUL32 | 2 - 2.33 |
-| IMAD32 | 3 - 3.67 |
+| IMUL32 | 2 - 2.33 ??? |
+| IMAD32 | 3 - 3.67 ??? |
 | IMADHI32 | 8 |
 | IMAD (32x32+??->64) | 11 |
 | IADD64 | 4 |
