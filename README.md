@@ -29,15 +29,15 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | FADD32 | 1 |
 | FMUL32 | 1 |
 | FFMA32 | 1 |
-| FROUND |
-| FRECIP |
+| ROUND |
+| RECIP |
 | FDIV |
-| FRSQRT |
-| FSQRT |
-| FSIN |
-| FCOS |
-| FEXP2 |
-| FLOG2 |
+| RSQRT |
+| SQRT |
+| SIN |
+| COS |
+| EXP2 |
+| LOG2 |
 
 | Int Throughput (M1, A15) | Cycles | Latency | Concurrency |
 | ------------------------ | ------ | ------- | ----------- |
@@ -50,11 +50,21 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | IMADHI32 | 8 |
 | IMAD (32x32+??->64) | 11 |
 | IADD64 | 4 |
+| BITSHIFT32 |
+| BITEXTRACT32 |
+| BITWISE32 |
+| BITREV32 |
+| POPCOUNT32 |
 
 | Multiple Instructions (M1, A15) | Cycles | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
 | IMUL64 | 13.4 ??? |
 | IMULHI64 |
+| BITSHIFT64 |
+| BITEXTRACT64 |
+| BITWISE64 |
+| BITREV64 |
+| POPCOUNT64 |
 | 3 FFMA32 + IADD64 |
 | 3 IADD32 + IADD64 |
 | 3 IMUL16 + 2 IADD64 |
@@ -66,7 +76,7 @@ This analysis suggests an ALU has four concurrent pipelines. Each can execute ei
 
 ## Power Efficiency
 
-TODO: less threadgroup memory, power varying with clock speed
+TODO: less/slower? threadgroup memory, power varying with clock speed
 
 ![Graph of power vs. performance for an M1 Max at 1296 MHz](./Documentation/Power_Performance_M1_Max.png)
 
