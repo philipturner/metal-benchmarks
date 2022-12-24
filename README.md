@@ -4,7 +4,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
-| Per Core | Apple7 | Apple8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
+| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 2 | RDNA 3 | Turing | Ampere | Ada |
 | -------- | ------- | ------- | ----- | ------ | ------ | ------ | ------ | --- |
 | Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | 256-1024 | 256-1536 | 256-1536 |
 | FP32 ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 128 | 128 |
