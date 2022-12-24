@@ -8,7 +8,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | Max Threads (Occupancy) | 768-3072 | TBD | 256-2560 | 256-2048 | 384-TBD | - | 256-1024 | 256-1536 |
 | ALUs | 128 | 128 | 64 | 64 | 128 | - | 128 | 128 |
-| FP32/Int32 Dual Issue | 1x | TBD | - | - | - | 1x | 2x | 1.5x |
+| FP32/Int32 Dual Issue | n/a | TBD | n/a | n/a | n/a | n/a | 2x | 1.5x |
 | Register File | 384 KB | TBD | 256 KB | 256 KB | 384 KB | - | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | - | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 16 KB | TBD | 32 KB | 32 KB | 32 KB | - | ~12 KB | 32 KB |
