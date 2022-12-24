@@ -42,9 +42,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | COS |
 | EXP2 |
 | LOG2 |
-| FCMPSEL |
 | FMAX |
 | FMIN |
+| FCMPSEL |
 
 | Int Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------ | ------ | ------- | ----------- |
@@ -62,9 +62,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | BITWISE32 |
 | BITREV32 |
 | POPCOUNT32 |
-| ICMPSEL |
-| IMAX |
-| IMIN |
+| IMAX32 |
+| IMIN32 |
+| ICMPSEL32 |
 
 | Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
@@ -75,6 +75,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | BITWISE64 |
 | BITREV64 |
 | POPCOUNT64 |
+| IMAX64 |
+| IMIN64 |
+| ICMPSEL64 |
 | 3 FFMA32 + IADD64 |
 | 3 IADD32 + IADD64 |
 | 3 IMUL16 + 2 IADD64 |
