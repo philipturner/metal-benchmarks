@@ -100,7 +100,7 @@ This analysis suggests an ALU has four concurrent pipelines. Each can execute ei
 
 ## Register Cache
 
-TODO: Possible performance bottleneck, register dependency latency, register cache thrashing
+TODO: possible performance bottleneck, register dependency latency, register cache thrashing
 
 ## Power Efficiency
 
