@@ -141,10 +141,9 @@ The next graphs show instructions per cycle in the entire compute unit. This is 
 
 FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
-![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png)
-![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png)
-![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png)
-![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png)
+| ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
+| - | - |
+| ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
 ## Power Efficiency
 
