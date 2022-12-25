@@ -28,18 +28,18 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 
 > Little's Law: Concurrency = Latency * Throughput
 >
-> SIMD Concurrency/Core = Latency * SIMD IPC/Core
+> SIMD Instruction Concurrency/Core = Latency * SIMD IPC/Core
 > 
-> SIMD Concurrency/Core = 4 * Pipelines/ALU
+> SIMD Instruction Concurrency/Core = 4 * Pipelines/ALU
 
-| Float Cycles (M1, A15) | Amortized Latency | SIMD IPC/Core | Actual Latency | Pipelines/ALU | SIMD Concurrency/Core |
+| Float Cycles (M1, A15) | Amortized Latency | IPC/Core | Actual Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 128 | | 4 ??? | 16 ??? |
-| FMUL16 | 1 | 128 |
-| FFMA16 | 1 | 128 |
-| FADD32 | 1 | 128 |
-| FMUL32 | 1 | 128 |
-| FFMA32 | 1 | 128 |
+| FADD16 | 1 | 4 | | 4 ??? | 16 ??? |
+| FMUL16 | 1 | 4 |
+| FFMA16 | 1 | 4 |
+| FADD32 | 1 | 4 |
+| FMUL32 | 1 | 4 |
+| FFMA32 | 1 | 4 |
 | ROUND |
 | RECIP |
 | DIV |
