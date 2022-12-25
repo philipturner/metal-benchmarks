@@ -109,16 +109,18 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
 | - | - | - | - | - |
 | 1 | 4 simds/core | FMUL | 6.60 | 3.92 |
-| 2 | 4 simds/core | FMUL | - | - |
-| 3 | 4 simds/core | FMUL | - | - |
-| 4 | 4 simds/core | FMUL | - | - |
+| 2 | 4 simds/core | FMUL | 5.59 | 2.49 |
+| 3 | 4 simds/core | FMUL | 5.14 | 2.55 |
+| 4 | 4 simds/core | FMUL | 2.86 | 1.78 |
+| 8 | 4 simds/core | FMUL | 2.86 | 1.81 |
 
 | ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
 | - | - | - | - | - |
 | 1 | 88 simds/core | FMUL | 1.84 | 1.56 |
-| 2 | 88 simds/core | FMUL | - | - |
-| 3 | 88 simds/core | FMUL | - | - |
-| 4 | 88 simds/core | FMUL | - | - |
+| 2 | 88 simds/core | FMUL | 1.73 | 1.05 |
+| 3 | 88 simds/core | FMUL | 1.37 | 1.04 |
+| 4 | 88 simds/core | FMUL | 1.01 | 1.02 |
+| 8 | 88 simds/core | FMUL | 1.01 | 1.02 |
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
 
