@@ -101,14 +101,7 @@ The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16
 
 TODO: graph of FLOPS vs. occupancy, various instructions, once for float/half and int/short
 
-## Register Dependency Bottleneck
-
-| Latency | Cycles |
-| ------- | ------ |
-| Dependent Reg16 | |
-| Dependent Reg32 | |
-| Independent Reg16 | |
-| Independent Reg32 | 2.0 ??? |
+## Bottlenecks on Throughput
 
 In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
 
@@ -143,6 +136,15 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
+
+The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput.
+
+FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
+
+![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png)
+![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png)
+![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png)
+![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png)
 
 ## Power Efficiency
 
