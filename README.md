@@ -27,10 +27,12 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurrency/ALU means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency * Throughput
+>
+> Rephrased: Concurrency/Core = Latency * IPC/Core
 
 | Float Cycles (M1, A15) | Cycles/SIMD | IPC/Core | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 4 |
+| FADD16 | 1 | 4 | | | |
 | FMUL16 | 1 | 4 |
 | FFMA16 | 1 | 4 |
 | FADD32 | 1 | 4 |
@@ -139,7 +141,7 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
 
-The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput.
+The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
 
 FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
