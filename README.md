@@ -32,7 +32,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 
 | Float Cycles (M1, A15) | Cycles/SIMD | IPC/Core | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 4 | | | |
+| FADD16 | 1 | 4 | | | <= 16 |
 | FMUL16 | 1 | 4 |
 | FFMA16 | 1 | 4 |
 | FADD32 | 1 | 4 |
