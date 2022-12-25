@@ -31,6 +31,8 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 > SIMD Instruction Concurrency/Core = Latency * SIMD IPC/Core
 > 
 > SIMD Instruction Concurrency/Core = 4 * Pipelines/ALU
+> 
+> Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
 | Float Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
