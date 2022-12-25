@@ -36,7 +36,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | FFMA32 | 1, TBD |
 | ROUND |
 | RECIP |
-| FDIV |
+| DIV |
 | RSQRT |
 | SQRT |
 | SIN |
@@ -83,7 +83,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | 3 IADD32 + IADD64 |
 | 3 IMUL16 + 2 IADD64 |
 | Precise RECIP |
-| Precise FDIV |
+| Precise DIV |
 | Precise RSQRT |
 | Precise SQRT |
 | Precise SIN |
