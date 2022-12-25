@@ -103,6 +103,7 @@ TODO: graph of FLOPS vs. occupancy, various instructions, once for float/half an
 ## Register Dependency Bottleneck
 
 | Latency | Cycles |
+| ------- | ------ |
 | Dependent Reg16 | |
 | Dependent Reg32 | |
 | Independent Reg16 | |
