@@ -14,9 +14,10 @@ func mainFunc() {
   let maxActiveSimdgroupsRange: [Int] = (1...simdsPerThreadgroup).map { $0 }
   let numCores = 32
   let residentThreadgroups = 4
-  let overSubscription = 100
+  let overSubscription = 1000
   let numThreadgroups = numCores * residentThreadgroups * overSubscription
   let numTrials = 3
+  let theoreticalGOPS = 5308
   
   // What about half precision with configuration 6? or 0?
   
@@ -96,7 +97,9 @@ func mainFunc() {
     }
     
     line.append(" -> ")
-    line.append(alignInteger(maxMeasurement, length: 5))
+//    line.append(alignInteger(maxMeasurement, length: 5))
+    line.append(String(
+      format: "%.2f", Double(theoreticalGOPS) / Double(maxMeasurement)))
     print(line)
   }
   
