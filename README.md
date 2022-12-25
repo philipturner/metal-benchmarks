@@ -57,7 +57,6 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | IMAD32 | 3 - 3.67 ???, TBD |
 | IMADHI32 | 8, TBD |
 | IMAD (32x32+??->64) | 11, TBD |
-| IADD64 | 4, TBD |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 |
@@ -69,6 +68,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 
 | Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
+| IADD64 | 4, TBD |
 | IMUL64 | 13.4 ???, TBD |
 | IMULHI64 |
 | BITSHIFT64 |
@@ -96,43 +96,43 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 
 The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Command concurrency benchmarks suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
 
-This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code, but 4-6x slower than 32-bit integer ops. This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry. Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, possibly with better multiply throughput than Apple. Nvidia emulates it.
+<s>This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code</s>, but 4-6x slower than 32-bit integer ops. <s>This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry.</s> Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, <s>possibly</s> with better multiply throughput than Apple. Nvidia emulates it.
 
 TODO: graph of FLOPS vs. occupancy, various instructions, once for float/half and int/short
 
 ## Register Cache
 
-In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a ~1-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a ~0.5-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. Now it makes sense why Apple pushes for half-precision in Metal.
+In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a ~1-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a ~0.5-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 4x for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
+
+| ILP | Occupancy | Instruction | F32/I32 Cycles | F16/I16 Cycles |
+| - | - | - | - | - |
+| 1 | 4 simds/core | FMUL, FADD, IADD | 6.60 | 3.92 |
+| 2 | 4 simds/core | FMUL, FADD, IADD | 5.59 | 2.49 |
+| 3 | 4 simds/core | FMUL, FADD, IADD | 5.14 | 2.55 |
+| 4 | 4 simds/core | FMUL, FADD, IADD | 2.86 | 1.78 |
+| 1 | 8 simds/core | FMUL, FADD, IADD | 3.44 | 2.16 |
+| 2 | 8 simds/core | FMUL, FADD, IADD | 3.08 | 1.46 |
+| 3 | 8 simds/core | FMUL, FADD, IADD | 2.78 | 1.47 |
+| 4 | 8 simds/core | FMUL, FADD, IADD | 1.58 | 1.26 |
+| 1 | 88 simds/core | FMUL, FADD, IADD | 1.84 | 1.56 |
+| 2 | 88 simds/core | FMUL, FADD, IADD | 1.73 | 1.05 |
+| 3 | 88 simds/core | FMUL, FADD, IADD | 1.37 | 1.04 |
+| 4 | 88 simds/core | FMUL, FADD, IADD | 1.01 | 1.02 |
 
 | ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
 | - | - | - | - | - |
-| 1 | 4 simds/core | FMUL, FADD | 6.60 | 3.92 |
-| 2 | 4 simds/core | FMUL, FADD | 5.59 | 2.49 |
-| 3 | 4 simds/core | FMUL, FADD | 5.14 | 2.55 |
-| 4 | 4 simds/core | FMUL, FADD | 2.86 | 1.78 |
-| 1 | 8 simds/core | FMUL, FADD | 3.44 | 2.16 |
-| 2 | 8 simds/core | FMUL, FADD | 3.08 | 1.46 |
-| 3 | 8 simds/core | FMUL, FADD | 2.78 | 1.47 |
-| 4 | 8 simds/core | FMUL, FADD | 1.58 | 1.26 |
-| 1 | 88 simds/core | FMUL, FADD | 1.84 | 1.56 |
-| 2 | 88 simds/core | FMUL, FADD | 1.73 | 1.05 |
-| 3 | 88 simds/core | FMUL, FADD | 1.37 | 1.04 |
-| 4 | 88 simds/core | FMUL, FADD | 1.01 | 1.02 |
-
-| ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
-| - | - | - | - | - |
-| 1 | 4 simds/core | FFMA | | |
-| 2 | 4 simds/core | FFMA | | |
-| 3 | 4 simds/core | FFMA | | |
-| 4 | 4 simds/core | FFMA | | |
-| 8 | 4 simds/core | FFMA | | |
-
-| ILP | Occupancy | Instruction | Int32 Cycles | Int16 Cycles |
-| - | - | - | - | - |
-| 1 | 4 simds/core | IADD | | |
-| 2 | 4 simds/core | IADD | | |
-| 3 | 4 simds/core | IADD | | |
-| 4 | 4 simds/core | IADD | | |
+| 1 | 4 simds/core | FFMA | 11.34 | 3.94 |
+| 2 | 4 simds/core | FFMA | 8.36 | 2.44 |
+| 3 | 4 simds/core | FFMA | 4.46 | 2.55 |
+| 4 | 4 simds/core | FFMA | 2.75 | 1.79 |
+| 1 | 8 simds/core | FFMA | 5.71 | 2.15 |
+| 2 | 8 simds/core | FFMA | 4.24 | 1.40 |
+| 3 | 8 simds/core | FFMA | 2.75 | 1.47 |
+| 4 | 8 simds/core | FFMA | 1.60 | 1.29 |
+| 1 | 88 simds/core | FFMA | 1.99 | 1.56 |
+| 2 | 88 simds/core | FFMA | 1.87 | 1.04 |
+| 3 | 88 simds/core | FFMA | 1.35 | 1.04 |
+| 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
 
