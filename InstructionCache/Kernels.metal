@@ -10,9 +10,9 @@ using namespace metal;
 
 // Benchmark instruction cache and register cache.
 
-#define FLOAT half
+#define FLOAT float
 #define FLOAT4 vec<FLOAT, 4>
-#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL15
+#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL13
 
 // TODO: Test integer, MAD, and FMA as well.
 // Other instructions should use 720 iterations, 10x oversubscription
@@ -26,7 +26,16 @@ using namespace metal;
 
 // MARK: - Multiply Macros
 
-#define OP(x, y) x * y + x;
+#define OP(x, y) x + y;
+//#define OP(x, y) x * y + y;
+
+#define TWENTY_FOUR_GROUP_MUL10 \
+vec1 = OP(vec1, vec1); \
+vec2 = OP(vec2, vec2); \
+vec3 = OP(vec3, vec3); \
+vec1 = OP(vec1, vec1); \
+vec2 = OP(vec2, vec2); \
+vec3 = OP(vec3, vec3); \
 
 // ILP = 16
 #define TWENTY_FOUR_GROUP_MUL11 \
@@ -341,10 +350,11 @@ SEVEN_TWENTY_GROUP \
 kernel void testCache(device FLOAT4 *inputs [[buffer(0)]],
                       device FLOAT4 *outputs [[buffer(1)]],
                       constant ushort &max_simds [[buffer(2)]],
+                      threadgroup FLOAT *tg_mem [[threadgroup(0)]],
                       ushort simd_index [[simdgroup_index_in_threadgroup]])
 {
   threadgroup_barrier(mem_flags::mem_none);
-  FLOAT4 vec1 = inputs[0];
+  FLOAT4 vec1 = inputs[0] + tg_mem[0];
   FLOAT4 vec2 = inputs[1];
   FLOAT4 vec3 = inputs[2];
   FLOAT4 vec4 = inputs[3];
