@@ -24,7 +24,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Instruction Throughputs
 
-If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurrency/ALU means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines to reach 1 cycle/instruction throughput.
+If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency * Throughput
 >
