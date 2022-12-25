@@ -113,6 +113,11 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 3 | 4 simds/core | FMUL, FADD | 5.14 | 2.55 |
 | 4 | 4 simds/core | FMUL, FADD | 2.86 | 1.78 |
 | 8 | 4 simds/core | FMUL, FADD | 2.86 | 1.81 |
+| 1 | 8 simds/core | FMUL, FADD | | |
+| 2 | 8 simds/core | FMUL, FADD | | |
+| 3 | 8 simds/core | FMUL, FADD | | |
+| 4 | 8 simds/core | FMUL, FADD | | |
+| 8 | 8 simds/core | FMUL, FADD | | |
 
 | ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
 | - | - | - | - | - |
@@ -121,6 +126,14 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 3 | 88 simds/core | FMUL, FADD | 1.37 | 1.04 |
 | 4 | 88 simds/core | FMUL, FADD | 1.01 | 1.02 |
 | 8 | 88 simds/core | FMUL, FADD | 1.01 | 1.02 |
+
+| ILP | Occupancy | Instruction | UInt16 | UInt16 |
+| - | - | - | - | - |
+| 1 | 4 simds/core | IADD | | |
+| 2 | 4 simds/core | IADD | | |
+| 3 | 4 simds/core | IADD | | |
+| 4 | 4 simds/core | IADD | | |
+| 8 | 4 simds/core | IADD | | |
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
 
