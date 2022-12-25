@@ -10,19 +10,95 @@ using namespace metal;
 
 // Benchmark instruction cache and register cache.
 
-#define FLOAT float
+#define FLOAT half
 #define FLOAT4 vec<FLOAT, 4>
-#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL7
+#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL15
+
+// TODO: Test integer, MAD, and FMA as well.
+// Other instructions should use 720 iterations, 10x oversubscription
+
+// ILP 1  = MUL13
+// ILP 2  = MUL12
+// ILP 3  = MUL16
+// ILP 4  = MUL15
+// ILP 8  = MUL14
+// ILP 16 = MUL11
 
 // MARK: - Multiply Macros
 
-#define TWENTY_FOUR_GROUP_MUL1 \
-vec1 = vec1 * vec2; \
-vec4 = vec4 * vec5; \
-vec2 = vec2 * vec3; \
-vec5 = vec5 * vec6; \
-vec3 = vec3 * vec1; \
-vec6 = vec6 * vec4; \
+#define OP(x, y) x * y + x;
+
+// ILP = 16
+#define TWENTY_FOUR_GROUP_MUL11 \
+vec1 = OP(vec1, vec2); \
+vec4 = OP(vec4, vec5); \
+vec2 = OP(vec2, vec3); \
+vec5 = OP(vec5, vec6); \
+vec3 = OP(vec3, vec1); \
+vec6 = OP(vec6, vec4); \
+
+// ILP = 2
+#define TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec1, vec6) \
+vec1[0] = OP(vec1[0], vec6[2]); \
+vec1[1] = OP(vec1[1], vec6[3]); \
+vec1[2] = OP(vec1[2], vec1[0]); \
+vec1[3] = OP(vec1[3], vec1[1]); \
+
+#define TWENTY_FOUR_GROUP_MUL12 \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec1, vec6) \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec2, vec1) \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec3, vec2) \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec4, vec3) \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec5, vec4) \
+TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec6, vec5) \
+
+// ILP = 1
+#define TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec1, vec6) \
+vec1[0] = OP(vec1[0], vec6[3]); \
+vec1[1] = OP(vec1[1], vec1[0]); \
+vec1[2] = OP(vec1[2], vec1[1]); \
+vec1[3] = OP(vec1[3], vec1[2]); \
+
+#define TWENTY_FOUR_GROUP_MUL13 \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec1, vec6) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec2, vec1) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec3, vec2) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec4, vec3) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec5, vec4) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec6, vec5) \
+
+// ILP = 8
+#define TWENTY_FOUR_GROUP_MUL14 \
+vec1 = OP(vec1, vec2); \
+vec2 = OP(vec2, vec3); \
+vec3 = OP(vec3, vec1); \
+vec1 = OP(vec1, vec2); \
+vec2 = OP(vec2, vec3); \
+vec3 = OP(vec3, vec1); \
+
+// ILP = 4
+#define TWENTY_FOUR_GROUP_MUL15 \
+vec1 = OP(vec1, vec3); \
+vec2 = OP(vec2, vec1); \
+vec3 = OP(vec3, vec2); \
+vec1 = OP(vec1, vec3); \
+vec2 = OP(vec2, vec1); \
+vec3 = OP(vec3, vec2); \
+
+// ILP = 3
+#define TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec1, vec6) \
+vec1[0] = OP(vec1[0], vec6[1]); \
+vec1[1] = OP(vec1[1], vec6[2]); \
+vec1[2] = OP(vec1[2], vec6[3]); \
+vec1[3] = OP(vec1[3], vec1[0]); \
+
+#define TWENTY_FOUR_GROUP_MUL16 \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec1, vec6) \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec2, vec1) \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec3, vec2) \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec4, vec3) \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec5, vec4) \
+TWENTY_FOUR_GROUP_MUL16_SUBSECTION(vec6, vec5) \
 
 #define TWENTY_FOUR_GROUP_MUL2 \
 vec1 = vec1 * vec2; \
@@ -238,36 +314,6 @@ vec2.xy = fma(vec1.xy, vec2.xy, vec3.xy); \
 vec2.zw = fma(vec1.zw, vec2.zw, vec3.zw); \
 vec3.xy = fma(vec1.xy, vec2.xy, vec3.xy); \
 vec3.zw = fma(vec1.zw, vec2.zw, vec3.zw); \
-
-//#define TWENTY_FOUR_GROUP_FMA5 \
-//vec1.xy = fma(vec1.xy, vec1.xy, vec1.xy); \
-//vec2.xy = fma(vec2.xy, vec2.xy, vec2.xy); \
-//vec3.xy = fma(vec3.xy, vec3.xy, vec3.xy); \
-//vec1.xy = fma(vec1.xy, vec1.xy, vec1.xy); \
-//vec2.xy = fma(vec2.xy, vec2.xy, vec2.xy); \
-//vec3.xy = fma(vec3.xy, vec3.xy, vec3.xy); \
-//
-//#define TWENTY_FOUR_GROUP_FMA6 \
-//vec1.xy = fma(vec1.xy, vec1.xy, vec1.xy); \
-//vec2.xy = fma(vec2.xy, vec2.xy, vec2.xy); \
-//vec3.xy = fma(vec3.xy, vec3.xy, vec3.xy); \
-//vec1.zw = fma(vec1.zw, vec1.zw, vec1.zw); \
-//vec2.zw = fma(vec2.zw, vec2.zw, vec2.zw); \
-//vec3.zw = fma(vec3.zw, vec3.zw, vec3.zw); \
-//
-//#define TWENTY_FOUR_GROUP_FMA7 \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
-//vec1.x = fma(vec1.x, vec1.x, vec1.x); \
 
 // MARK: - Shader Function
 
