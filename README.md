@@ -46,6 +46,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 | FMAX |
 | FMIN |
 | FCMPSEL |
+| CONVERT |
 
 | Int Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------ | ------ | ------- | ----------- |
