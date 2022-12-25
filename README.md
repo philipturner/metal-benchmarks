@@ -104,7 +104,7 @@ TODO: graph of FLOPS vs. occupancy, various instructions, once for float and int
 
 TODO: possible performance bottleneck, register dependency latency, register cache thrashing
 
-In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a ~1-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a ~0.5-cycle throughput penalty (1.56 total). In a minimum-occupancy situation (4/96 simds per core), combined latencies are 6.6 and 3.9 cycles. Now it makes sense why Apple still pushes for half-precision in Metal.
+In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a ~1-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a ~0.5-cycle throughput penalty (1.56 total). In a minimum-occupancy, back-to-back situation (4/96 simds per core), combined latencies are 6.6 and 3.9 cycles. Now it makes sense why Apple still pushes for half-precision in Metal.
 
 ## Power Efficiency
 
