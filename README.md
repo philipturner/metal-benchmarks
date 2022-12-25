@@ -28,11 +28,11 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8.
 
 | Float Cycles (M1, A15) | Throughput | Latency | Concurrency |
 | -------------------------- | ------ | ------- | ----------- |
-| FADD16 |
-| FMUL16 |
-| FFMA16 |
+| FADD16 | 1, TBD |
+| FMUL16 | 1, TBD |
+| FFMA16 | 1, TBD |
 | FADD32 | 1, TBD |
-| FMUL32 | 1, TBD |
+| FMUL32 | 1, TBD | < 8 |
 | FFMA32 | 1, TBD |
 | ROUND |
 | RECIP |
