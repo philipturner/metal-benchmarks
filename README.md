@@ -24,16 +24,18 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Instruction Throughputs
 
-If listed with a comma, throughputs differ between Apple 7 and Apple 8.
+If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurrency/ALU means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines to reach 1 cycle/instruction throughput.
 
-| Float Cycles (M1, A15) | Throughput | Latency | Concurrency |
-| -------------------------- | ------ | ------- | ----------- |
-| FADD16 | 1, TBD |
-| FMUL16 | 1, TBD |
-| FFMA16 | 1, TBD |
-| FADD32 | 1, TBD |
-| FMUL32 | 1, TBD | < 8 |
-| FFMA32 | 1, TBD |
+> Little's Law: Concurrency = Latency * Throughput
+
+| Float Cycles (M1, A15) | Cycles/SIMD | IPC/Core | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- | -- |
+| FADD16 | 1 | 4 |
+| FMUL16 | 1 | 4 |
+| FFMA16 | 1 | 4 |
+| FADD32 | 1 | 4 |
+| FMUL32 | 1 | 4 |
+| FFMA32 | 1 | 4 |
 | ROUND |
 | RECIP |
 | DIV |
