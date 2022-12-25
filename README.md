@@ -141,9 +141,11 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
 
-The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
+The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
-FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
+Hypothesis 1: There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
+
+Hypothesis 2: The GPU core is like RDNA 3. There are 128 ALUs, and 2 simds are processed every cycle. Each cycle invokes a dual dispatch. You could dual dispatch float and int, with each at half the maximum throughput. Either 32-bit instructions invoke a register dependency penalty, or 16-bit instructions have half the latency.
 
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
