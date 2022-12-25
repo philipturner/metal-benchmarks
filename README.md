@@ -98,11 +98,11 @@ The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16
 
 This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code, but 4-6x slower than 32-bit integer ops. This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry. Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, possibly with better multiply throughput than Apple. Nvidia emulates it.
 
+TODO: graph of FLOPS vs. occupancy, half vs. single precision, various instructions
+
 ## Register Cache
 
 TODO: possible performance bottleneck, register dependency latency, register cache thrashing
-
-TODO: graph of FLOPS vs. occupancy
 
 TODO: assembly pseudocode and latency/throughput for an inner loop
 
