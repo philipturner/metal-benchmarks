@@ -42,6 +42,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | FMUL32 | 1 | 3 | 3 | 12 |
 | FFMA32 | 1 | 3 | 3 | 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
+| CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
 | DIV |
 | RSQRT |
@@ -50,10 +51,9 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | COS |
 | EXP2 |
 | LOG2 |
-| FMAX |
-| FMIN |
+| FMAX | 1 | 3 | 3 | 12 |
+| FMIN | 1 | 3 | 3 | 12 |
 | FCMPSEL |
-| CONVERT(I to F) |
 
 </details>
 
@@ -88,6 +88,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | ROUND_INF | &le;8.3 | &le;22 | 2-3 | 8-12 |
+| FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
 | IMADHI16 | 4 | 8 | 2 | 8 |
 | BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
 | RHADD16 | 4 | 16 | 4 | 16 |
@@ -115,10 +116,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | Precise SIN |
 | Precise COS |
 | Precise EXP2 |
-| Precse LOG2 |
-| FMAX3 |
-| FMIN3 |
-| FMEDIAN |
+| Precise LOG2 |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
