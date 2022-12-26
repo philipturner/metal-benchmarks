@@ -36,9 +36,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 
 | Float Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 4 | 4 | 4-6 | 16-24 |
-| FMUL16 | 1 | 4 | 4 | 4-6 | 16-24 |
-| FFMA16 | 1 | 4 | 4 | 4-6 | 16-24 |
+| FADD16 | 1 | 4 | 3-4 | 4 | 16 |
+| FMUL16 | 1 | 4 | 3-4 | 4 | 16 |
+| FFMA16 | 1 | 4 | 3-4 | 4 | 16 |
 | FADD32 | 1 | 4 | 4-6 | 4-6 | 16-24 |
 | FMUL32 | 1 | 4 | 4-6 | 4-6 | 16-24 |
 | FFMA32 | 1 | 4 | 4-6 | 4-6 | 16-24 |
@@ -58,7 +58,7 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 
 | Int Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| IADD16 | 1 | 4 | 4 | 4-6 | 16 |
+| IADD16 | 1 | 4 | 3-4 | 4 | 16 |
 | IMUL16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
 | IMAD16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
 | IADD32 | 1 | 4 | 4-6 | 4-6 | 16-24 |
