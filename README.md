@@ -45,7 +45,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
 | DIV |
-| RSQRT |
+| RSQRT | 8 | 12 | 1.5 | 6 |
 | SQRT |
 | SIN |
 | COS |
