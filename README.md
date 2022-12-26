@@ -2,9 +2,8 @@
 
 Test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares the M1 to generations of AMD and Nvidia microarchitectures. Finally, it examines how Apple's design choices improve power efficiency compared to other vendors.
 
-## Layout of an M1 GPU Core
-
-The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock. The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out.
+<details>
+<summary>Overview of Apple GPU series</summary>
 
 | Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 |
 | --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: |
@@ -19,6 +18,15 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 | M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | >3221 |
 | M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | >6800 |
 | M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | >13600 |
+
+</details>
+
+Table of Contents
+<!-- - [Operations per Second](operations -->
+
+## Operations per Second
+
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out.
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -38,6 +46,10 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 | Int16 IPC | 128 | 128 | 128 | 128 | 256 | 256 | 0 | 0 |
 | Int32 IPC | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
+
+_IPC stands for instructions per clock._
+
+## SRAM
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
