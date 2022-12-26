@@ -53,7 +53,6 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | FMAX |
 | FMIN |
 | FCMPSEL |
-| CONVERT(I to F) |
 
 </details>
 
@@ -83,10 +82,11 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 </details>
 
 <details>
-<summary>Mixed-instruction performance</summary>
+<summary>Multi-instruction operations</summary>
 
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
+| CONVERT(I to F) | &le;12.2 | &le;23 | 2 | 8 |
 | IMADHI16 | 4 | 8 | 2 | 8 |
 | BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
 | RHADD16 | 4 | 16 | 4 | 16 |
