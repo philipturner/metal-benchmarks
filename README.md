@@ -59,11 +59,11 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 | Int Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
 | IADD16 | 1 | 4 | 4 | 4 | 16 |
-| IMUL16 | 4 | 1 | 8 | 2 | 8 |
-| IMAD16 | 4 | 1 | 8 | 2 | 8 |
+| IMUL16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
+| IMAD16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
 | IADD32 | 1 | 4 | 4 | 4 | 16 |
-| IMUL32 | 4 | 1 | 8 | 2 | 8 |
-| IMAD32 | 4 | 1 | 8 | 2 | 8 |
+| IMUL32 | 4 | 1 | 4-8 | 1-2 | 4-8 |
+| IMAD32 | 4 | 1 | 4-8 | 1-2 | 4-8 |
 | IMADHI32 | 8 |
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
