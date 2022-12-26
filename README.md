@@ -24,24 +24,20 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Instruction Throughputs
 
-If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Test A15). Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. <!--If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Test A15).--> Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency * Throughput
->
-> SIMD Instruction Concurrency/Core = Latency * SIMD IPC/Core
-> 
-> SIMD Instruction Concurrency/Core = 4 * Pipelines/ALU
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
-| Float Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 4 | 3 | 3 | 12 |
-| FMUL16 | 1 | 4 | 3 | 3 | 12 |
-| FFMA16 | 1 | 4 | 3 | 3 | 12 |
-| FADD32 | 1 | 4 | 3 | 3 | 12 |
-| FMUL32 | 1 | 4 | 3 | 3 | 12 |
-| FFMA32 | 1 | 4 | 3 | 3 | 12 |
+| Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| FADD16 | 1 | 3 | 3 | 12 |
+| FMUL16 | 1 | 3 | 3 | 12 |
+| FFMA16 | 1 | 3 | 3 | 12 |
+| FADD32 | 1 | 3 | 3 | 12 |
+| FMUL32 | 1 | 3 | 3 | 12 |
+| FFMA32 | 1 | 3 | 3 | 12 |
 | ROUND |
 | RECIP |
 | DIV |
@@ -56,16 +52,15 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 | FCMPSEL |
 | CONVERT |
 
-| Int Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- | -- |
-| IADD16 | 1 | 4 | 3 | 3 | 12 |
-| IMUL16 | 4 | 1 | 4 | 1 | 4 |
-| IMAD16 | 4 | 1 | 4 | 1 | 4 |
-| IADD32 | 1 | 4 | 3 | 3 | 12 |
-| IMUL32 | 4 | 1 | 4 | 1 | 4 |
-| IMAD32 | 4 | 1 | 4 | 1 | 4 |
-| IMADHI16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
-| IMADHI32 | 8 | 0.5 | 8-16 | 1-2 | 4-8 |
+| Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| IADD16 | 1 | 3 | 3 | 12 |
+| IMUL16 | 4 | 4 | 1 | 4 |
+| IMAD16 | 4 | 4 | 1 | 4 |
+| IADD32 | 1 | 3 | 3 | 12 |
+| IMUL32 | 4 | 4 | 1 | 4 |
+| IMAD32 | 4 | 4 | 1 | 4 |
+| IMADHI32 | 8 | 8 | 1-2 | 4-8 |
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
 | BITEXTRACT32 |
@@ -76,8 +71,9 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 | IMIN32 |
 | ICMPSEL32 |
 
-| Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
-| ------------------------------- | ------ | ------- | ----------- |
+| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| IMADHI16 | 4 | 8 | 2 | 8 |
 | IADD64 | >4 |
 | IMUL64 | >13.4 |
 | IMULHI64 |
@@ -104,11 +100,13 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 | FMIN3 |
 | FMEDIAN |
 
-TODO: Rethink this analysis. Instructions can be dual-dispatched, but there aren't enough pipelines for this to double maximum FLOPS.
+TODO: Sort out the number of unique pipelines.
+
+<!-- TODO: Rethink this analysis. Instructions can be dual-dispatched, but there aren't enough pipelines for this to double maximum FLOPS.
 
 <s>The Apple GPU does not have dual-dispatch for F32 and I32, like Nvidia does. F16/I16 arithmetic is not faster than 32-bit counterparts. Not sure whether FMA has 3 or 4-cycle latency. Some bad integer multiply benchmarks had cycle throughputs as multiples of 1/3 (2.00, 2.33, 2.67), but potentially because of a 4-instruction recurring register dependency (4 - 1). Command concurrency benchmarks suggest latency must be divisible by 2; the ALU can pipeline up to 2 FMAs from the same SIMD-group simultaneously. The result is exactly half the peak performance of one GPU core. That would mean 4-cycle latency with 4x concurrency, the same scheme used in Firestorm CPU cores and Nvidia GPUs.
 
-This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code</s>, but 4-6x slower than 32-bit integer ops. <s>This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry.</s> Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, <s>possibly</s> with better multiply throughput than Apple. Nvidia emulates it. </s>
+This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code</s>, but 4-6x slower than 32-bit integer ops. <s>This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry.</s> Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, <s>possibly</s> with better multiply throughput than Apple. Nvidia emulates it. </s> -->
 
 ## Bottlenecks on Throughput
 
@@ -151,47 +149,6 @@ The next graphs show scalar instructions per cycle in the entire compute unit. T
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
-
-<details>
- <summary>Thinking out loud about how to explain these graphs (I don't encourage reading this)</summary>
-
----
-
-Hypothesis 1: There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
-
-Hypothesis 2: The GPU core is like RDNA 3. There are 128 ALUs, and 2 simds are processed every cycle. Each cycle invokes a dual dispatch. You could dual dispatch float and int, with each at half the maximum throughput. Either 32-bit instructions invoke a register dependency penalty, or 16-bit instructions have half the latency.
-
-Hypothesis 3: The GPU can single or dual-dispatch each cycle, from four different SIMD-groups. It traverses all resident SIMD-groups in a linear fashion, yet it has a register cache. With only ILP = 1, registers quickly move into the register cache and flush out. With ILP = 2. The GPU might stall an extra cycle to dispatch an instruction. It takes one cycle to load two 16-bit registers into the cache.
-
----
-
-When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit registers from two separate simds. Dispatch an FADD16 from the first simd. Dispatch an FADD16 from the second simd. This is two instructions in three cycles (~2/3 throughput). For FADD32, the two 16-bit registers were the two halves of a 32-bit operand. You can only perform one instruction on this data. This is one instruction in two cycles (~1/2 throughput).
-
-With ILP = 2 for half precision, the following sequence occurs. Load two 16-bit registers from the same simd. Dual-dispatch an FADD16 from this data. Two instructions in two cycles (~2/2 throughput). For FADD32, you could theoretically load each 32-bit chunk and dual-dispatch. This would be two instructions in three cycles (~2/3 throughput). However, circuitry for dual-dispatching 32-bit ops is quite complex (compared to 32-bit). Ignore the instruction-level parallelism and act like it's ILP = 1. After dispatching the first independent instruction, you don't progress to the next simdgroup. Your strategy is to stay on the current simdgroup if possible, for reasons explained below. Both instructions happen in sequence (~2/4 throughput). Very rarely, a pipeline hiccup prevents moving on from the first instruction. You get lucky and can re-dispatch the first 32-bit operand, without loading into the cache.
-
-With ILP = 3 for half precision, the following sequence occurs. Load two 16-bit registers from the first simd. Dual-dispatch their FADD16. Load two 16-bit registers from the second simd. Dual-dispatch their FADD16. You recall the previous simd has one remaining instruction from ILP. Fuse this instruction's load and dual-dispatch with the previous simd. This fusion can only happen in ILP = 3 (and not ILP = 1) because you move through simdgroups slow enough to remember that info.
-
----
-
-I should rethink this theory. In the first case, you'd need to load two operands from any simdgroup. Perform two-register load, two-register load, dual dispatch. Two FADD16 instructions in 3 cycles. For FADD32, you'd load four operands in four cycles and dual dispatch (2/5). That doesn't match reality. Alternatively, half your operands are already in the register cache. This is the "dependent register" that defines the concept of ILP. You don't have to worry about loading half the instruction inputs. This makes more sense because the ALU shouldn't have rights to the entire register file. The ALU should write its result into the register cache.
-
-Perhaps the ALU's writing back of registers is what takes time. You could instantly read anything from the register file, but can't instantly write. With high ILP, some registers currently in the cache don't need to be written back. You can recycle them into the next operation. With higher ILP, the same amount of cached registers comes from a smaller number of simds. Half-precision also doubles the cached register : owning simd ratio.
-
-Say you're at ILP = 2 and using single precision. You want to go from where you're at (sub-optimal) to maximum throughput. One method is, double the ILP. For the same amount of instructions, you've halved the amount of relevant simds. That places you in some optimal system state, reaching ~100% throughput. Another approach is, halve the size of registers. Double the amount of cached registers (= recent instructions) with the same amount of simds. This also places you in the optimal system state.
-
-This theory also explains why M1 assembly instructions can be marked "discard X register". The compiler is signaling, we want to spent an extra cycle writing this back to the register file. That leaves room for more important instructions to retain their register. You'd want to mark so that low-latency instructions (FADD, FMUL, IADD) aren't associated with discards. High-latency instructions (FDIV, IMUL) can be intereaved with write-backs. Perhaps even more strangely, the ALU has permission to write back without the scheduler's authority. That still saves an extra instruction dispatch.
-
-Maybe reading registers does take time, but the clock cycle pulse travels from scheduler -> registers -> ALUs. The pulse would have to propagate backward to fuse a register write with an ALU dispatch. And we know the pulse doesn't do that. Furthermore, if you look at assembly, most operations have multiple inputs. Most operations don't have multiple outputs. If you can only fuse one of these with ALU dispatching, you'd want it to be reading.
- 
-https://dougallj.github.io/applegpu/docs.html suggests the register cache is much simpler. It's explicitly controlled, with six options:
- - `discard` an input operand you don't need cached. Its value won't change; don't write back to the register file.
- - `discard` an output operand. This is generally a bad idea.
- - Default for an input operand. Write the unmodified register back to the cache (terrible idea).
- - Default for an output operand. Write the modified register back to the cache.
- - `cache` an input operand. Save time on future instructions that depend on this.
- - `cache` an output operand. This makes the difference between my graph for ILP = 1, and ILP = 4.
-
-</details>
 
 ## Power Efficiency
 
