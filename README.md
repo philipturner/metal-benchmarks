@@ -24,7 +24,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. If listed with a comma, throughputs differ between A14 and M1. A14 is listed first. --> Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs differ between A14 and M1. A14 is listed first. Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
