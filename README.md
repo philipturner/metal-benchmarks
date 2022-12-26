@@ -4,13 +4,20 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
-| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| ALUs | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
-| FP16/FP32 Ratio | 1 | TBD | 2 | 2 | 2 | 1/64 | 2 | 1 | 1 |
-| FP64/FP32 Ratio (Native) | 0 | 0 | 1/16 | 1/16 | 1/16 | 1/32 | 1/32 | 1/64 |
+| FP16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
+| FP32 OPs/Clock | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
+| FP64 OPs/Clock | 0   | 0   | 8   | 8   | 16  | 8   | 4   | 4   |
+| Float16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
+| Float32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
+| Float64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
+| Int16 IPC | 128 | 128 | 128 | 128 | 256 | 256 | 0 | 0 |
+| Int32 IPC | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
+| Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
 | Transcendental/ALU FLOPS | TBD | TBD | TBD | 1/8 | TBD | 1/8 | 1/8 | 1/16 |
-| Int16/Int32 Ratio | 1 | TBD | 2 | 2 | 2 | 0 | 0 | 0
+
+_IPC stands for instructions per clock. Integer performance only concerns integer addition; multiplications are sometimes slower. Some architectures do not perform an integer MAD in a single cycle._
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
