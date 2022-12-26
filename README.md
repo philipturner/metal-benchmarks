@@ -67,6 +67,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | BITWISE32 |
 | BITREV32 |
 | POPCOUNT32 |
+| CTZ/CLZ32 |
 | IMAX32 |
 | IMIN32 |
 | ICMPSEL32 |
@@ -85,6 +86,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | BITWISE64 |
 | BITREV64 |
 | POPCOUNT64 |
+| CLZ/CTZ64 |
 | IMAX64 |
 | IMIN64 |
 | ICMPSEL64 |
