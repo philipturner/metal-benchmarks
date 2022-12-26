@@ -28,7 +28,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
-> Cycles Throughput = Cycles Latency / (Pipelines/ALU)
+> Cycles Throughput &ge; Cycles Latency / (Pipelines/ALU)
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
@@ -64,8 +64,8 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
 | BITEXTRACT32 |
-| BITWISE32 |
-| BITREV32 |
+| BITWISE32 | 1 | 1 | 1 | 4 |
+| BITREV32 | 4 | 3 | 1 | 4 |
 | POPCOUNT32 |
 | CTZ/CLZ32 |
 | IMAX32 |
@@ -75,15 +75,16 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | IMADHI16 | 4 | 8 | 2 | 8 |
+| BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
 | RHADD16 | 4 | 16 | 4 | 16 |
-| RHADD32 | 6 | 18-36 | 3-6 | 12-24 |
+| RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
 | ABSDIFF32 | 4 | 8-10 | 2-3 | 8-12 |
 | IADD64 | >4 |
 | IMUL64 | >13.4 |
 | IMULHI64 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
-| BITWISE64 |
+| BITWISE64 | 1 | 1 | 1 | 4 |
 | BITREV64 |
 | POPCOUNT64 |
 | CLZ/CTZ64 |
