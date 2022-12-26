@@ -20,7 +20,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | L1 Instruction Cache | 12 KB | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | TBD | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 
-![Graph of executable size vs. performance for an M1 Max at 92% occupancy](./Documentation/Instruction_Cache_M1_Max.png)
+<img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
 ## Instruction Throughputs
 
@@ -31,7 +31,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 > Cycles Throughput &ge; Cycles Latency / (Pipelines/ALU)
 
 <details>
-<summary>Floating-point performance</details>
+<summary>Floating-point performance</summary>
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
@@ -58,7 +58,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 </details>
 
 <details>
-<summary>Integer performance</details>
+<summary>Integer performance</summary>
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
@@ -83,7 +83,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 </details>
 
 <details>
-<summary>Mixed-instruction performance</details>
+<summary>Mixed-instruction performance</summary>
 
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
@@ -185,15 +185,15 @@ The next graphs show scalar instructions per cycle in the entire compute unit. T
 
 ## Power Efficiency
 
-TODO: less/slower? threadgroup memory, power varying with clock speed
-
-![Graph of power vs. performance for an M1 Max at 1296 MHz](./Documentation/Power_Performance_M1_Max.png)
+<img src="./Documentation/Power_Performance_M1_Max.png" alt="Graph of power vs. performance for an M1 Max at 1296 MHz" width="75%" />
 
 The M1 Max has 32 GPU cores, but can perform up to 96 compute commands simultaneously. The A15 has slightly more the concurrency, performing 20 commands on 5 GPU cores. In comparison, all Nvidia GPUs top out at 128 concurrent commands. To reach the same concurrency, an Nvidia GPU must have at most 32-42 SMs. This is true for the RTX 3060, but not for more powerful GPUs. While the concurrency seems excessive for the purpose of multitasking, it has another purpose. Say that one task requires resources from 22 GPU cores, and another requires resources from 11. A naive GPU design would only permit 4 concurrent commands. That would allocate 16 GPU cores to the first task and 8 to the second, wasting the other 8. Apple's design lets you divide work more finely.
 
 There's one more usage. The hypothetical workload divides evenly among 33 GPU cores, but we have 32. You could reimagine each task as requiring 32/33x the resources, but the new resource requirements are fractions. With the M1 GPU, you can divide an individual core into fractions. That drastically reduces the load imbalance between tasks 1 and 2. This benefit is most useful on A-series chips with only 3-5 GPU cores to subdivide. For the Mac, it's overkill but contributes to incredible (power) efficiency. I don't know whether the A15 has greater (4/3x) concurrency because it's from the Apple8 generation, or because it's an A-series GPU.
 
 This sub-core concurrency only happens among commands within the same `MTLComputeCommandEncoder`. For commands on different Metal command queues, there's only 2x concurrency across the entire GPU. This makes it similar to early dual-core CPUs, designed in part to be more responsive. Even if a background task is taking several frames, a high-priority UI command can quickly seize half the GPU cores. Beyond that purpose, there's little motive to create any circuitry for 3+ concurrent command queues.
+
+TODO: less/slower? threadgroup memory, power varying with clock speed
 
 ## References
 
