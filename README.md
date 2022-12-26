@@ -36,12 +36,12 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 
 | Float Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- | -- |
-| FADD16 | 1 | 4 | | 4 ??? | 16 ??? |
-| FMUL16 | 1 | 4 |
-| FFMA16 | 1 | 4 |
-| FADD32 | 1 | 4 |
-| FMUL32 | 1 | 4 |
-| FFMA32 | 1 | 4 |
+| FADD16 | 1 | 4 | 4 | 4 | 16 |
+| FMUL16 | 1 | 4 | 4 | 4 | 16 |
+| FFMA16 | 1 | 4 | 4 | 4 | 16 |
+| FADD32 | 1 | 4 | 4 | 4 | 16 |
+| FMUL32 | 1 | 4 | 4 | 4 | 16 |
+| FFMA32 | 1 | 4 | 4 | 4 | 16 |
 | ROUND |
 | RECIP |
 | DIV |
@@ -56,16 +56,16 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 | FCMPSEL |
 | CONVERT |
 
-| Int Cycles (M1, A15) | Throughput | Latency | Concurrency |
-| ------------------------ | ------ | ------- | ----------- |
-| IADD16 |
-| IMUL16 |
-| IMAD16 |
-| IADD32 | 1, TBD |
-| IMUL32 | 2 - 2.33 ???, TBD |
-| IMAD32 | 3 - 3.67 ???, TBD |
-| IMADHI32 | 8, TBD |
-| IMAD (32x32+??->64) | 11, TBD |
+| Int Cycles (M1, A15) | Cycles Throughput | IPC/Core | Cycles Latency | Pipelines/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- | -- |
+| IADD16 | 1 | 4 | 4 | 4 | 16 |
+| IMUL16 | 4 | 1 | 8 | 2 | 8 |
+| IMAD16 | 4 | 1 | 8 | 2 | 8 |
+| IADD32 | 1 | 4 | 4 | 4 | 16 |
+| IMUL32 | 4 | 1 | 8 | 2 | 8 |
+| IMAD32 | 4 | 1 | 8 | 2 | 8 |
+| IMADHI32 | 8 |
+| IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 |
@@ -77,8 +77,8 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8. Concurre
 
 | Multiple Instructions (M1, A15) | Throughput | Latency | Concurrency |
 | ------------------------------- | ------ | ------- | ----------- |
-| IADD64 | 4, TBD |
-| IMUL64 | 13.4 ???, TBD |
+| IADD64 | >4 |
+| IMUL64 | >13.4 |
 | IMULHI64 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
