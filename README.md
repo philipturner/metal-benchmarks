@@ -64,7 +64,8 @@ If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Te
 | IADD32 | 1 | 4 | 4 | 4 | 16 |
 | IMUL32 | 4 | 1 | 4-8 | 1-2 | 4-8 |
 | IMAD32 | 4 | 1 | 4-8 | 1-2 | 4-8 |
-| IMADHI32 | 8 |
+| IMADHI16 | 4 | 1 | 4-8 | 1-2 | 4-8 |
+| IMADHI32 | 8 | 0.5 | 8-16 | 1-2 | 4-8 |
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
 | BITEXTRACT32 |
