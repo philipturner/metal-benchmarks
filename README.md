@@ -11,12 +11,10 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 | A14 | Apple 7 | 1278 MHz |
 | M1 | Apple 7 | 1278 MHz |
 | M1 Pro | Apple 7 | 1298 MHz |
-| A15 | Apple 8 | ~1335-1340 MHz |
+| A15 | Apple 8 | 1336 MHz |
 | M2 | Apple 8 | 1398 MHz |
-| A16 | Apple 8 or 9 | TBD |
-| M2 Pro | Apple 8 or 9 | TBD |
-
-TODO: Validate the A15's clock speed.
+| A16 | Apple 8 | TBD |
+| M2 Pro | Apple 9 ??? | TBD |
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -28,8 +26,8 @@ TODO: Validate the A15's clock speed.
 | Float64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
 | Transcendental IPC |  TBD | TBD | TBD | 1/8 FP32 | TBD | 1/8 FP32 | 1/8 FP32 | 1/16 FP32 |
 
-| Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | Int16 OPs/Clock |
 | Int32 OPs/Clock |
 | Int64 OPs/Clock |
@@ -37,13 +35,13 @@ TODO: Validate the A15's clock speed.
 | Int32 IPC | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
 
-| Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Max Threads (Occupancy) | 768-3072 | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
-| Register File | 384 KB | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory | 64 KB | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
-| L1 Instruction Cache | 12 KB | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache | ~8-12 KB | TBD | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| Max Threads (Occupancy) | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
+| Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
+| Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
+| L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
+| L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
