@@ -186,9 +186,9 @@ https://dougallj.github.io/applegpu/docs.html suggests the register cache is muc
  - `discard` an input operand you don't need cached. Its value won't change; don't write back to the register file.
  - `discard` an output operand. This is generally a bad idea.
  - Default for an input operand. Write the unmodified register back to the cache (terrible idea).
- - Default for an output operand. Write the modified register back to the cache (costly).
+ - Default for an output operand. Write the modified register back to the cache.
  - `cache` an input operand. Save time on future instructions that depend on this.
- - `cache` an output operand.
+ - `cache` an output operand. This makes the difference between my graph for ILP = 1, and ILP = 4.
 
 </details>
 
