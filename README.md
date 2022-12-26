@@ -152,7 +152,7 @@ The next graphs show scalar instructions per cycle in the entire compute unit. T
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
 <details>
- <summary>Thoughts on how the scheduler dispatches instructions</summary>
+ <summary>Thinking out loud about how to explain these graphs</summary>
 
 ---
 
@@ -169,16 +169,20 @@ When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit 
 With ILP = 2 for half precision, the following sequence occurs. Load two 16-bit registers from the same simd. Dual-dispatch an FADD16 from this data. Two instructions in two cycles (~2/2 throughput). For FADD32, you could theoretically load each 32-bit chunk and dual-dispatch. This would be two instructions in three cycles (~2/3 throughput). However, circuitry for dual-dispatching 32-bit ops is quite complex (compared to 32-bit). Ignore the instruction-level parallelism and act like it's ILP = 1. After dispatching the first independent instruction, you don't progress to the next simdgroup. Your strategy is to stay on the current simdgroup if possible, for reasons explained below. Both instructions happen in sequence (~2/4 throughput). Very rarely, a pipeline hiccup prevents moving on from the first instruction. You get lucky and can re-dispatch the first 32-bit operand, without loading into the cache.
 
 With ILP = 3 for half precision, the following sequence occurs. Load two 16-bit registers from the first simd. Dual-dispatch their FADD16. Load two 16-bit registers from the second simd. Dual-dispatch their FADD16. You recall the previous simd has one remaining instruction from ILP. Fuse this instruction's load and dual-dispatch with the previous simd. This fusion can only happen in ILP = 3 (and not ILP = 1) because you move through simdgroups slow enough to remember that info.
- 
+
 ---
 
 I should rethink this theory. In the first case, you'd need to load two operands from any simdgroup. Perform two-register load, two-register load, dual dispatch. Two FADD16 instructions in 3 cycles. For FADD32, you'd load four operands in four cycles and dual dispatch (2/5). That doesn't match reality. Alternatively, half your operands are already in the register cache. This is the "dependent register" that defines the concept of ILP. You don't have to worry about loading half the instruction inputs. This makes more sense because the ALU shouldn't have rights to the entire register file. The ALU should write its result into the register cache.
 
 Perhaps the ALU's writing back of registers is what takes time. You could instantly read anything from the register file, but can't instantly write. With high ILP, some registers currently in the cache don't need to be written back. You can recycle them into the next operation. With higher ILP, the same amount of cached registers comes from a smaller number of simds. Half-precision also doubles the cached register : owning simd ratio.
- 
+
 Say you're at ILP = 2 and using single precision. You want to go from where you're at (sub-optimal) to maximum throughput. One method is, double the ILP. For the same amount of instructions, you've halved the amount of relevant simds. That places you in some optimal system state, reaching ~100% throughput. Another approach is, halve the size of registers. Double the amount of cached registers (= recent instructions) with the same amount of simds. This also places you in the optimal system state.
- 
- </details>
+
+This theory also explains why M1 assembly instructions can be marked "discard X register". The compiler is signaling, we want to spent an extra cycle writing this back to the register file. That leaves room for more important instructions to retain their register. You'd want to mark so that low-latency instructions (FADD, FMUL, IADD) aren't associated with discards. High-latency instructions (FDIV, IMUL) can be intereaved with write-backs. Perhaps even more strangely, the ALU has permission to write back without the scheduler's authority. That still saves an extra instruction dispatch.
+
+Maybe reading registers does take time, but the clock cycle pulse travels from scheduler -> registers -> ALUs. The pulse would have to propagate backward to fuse a register write with an ALU dispatch. And we know the pulse doesn't do that. Furthermore, if you look at assembly, most operations have multiple inputs. Most operations don't have multiple outputs. If you can only fuse one of these with ALU dispatching, you'd want it to be reading.
+
+</details>
 
 ## Power Efficiency
 
