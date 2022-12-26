@@ -153,7 +153,9 @@ Hypothesis 2: The GPU core is like RDNA 3. There are 128 ALUs, and 2 simds are p
 
 Hypothesis 3: The GPU can single or dual-dispatch each cycle, from four different SIMD-groups. It traverses all resident SIMD-groups in a linear fashion, yet it has a register cache. With only ILP = 1, registers quickly move into the register cache and flush out. With ILP = 2. The GPU might stall an extra cycle to dispatch an instruction. It takes one cycle to load two 16-bit registers into the cache.
 
-When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit registers from two separate simds. Dispatch an FADD16 from the first simd. Dispatch an FADD16 from the second simd. This is two instructions in three cycles (~2/3 throughput). For FADD32, it would load two 32-bit registers instead. This bumps the overhead to 4 cycles (~2/4 throughput).
+When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit registers from two separate simds. Dispatch an FADD16 from the first simd. Dispatch an FADD16 from the second simd. This is two instructions in three cycles (~2/3 throughput). For FADD32, the two 16-bit registers were the two halves of a 32-bit operand. You can only perform one instruction on this data. This is one instruction in two cycles (~1/2 throughput).
+
+With ILP = 2 for half precision, the following sequence occurs. Load two 16-bit registers from the same simd. Dual-dispatch an FADD16 from this data. Two instructions in two cycles (~2/2 throughput). For FADD32, you could theoretically load each 32-bit chunk and dual-dispatch. This would be two instructions in three cycles (~2/3 throughput). However, circuitry for dual-dispatching 32-bit ops is quite complex (compared to 32-bit). Ignore the instruction-level parallelism and act like it's ILP = 1. However, your registers have slightly higher chance of already being in the register cache (???). This explains the marginally higher throughput.
 
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
