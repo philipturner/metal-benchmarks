@@ -152,7 +152,7 @@ The next graphs show scalar instructions per cycle in the entire compute unit. T
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
 <details>
- <summary>Thinking out loud about how to explain these graphs</summary>
+ <summary>Thinking out loud about how to explain these graphs (I don't encourage reading this)</summary>
 
 ---
 
@@ -181,6 +181,14 @@ Say you're at ILP = 2 and using single precision. You want to go from where you'
 This theory also explains why M1 assembly instructions can be marked "discard X register". The compiler is signaling, we want to spent an extra cycle writing this back to the register file. That leaves room for more important instructions to retain their register. You'd want to mark so that low-latency instructions (FADD, FMUL, IADD) aren't associated with discards. High-latency instructions (FDIV, IMUL) can be intereaved with write-backs. Perhaps even more strangely, the ALU has permission to write back without the scheduler's authority. That still saves an extra instruction dispatch.
 
 Maybe reading registers does take time, but the clock cycle pulse travels from scheduler -> registers -> ALUs. The pulse would have to propagate backward to fuse a register write with an ALU dispatch. And we know the pulse doesn't do that. Furthermore, if you look at assembly, most operations have multiple inputs. Most operations don't have multiple outputs. If you can only fuse one of these with ALU dispatching, you'd want it to be reading.
+ 
+https://dougallj.github.io/applegpu/docs.html suggests the register cache is much simpler. It's explicitly controlled, with six options:
+ - `discard` an input operand you don't need cached. Its value won't change; don't write back to the register file.
+ - `discard` an output operand. This is generally a bad idea.
+ - Default for an input operand. Write the unmodified register back to the cache (terrible idea).
+ - Default for an output operand. Write the modified register back to the cache (costly).
+ - `cache` an input operand. Save time on future instructions that depend on this.
+ - `cache` an output operand.
 
 </details>
 
