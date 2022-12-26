@@ -30,7 +30,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
-| Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | FADD16 | 1 | 3 | 3 | 12 |
 | FMUL16 | 1 | 3 | 3 | 12 |
@@ -50,9 +50,9 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | FMAX |
 | FMIN |
 | FCMPSEL |
-| CONVERT |
+| CONVERT(I to F) |
 
-| Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | IADD16 | 1 | 3 | 3 | 12 |
 | IMUL16 | 4 | 4 | 1 | 4 |
@@ -74,6 +74,9 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | IMADHI16 | 4 | 8 | 2 | 8 |
+| RHADD16 | 4 | 16 | 4 | 16 |
+| RHADD32 | 6 | 18-36 | 3-6 | 12-24 |
+| ABSDIFF32 | 4 | 8-10 | 2-3 | 8-12 |
 | IADD64 | >4 |
 | IMUL64 | >13.4 |
 | IMULHI64 |
@@ -103,10 +106,11 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
 | IMADHI16 | IMUL32 + ISHIFT32 ??? |
+| RHADD32 | IADD32 + IADD32 + ISHIFT32 ??? |
 
 TODO: Sort out the number of unique pipelines.
 
-TODO: Test Apple's claims about "double floating-point math" on A15.
+TODO: Test Apple's claims about "double the FP32 math units" on A15.
 
 <!-- TODO: Rethink this analysis. Instructions can be dual-dispatched, but there aren't enough pipelines for this to double maximum FLOPS.
 
