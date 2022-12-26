@@ -176,7 +176,7 @@ I should rethink this theory. In the first case, you'd need to load two operands
 
 Perhaps the ALU's writing back of registers is what takes time. You could instantly read anything from the register file, but can't instantly write. With high ILP, some registers currently in the cache don't need to be written back. You can recycle them into the next operation. With higher ILP, the same amount of cached registers comes from a smaller number of simds. Half-precision also doubles the cached register : owning simd ratio.
  
-Say you're
+Say you're at ILP = 2 and using single precision. You want to go from where you're at (sub-optimal) to maximum throughput. One method is, double the ILP. For the same amount of instructions, you've halved the amount of simds. That places you in some optimal system state, reaching ~100% throughput. Another approach is, halve the size of registers. Double the amount of cached registers (= recent instructions) with the same amount of simds. This also places you in the optimal system state.
  
  </details>
 
