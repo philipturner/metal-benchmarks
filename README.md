@@ -151,6 +151,9 @@ The next graphs show scalar instructions per cycle in the entire compute unit. T
 | - | - |
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
+<details>
+ <summary>Thoughts on how the scheduler dispatches instructions</summary>
+
 ---
 
 Hypothesis 1: There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
@@ -166,6 +169,16 @@ When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit 
 With ILP = 2 for half precision, the following sequence occurs. Load two 16-bit registers from the same simd. Dual-dispatch an FADD16 from this data. Two instructions in two cycles (~2/2 throughput). For FADD32, you could theoretically load each 32-bit chunk and dual-dispatch. This would be two instructions in three cycles (~2/3 throughput). However, circuitry for dual-dispatching 32-bit ops is quite complex (compared to 32-bit). Ignore the instruction-level parallelism and act like it's ILP = 1. After dispatching the first independent instruction, you don't progress to the next simdgroup. Your strategy is to stay on the current simdgroup if possible, for reasons explained below. Both instructions happen in sequence (~2/4 throughput). Very rarely, a pipeline hiccup prevents moving on from the first instruction. You get lucky and can re-dispatch the first 32-bit operand, without loading into the cache.
 
 With ILP = 3 for half precision, the following sequence occurs. Load two 16-bit registers from the first simd. Dual-dispatch their FADD16. Load two 16-bit registers from the second simd. Dual-dispatch their FADD16. You recall the previous simd has one remaining instruction from ILP. Fuse this instruction's load and dual-dispatch with the previous simd. This fusion can only happen in ILP = 3 (and not ILP = 1) because you move through simdgroups slow enough to remember that info.
+ 
+---
+
+I should rethink this theory. In the first case, you'd need to load two operands from any simdgroup. Perform two-register load, two-register load, dual dispatch. Two FADD16 instructions in 3 cycles. For FADD32, you'd load four operands in four cycles and dual dispatch (2/5). That doesn't match reality. Alternatively, half your operands are already in the register cache. This is the "dependent register" that defines the concept of ILP. You don't have to worry about loading half the instruction inputs. This makes more sense because the ALU shouldn't have rights to the entire register file. The ALU should write its result into the register cache.
+
+Perhaps the ALU's writing back of registers is what takes time. You could instantly read anything from the register file, but can't instantly write. With high ILP, some registers currently in the cache don't need to be written back. You can recycle them into the next operation. With higher ILP, the same amount of cached registers comes from a smaller number of simds. Half-precision also doubles the cached register : owning simd ratio.
+ 
+Say you're
+ 
+ </details>
 
 ## Power Efficiency
 
