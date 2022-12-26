@@ -24,7 +24,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. <!--If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Test A15).--> Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs differ between A14 and M1. A14 is listed first. --> Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -35,24 +35,24 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1 | 3 | 3 | 12 |
-| FMUL16 | 1 | 3 | 3 | 12 |
-| FFMA16 | 1 | 3 | 3 | 12 |
-| FADD32 | 1 | 3 | 3 | 12 |
-| FMUL32 | 1 | 3 | 3 | 12 |
-| FFMA32 | 1 | 3 | 3 | 12 |
+| FADD16 | 1, 1 | 3 | 3 | 12 |
+| FMUL16 | 1, 1 | 3 | 3 | 12 |
+| FFMA16 | 1, 1 | 3 | 3 | 12 |
+| FADD32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
+| FMUL32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
+| FFMA32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
 | DIV |
-| RSQRT | 8 | 12 | 1.5 | 6 |
+| RSQRT | 8, 8 | 12 | 1.5 | 6 |
 | SQRT |
 | SIN |
 | COS |
 | EXP2 |
 | LOG2 |
-| FMAX | 1 | 3 | 3 | 12 |
-| FMIN | 1 | 3 | 3 | 12 |
+| FMAX32 | 1, 1 | 3 | 3 | 12 |
+| FMIN32 | 1, 1 | 3 | 3 | 12 |
 | FCMPSEL |
 
 </details>
@@ -62,12 +62,12 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1 | 3 | 3 | 12 |
-| IMUL16 | 4 | 4 | 1 | 4 |
-| IMAD16 | 4 | 4 | 1 | 4 |
-| IADD32 | 1 | 3 | 3 | 12 |
-| IMUL32 | 4 | 4 | 1 | 4 |
-| IMAD32 | 4 | 4 | 1 | 4 |
+| IADD16 | 1, 1 | 3 | 3 | 12 |
+| IMUL16 | 4, 4 | 4 | 1 | 4 |
+| IMAD16 | 4, 4 | 4 | 1 | 4 |
+| IADD32 | 1, 1 | 3 | 3 | 12 |
+| IMUL32 | 4, 4 | 4 | 1 | 4 |
+| IMAD32 | 4, 4 | 4 | 1 | 4 |
 | IMADHI32 | 8 | 8 | 1 | 4 |
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
