@@ -147,17 +147,21 @@ _ILP stands for instruction-level parallelism. It is the number of operations yo
 
 The next graphs show instructions per cycle in the entire compute unit. This is the reciprocal of amortized cycles/instruction. FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
+---
+
 Hypothesis 1: There are 128 ALUs, and instructions from 4 simds are dispatched every cycle. No simdgroup can have instructions dispatched in two consecutive cycles. Therefore, we need 8 resident simdgroups to reach the maximum throughput. However, when the scheduler passes over each SIMD, it might dispatch two instructions at once. Only if those are two 16-bit instructions.
 
 Hypothesis 2: The GPU core is like RDNA 3. There are 128 ALUs, and 2 simds are processed every cycle. Each cycle invokes a dual dispatch. You could dual dispatch float and int, with each at half the maximum throughput. Either 32-bit instructions invoke a register dependency penalty, or 16-bit instructions have half the latency.
 
 Hypothesis 3: The GPU can single or dual-dispatch each cycle, from four different SIMD-groups. It traverses all resident SIMD-groups in a linear fashion, yet it has a register cache. With only ILP = 1, registers quickly move into the register cache and flush out. With ILP = 2. The GPU might stall an extra cycle to dispatch an instruction. It takes one cycle to load two 16-bit registers into the cache.
 
+---
+
 When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit registers from two separate simds. Dispatch an FADD16 from the first simd. Dispatch an FADD16 from the second simd. This is two instructions in three cycles (~2/3 throughput). For FADD32, the two 16-bit registers were the two halves of a 32-bit operand. You can only perform one instruction on this data. This is one instruction in two cycles (~1/2 throughput).
 
 With ILP = 2 for half precision, the following sequence occurs. Load two 16-bit registers from the same simd. Dual-dispatch an FADD16 from this data. Two instructions in two cycles (~2/2 throughput). For FADD32, you could theoretically load each 32-bit chunk and dual-dispatch. This would be two instructions in three cycles (~2/3 throughput). However, circuitry for dual-dispatching 32-bit ops is quite complex (compared to 32-bit). Ignore the instruction-level parallelism and act like it's ILP = 1. After dispatching the first independent instruction, you don't progress to the next simdgroup. Your strategy is to stay on the current simdgroup if possible, for reasons explained below. Both instructions happen in sequence (~2/4 throughput). Very rarely, a pipeline hiccup prevents moving on from the first instruction. You get lucky and can re-dispatch the first 32-bit operand, without loading into the cache.
 
-With ILP = 3 for half precision, the following sequence occurs. Load three sets of 
+With ILP = 3 for half precision, the following sequence occurs. Load two 16-bit registers from the first simd. Dual-dispatch their FADD16. Load two 16-bit registers from the second simd. Dual-dispatch their FADD16. You recall the previous simd has one remaining instruction from ILP. Fuse this instruction's load and dual-dispatch with the previous simd. This fusion can only happen in ILP = 3 (and not ILP = 1) because you move through simdgroups slow enough to remember that info.
 
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
