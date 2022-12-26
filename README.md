@@ -30,6 +30,9 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 > 
 > Cycles Throughput &ge; Cycles Latency / (Pipelines/ALU)
 
+<details>
+<summary>Floating-point performance</details>
+
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | FADD16 | 1 | 3 | 3 | 12 |
@@ -52,6 +55,11 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | FCMPSEL |
 | CONVERT(I to F) |
 
+</details>
+
+<details>
+<summary>Integer performance</details>
+
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
 | IADD16 | 1 | 3 | 3 | 12 |
@@ -71,6 +79,11 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | IMAX32 |
 | IMIN32 |
 | ICMPSEL32 |
+
+</details>
+
+<details>
+<summary>Mixed-instruction performance</details>
 
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
@@ -111,6 +124,8 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | IMADHI16 | IMUL32 + ISHIFT32 ??? |
 | RHADD32 | IADD32 + IADD32 + ISHIFT32 ??? |
 
+</details>
+
 TODO: Sort out the number of unique pipelines.
 
 TODO: Test Apple's claims about "double the FP32 math units" on A15.
@@ -124,6 +139,9 @@ This analysis suggests an ALU has four concurrent pipelines. Each can execute ei
 ## Bottlenecks on Throughput
 
 In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
+
+<details>
+<summary>Tables for FMUL, FADD, IADD, FFMA</summary>
 
 | ILP | Occupancy | Instruction | F32/I32 Cycles | F16/I16 Cycles |
 | - | - | - | - | - |
@@ -156,6 +174,8 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
 
 _ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
+
+</details>
 
 The next graphs show scalar instructions per cycle in the entire compute unit. This relates to the reciprocal of amortized cycles/instruction. FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
