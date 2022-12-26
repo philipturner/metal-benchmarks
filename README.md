@@ -151,6 +151,10 @@ Hypothesis 1: There are 128 ALUs, and instructions from 4 simds are dispatched e
 
 Hypothesis 2: The GPU core is like RDNA 3. There are 128 ALUs, and 2 simds are processed every cycle. Each cycle invokes a dual dispatch. You could dual dispatch float and int, with each at half the maximum throughput. Either 32-bit instructions invoke a register dependency penalty, or 16-bit instructions have half the latency.
 
+Hypothesis 3: The GPU can single or dual-dispatch each cycle, from four different SIMD-groups. It traverses all resident SIMD-groups in a linear fashion, yet it has a register cache. With only ILP = 1, registers quickly move into the register cache and flush out. With ILP = 2. The GPU might stall an extra cycle to dispatch an instruction. It takes one cycle to load two 16-bit registers into the cache.
+
+When ILP = 1 for half precision, the following sequence occurs. Load two 16-bit registers from two separate simds. Dispatch an FADD16 from the first simd. Dispatch an FADD16 from the second simd. This is two instructions in three cycles (~2/3 throughput). For FADD32, it would load two 32-bit registers instead. This bumps the overhead to 4 cycles (~2/4 throughput).
+
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
