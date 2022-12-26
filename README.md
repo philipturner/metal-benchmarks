@@ -6,20 +6,19 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock. The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out.
 
-| Apple GPU | Generation | Clock Speed | Cores | TFLOPS F32 | TFLOPS F16 | TOPS I32 |
-| --------- | ---------- | ----------- | ----- | --------- | --------- | ------- |
-| A14 | Apple 7 | 1278 MHz | 4 | 0.654 | 1.309 | >0.654 |
-| M1 | Apple 7 | 1278 MHz | 8 | 2.617 | 2.617 | >1.309 |
-| M1 Pro | Apple 7 | 1296 MHz | 16 | 5.308 | 5.308 | >2.654 |
-| M1 Max | Apple 7 | 1296 MHz | 32 | 10.62 | 10.62 | >5.308 |
-| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21.23 | 21.23 | >10.62 |
-| A15 | Apple 8 | 1336 MHz | 5 |
-| M2 | Apple 8 | 1398 MHz | 10
-| A16 | Apple 8 | TBD | 5 |
-| M2 Pro | Apple 9 | TBD | 18-20 |
-| M2 Max | Apple 9 | TBD | 38 |
-| M2 Ultra | Apple 9 | TBD | 76 |
-
+| Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 |
+| --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: |
+| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | >654 |
+| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | >1309 |
+| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | >2654 |
+| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | >5308 |
+| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | >10620 |
+| A15 | Apple 8 | 1336 MHz | 5 | 1710 | 1710 | >855 |
+| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | >1789 |
+| A16 | Apple 8 | &ge;1336 MHz | 5 | &ge;1710 | &ge;1710 | >855 |
+| M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | >3221 |
+| M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | >6800 |
+| M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | >13600 |
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
