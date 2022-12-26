@@ -26,7 +26,7 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 Throughput and latency are measured in cycles. <!--If listed with a comma, throughputs differ between Apple 7 and Apple 8 (TODO: Test A15).--> Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
-> Little's Law: Concurrency = Latency * Throughput
+> Little's Law: Concurrency = Latency / Throughput
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
@@ -60,7 +60,7 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | IADD32 | 1 | 3 | 3 | 12 |
 | IMUL32 | 4 | 4 | 1 | 4 |
 | IMAD32 | 4 | 4 | 1 | 4 |
-| IMADHI32 | 8 | 8 | 1-2 | 4-8 |
+| IMADHI32 | 8 | 8 | 1 | 4 |
 | IMAD (32x32+??->64) | 11 ??? |
 | BITSHIFT32 |
 | BITEXTRACT32 |
@@ -99,6 +99,10 @@ Throughput and latency are measured in cycles. <!--If listed with a comma, throu
 | FMAX3 |
 | FMIN3 |
 | FMEDIAN |
+
+| Instruction Sequence | Actual Instructions |
+| -------------------------- | ------ |
+| IMADHI16 | IMUL32 + ISHIFT32 ??? |
 
 TODO: Sort out the number of unique pipelines.
 
