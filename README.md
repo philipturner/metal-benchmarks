@@ -4,17 +4,22 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
-The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock.
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock. The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out.
 
-| Apple GPU | Generation | Clock Speed | F32 FLOPS | F16 FLOPS | I32 OPS |
-| --------- | ---------- | ----------- | --------- | --------- | ------- |
-| A14 | Apple 7 | 1278 MHz |
-| M1 | Apple 7 | 1278 MHz |
-| M1 Pro | Apple 7 | 1298 MHz |
-| A15 | Apple 8 | 1336 MHz |
-| M2 | Apple 8 | 1398 MHz |
-| A16 | Apple 8 | TBD |
-| M2 Pro | Apple 9 ??? | TBD |
+| Apple GPU | Generation | Clock Speed | Cores | TFLOPS F32 | TFLOPS F16 | TOPS I32 |
+| --------- | ---------- | ----------- | ----- | --------- | --------- | ------- |
+| A14 | Apple 7 | 1278 MHz | 4 | 0.654 | 1.309 | >0.654 |
+| M1 | Apple 7 | 1278 MHz | 8 | 2.617 | 2.617 | >1.309 |
+| M1 Pro | Apple 7 | 1296 MHz | 16 | 5.308 | 5.308 | >2.654 |
+| M1 Max | Apple 7 | 1296 MHz | 32 | 10.62 | 10.62 | >5.308 |
+| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21.23 | 21.23 | >10.62 |
+| A15 | Apple 8 | 1336 MHz | 5 |
+| M2 | Apple 8 | 1398 MHz | 10
+| A16 | Apple 8 | TBD | 5 |
+| M2 Pro | Apple 9 | TBD | 18-20 |
+| M2 Max | Apple 9 | TBD | 38 |
+| M2 Ultra | Apple 9 | TBD | 76 |
+
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
