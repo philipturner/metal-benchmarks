@@ -4,6 +4,8 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 ## Layout of an M1 GPU Core
 
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock.
+
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | FP16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
@@ -12,12 +14,16 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | Float16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
 | Float32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
 | Float64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
+| Transcendental IPC |  TBD | TBD | TBD | 1/8 FP32 | TBD | 1/8 FP32 | 1/8 FP32 | 1/16 FP32 |
+
+| Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| Int16 OPs/Clock |
+| Int32 OPs/Clock |
+| Int64 OPs/Clock |
 | Int16 IPC | 128 | 128 | 128 | 128 | 256 | 256 | 0 | 0 |
 | Int32 IPC | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
-| Transcendental/ALU FLOPS | TBD | TBD | TBD | 1/8 | TBD | 1/8 | 1/8 | 1/16 |
-
-_IPC stands for instructions per clock. Integer performance only concerns integer addition; multiplications are sometimes slower. Some architectures do not perform an integer MAD in a single cycle._
 
 | Per Core | Apple 7 | Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
