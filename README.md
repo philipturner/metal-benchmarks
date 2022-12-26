@@ -6,6 +6,18 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 
 The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. IPC stands for instructions per clock.
 
+| Apple GPU | Generation | Clock Speed |
+| --------- | ---------- | ----------- |
+| A14 | Apple 7 | 1278 MHz |
+| M1 | Apple 7 | 1278 MHz |
+| M1 Pro | Apple 7 | 1298 MHz |
+| A15 | Apple 8 | ~1335-1340 MHz |
+| M2 | Apple 8 | 1398 MHz |
+| A16 | Apple 8 | TBD |
+| M2 Pro | Apple 9 ??? | TBD |
+
+TODO: Validate the A15's clock speed.
+
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | FP16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
