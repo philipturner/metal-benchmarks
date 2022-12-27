@@ -103,7 +103,11 @@ Transcendental math pipelines (1-1.5x per ALU):
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are sometimes recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are sometimes recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. Benchmarks issued 250x the amount of work needed to fully occupy a core's register file.
+
+Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+
+TODO: Transform "optimal repetitions" for instruction sequences into executable size.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -114,41 +118,41 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1, 1 | 3 | 3, 3 | 12, 12 |
-| FMUL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
-| FFMA16 | 1, 1 | 3 | 3, 3 | 12, 12 |
-| FADD32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
-| FMUL32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
-| FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
-| ROUND_EVEN | 4 | 4 | 1 | 4 |
-| CONVERT(I to F) | 4 | 4 | 1 | 4 |
-| Fast RECIP16 | 6 | &le;7.5 |  |  |
-| Fast RECIP32 | 6 | &le;8.0 |  |  |
+| FADD16 | 1, 1 | TBD, 2.97-3.33 |
+| FMUL16 | 1, 1 | TBD, 2.98-3.34 |
+| FFMA16 | 1, 1 | TBD, 2.97-3.35 |
+| FADD32 | 2, 1 | TBD, 3.50-3.90 |
+| FMUL32 | 2, 1 | TBD, 3.50-3.91 |
+| FFMA32 | 2, 1 | TBD, 5.84-6.18 |
+| ROUND_EVEN | 4 | 3.78-5.36 |
+| CONVERT(I to F) | 4 | 4 |
+| Fast RECIP16 | TBD, 6 | TBD, &le;7.5 |  |  |
+| Fast RECIP32 | TBD, 6 | TBD, &le;8.0 |  |  |
 | Fast RSQRT16 | 8, 8 | TBD, &le;10.0 |  |  |  
 | Fast RSQRT32 | 8, 8 | TBD, &le;10.9 |  |  |
 | SIN_PT_1 |
 | SIN_PT_2 |
-| Fast EXP2_16 | 4 | 6 |  |  |
-| Fast LOG2_16 | 4 | 6 |  |  |
-| Fast EXP2_32 | 4 | 6 |  |  |
-| Fast LOG2_32 | 4 | 6 |  |  |
+| Fast EXP2_16 | TBD, 4 | TBD, 6 |  |  |
+| Fast LOG2_16 | TBD, 4 | TBD, 6 |  |  |
+| Fast EXP2_32 | TBD, 4 | TBD, 6 |  |  |
+| Fast LOG2_32 | TBD, 4 | TBD, 6 |  |  |
 | FMAX32 | 1, 1 | 3-4 | 3 | 12 |
 | FMIN32 | 1, 1 | 3-4 | 3 | 12 |
 | FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
 | FCMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
-| Instruction Sequence | Throughput | Latency |
-| -------------------------- | ------ | ------- |
-| ROUND_INF | &le;8.3 | &le;22 |
-| FMEDIAN | &le;3.6 | &le;10 |
-| Fast DIV16 | 6 | &le;9.5 |
-| Fast DIV32 | 6 | &le;9.0 |
+| Instruction Sequence | Throughput | Latency | Optimal Repetitions |
+| -------------------------- | ------ | ------- | ---- |
+| ROUND_INF | 8.18 | 20.98-21.38 | 240 |
+| FMEDIAN | &le;3.6 | 25.86-25.81 | TBD |
+| Fast DIV16 | TBD, 6 | TBD, &le;9.5 |
+| Fast DIV32 | TBD, 6 | TBD, &le;9.0 |
 | Fast SQRT16 |
-| Fast SQRT32 | 8 | 11 |
-| Fast SIN16 | &le;14.6 |  &le;27.8 |
-| Fast SINPI16 | &le;18.7 | &le;51.5 |
-| Fast SIN32 | &le;14.5 | &le;27.3 |
-| Fast SINPI32 | &le;26.3 |  &le;88.8 |
+| Fast SQRT32 | TBD, 8 | TBD, 11 |
+| Fast SIN16 | TBD, &le;14.6 | TBD, &le;27.8 |
+| Fast SINPI16 | TBD, &le;18.7 | TBD, &le;51.5 |
+| Fast SIN32 | TBD, &le;14.5 | TBD, &le;27.3 |
+| Fast SINPI32 | TBD, &le;26.3 |  TBD, &le;88.8 |
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
@@ -177,8 +181,8 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | IMAD16 | 4, 4 | 4.18-5.38 |
 | IADD32 | 1, 1 | 3.51-3.91 |
 | IMUL32 | 4, 4 | 4.30-5.72 |
-| IMAD32 | 4, 4 | 4 |
-| IMADHI32 | 8 | 8 |
+| IMAD32 | 4, 4 | 7.13-7.67 |
+| IMADHI32 | 8 | 9.83-12.20 |
 | IMAD((32x32=32)+64) | 4 | &le;15 |
 | IMAD((32x32=64)+64) | 8 | 8 |
 | IMAD(64x32+64=64) | 12 | &le;24 |
@@ -191,17 +195,17 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | BITREV32 | 4 | 3 |
 | POPCOUNT32 |
 | CTZ/CLZ32 |
-| IMAX32 | 1, 1 | 3-4 |
-| IMIN32 | 1, 1 | 3-4 |
-| ICMPSEL16 | 1, 1 | 3 |
-| ICMPSEL32 | 1, 1 | 3-4 |
+| ICMPSEL16 | 1, 1 | 2.98-3.34 |
+| IMAX32 | 1, 1 | 6.30-6.61 |
+| IMIN32 | 1, 1 | 6.31-6.63 |
+| ICMPSEL32 | 1, 1 | 6.31-6.64 |
 
-| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
-| IMADHI16 | 4 | &le;7.3 |
-| BITREV16 | &le;4.2 | &le;13 |
-| RHADD16 | 4 | 16 |
-| RHADD32 | 6 | &le;36 |
+| Instruction Sequence | Throughput | Latency | Optimal Repetitions |
+| -------------------------- | ------ | ------- | ----- |
+| IMADHI16 | 4 | 6.23-7.29 | 720
+| BITREV16 | 4 | 5.76-6.76 | 480
+| RHADD16 | 4 | 15.65-16.42 | 480
+| RHADD32 | 6 | 18.96-20.89 | 240
 | ABSDIFF32 | 4 | &le;10 |
 | IMULHI64 | 28 | &le;112 |
 | BITSHIFT64 |
