@@ -125,7 +125,11 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | IMUL32 | 4, 4 | 4 | 1 | 4 |
 | IMAD32 | 4, 4 | 4 | 1 | 4 |
 | IMADHI32 | 8 | 8 | 1 | 4 |
-| IMAD (32x32+??->64) | 11 ??? |
+| IMAD(32x32+64=64) | 8 |
+| IMAD(64x32+64=64) | 12 |
+| IADD64 | 4 |
+| IMUL64 | 16 |
+| IMAD64 | 16 |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 | 1 | 1 | 1 | 4 |
@@ -137,6 +141,42 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | ICMPSEL32 |
 
 </details>
+
+<details>
+  <summary>Notes on mixed-precision integer math</summary>
+
+IMUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
+
+```metal
+// 12 cycles - don't do this.
+ulong naive_mul32x32_64(uint x, uint y) {
+  uint lo = x * y;
+  uint hi = mulhi(x, y);
+  return as_type<ulong>(uint2(lo, hi));
+}
+
+// 8 cycles
+ulong mul32x32_64(uint x, uint y) {
+  return ulong(x) * ulong(y);
+}
+
+// 12 cycles
+ulong mul64x32_64(ulong x, uint y) {
+  return x * ulong(y);
+}
+
+// 16 cycles
+ulong mul64x64_64(ulong x, ulong y) {
+  return x * y;
+}
+```
+
+```metal
+// TODO: MAD
+```
+
+</details>
+
 
 <details>
 <summary>Multi-instruction operations</summary>
