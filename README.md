@@ -75,7 +75,7 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | I64 Adds/Clock | 32 | 16 | 16 | 32 | 0 | 0 | 0 |
 | I64 Muls/Clock | 8 | 16 | 16 | 32 | 0 | 0 | 0 |
 
-_IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest._
+_IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
 
 TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipelines. This would boost INTOPS to 160-192/clock.
 
@@ -83,13 +83,18 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". For simplicity, we assume fused F16/F32 pipelines with 6 cycles for F32. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. Integer pipelines process both I32 and U32 with the same latency.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. For simplicity, we omit the fractional pipelines for A14. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. Integer pipelines process both I32 and U32 with the same latency.
 
-F32 and simple I32 pipelines:
-- 3 cycles: FFMA32 (A14 takes 6 cycles unless F16), FCMPSEL32, IADD32
-- 3 cycles: FFMA32 (A14 takes 6 cycles unless F16), FCMPSEL32, IADD32
-- 3 cycles: FFMA32 (A14 takes 6 cycles unless F16), FCMPSEL32, IADD32
+Floating-point and simple integer pipelines
+- 3 cycles: FFMA16, FFMA32 (M1+ only), F/ICMPSEL32, IADD32
+- 3 cycles: FFMA16, FFMA32 (M1+ only), F/ICMPSEL32, IADD32
+- 3 cycles: FFMA16, FFMA32 (M1+ only), F/ICMPSEL32, IADD32
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
+
+Complex integer and bitwise pipelines:
+- TODO
+
+TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
 
 ## Instruction Throughputs
 
@@ -231,8 +236,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 | RHADD32 | IADD32 + IADD32 + ISHIFT32 ??? |
 
 </details>
-
-TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64.
 
 ## ALU Bottlenecks
 
