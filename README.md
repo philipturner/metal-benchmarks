@@ -53,24 +53,26 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| FP16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
-| FP32 OPs/Clock | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| FP64 OPs/Clock | 0   | 0   | 8   | 8   | 16  | 8   | 4   | 4   |
-| Float16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
-| Float32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
-| Float64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
-| Transcendental IPC |  TBD | TBD | TBD | 1/8 FP32 | TBD | 1/8 FP32 | 1/8 FP32 | 1/16 FP32 |
+| F16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
+| F32 OPs/Clock | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
+| F64 OPs/Clock | 0   | 0   | 8   | 8   | 16  | 8   | 4   | 4   |
+| F16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
+| F32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
+| F64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
+| Transcendental IPC |  TBD | TBD | TBD | 16 | TBD | 32 | 16 | 16 |
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Int16 OPs/Clock |
-| Int32 OPs/Clock |
-| Int64 OPs/Clock |
-| Int16 IPC | 128 | 128 | 128 | 128 | 256 | 256 | 0 | 0 |
-| Int32 IPC | 128 | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
-| Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
+| I16 OPs/Clock | >128 | 256 | 256 | 512 | 0 | 0 | 0 |
+| I32 OPs/Clock | >128 | 128 | 128 | 256 |
+| I64 OPs/Clock | TBD | 32 | 32 | 64 | 0 | 0 | 0 |
+| I16 IPC | 128 | 128 | 128 | 256 | 256 | 0 | 0 | 0 |
+| I32 IPC | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
+| I64 IPC | TBD | 16 | 16 | 32 | 0 | 0 | 0  |
 
-_IPC stands for instructions per clock._
+_IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest._
+
+TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipelines. This would boost INTOPS to 160-192/clock.
 
 ## Instruction Throughputs
 
@@ -263,6 +265,8 @@ https://arxiv.org/pdf/1905.08778.pdf
 https://github.com/dougallj/applegpu/issues/21
 
 https://chipsandcheese.com/2022/05/21/igpu-cache-setups-compared-including-m1/
+
+https://www.techspot.com/article/2151-nvidia-ampere-vs-amd-rdna2/
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
