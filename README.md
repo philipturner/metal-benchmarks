@@ -105,7 +105,7 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
-> Cycles Throughput &ge; Cycles Latency / (Pipelines/ALU)
+> Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
 <details>
 <summary>Floating-point performance</summary>
@@ -120,16 +120,17 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
-| Fast RECIP | 6 | 6 | 1 | 4 |
-| Fast RSQRT | 8, 8 | 12 | 1.5 | 6 |
-| Fast SQRT |
-| Fast SIN |
-| Fast COS |
+| Fast RECIP32 | 6 | 6 | 1 | 4 |
+| Fast RSQRT16 | 8, 8 | 8 | 1 | 4 |  
+| Fast RSQRT32 | 8, 8 | 8-9 | 1 | 4 |
+| Fast SIN32 |
+| Fast COS32 |
 | Fast EXP2 |
 | Fast LOG2 |
-| FMAX32 | 1, 1 | 3 | 3 | 12 |
-| FMIN32 | 1, 1 | 3 | 3 | 12 |
-| FCMPSEL |
+| FMAX32 | 1, 1 | 3-4 | 3 | 12 |
+| FMIN32 | 1, 1 | 3-4 | 3 | 12 |
+| FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
+| FCMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
 </details>
 
@@ -157,9 +158,10 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | BITREV32 | 4 | 3 | 1 | 4 |
 | POPCOUNT32 |
 | CTZ/CLZ32 |
-| IMAX32 |
-| IMIN32 |
-| ICMPSEL32 |
+| IMAX32 | 1, 1 | 3-4 | 3 | 12 |
+| IMIN32 | 1, 1 | 3-4 | 3 | 12 |
+| ICMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
+| ICMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
 </details>
 
@@ -203,6 +205,7 @@ ulong mul64x64_64(ulong x, ulong y) {
 | ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
 | FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
 | Fast DIV | 6 | 9 | 1.5 | 6 |
+| Fast SQRT | 8 | 11 | TBD | TBD |
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
