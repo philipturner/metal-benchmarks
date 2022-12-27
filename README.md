@@ -192,8 +192,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 | RHADD16 | 4 | 16 | 4 | 16 |
 | RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
 | ABSDIFF32 | 4 | 8-10 | 2-3 | 8-12 |
-| IADD64 | >4 |
-| IMUL64 | >13.4 |
 | IMULHI64 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
