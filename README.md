@@ -92,6 +92,7 @@ Floating-point and simple integer pipelines (A11 - A14, per 2 ALUs)
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
+- If the above pipelines actually take 4 cycles, add two pipelines here.
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
@@ -99,6 +100,7 @@ Floating-point and simple integer pipelines (A15+, M1+)
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
+- If the above pipelines actually take 4 cycles, add another pipeline here.
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Complex integer and bitwise pipelines:
