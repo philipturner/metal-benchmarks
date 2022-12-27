@@ -28,6 +28,7 @@ _The M2 Pro and later statistics come from recent leaks from Apple's supply chai
 Table of Contents
 - [On-Chip Memory](#on-chip-memory)
 - [Operations per Second](#operations-per-second)
+- [Pipelines per ALU](#pipelines-per-alu)
 - [Instruction Throughputs](#instruction-throughputs)
 - [ALU Bottlenecks](#alu-bottlenecks)
 - [Power Efficiency](#power-efficiency)
@@ -79,6 +80,17 @@ _IPC stands for instructions per clock. Integer IPC consists of adds and/or fuse
 TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipelines. This would boost INTOPS to 160-192/clock.
 
 TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float64.
+
+## Pipelines per ALU
+
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we have fractional F32 pipelines/ALU.
+
+Floating point pipelines (A14)
+- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
+- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
+- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
+- F32: FADD32, FMUL32, or FFMA32 in 3 cycles
+- Half of (F32: FADD32, FMUL32, or FFMA32 in 3 cycles)
 
 ## Instruction Throughputs
 
