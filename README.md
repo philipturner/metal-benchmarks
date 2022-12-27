@@ -60,7 +60,9 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | F16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
 | F32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
 | F64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
-| Transcendental IPC | TBD | TBD | TBD | 16 | TBD | 32 | 16 | 16 |
+| Transcendental IPC | 16-32 | 16-32 | TBD | 16 | TBD | 32 | 16 | 16 |
+
+_On Nvidia chips, all major transcendentals take the same amount of time. On Apple chips, throughput depends on the operation._
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -120,14 +122,16 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
-| Fast RECIP16 |
-| Fast RECIP32 | 6 | 6 | 1 | 4 |
+| Fast RECIP16 | 6 | 6 | 1 | 4 |
+| Fast RECIP32 | 6 | 6-7 | 1 | 4 |
 | Fast RSQRT16 | 8, 8 | 8 | 1 | 4 |  
 | Fast RSQRT32 | 8, 8 | 8-9 | 1 | 4 |
 | SIN_PT_1 |
 | SIN_PT_2 |
-| Fast EXP2 |
-| Fast LOG2 |
+| Fast EXP2_16 | 4 | 6 | 1.5 | 6 |
+| Fast LOG2_16 | 4 | 6 | 1.5 | 6 |
+| Fast EXP2_32 | 4 | 6 | 1.5 | 6 |
+| Fast LOG2_32 | 4 | 6 | 1.5 | 6 |
 | FMAX32 | 1, 1 | 3-4 | 3 | 12 |
 | FMIN32 | 1, 1 | 3-4 | 3 | 12 |
 | FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
