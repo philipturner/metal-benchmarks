@@ -83,21 +83,22 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). <s>For simplicity, the A14 pipeline structure is omitted.</s>
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power).
 
-Floating-point pipelines (A15+, M1+) - hypothesis 1
-- TODO: Rethink hypothesis if FFMA32 has latency of 6 cycles, but FFMA16 has latency of 3 cycles.
+Floating-point pipelines (A11 - A14) - hypothesis 1
+- 3-4 cycles (I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3-4 cycles (I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- ??? 4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
-Floating-point pipelines (A15+, M1+) - hypothesis 2
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-
-Integer and conversion pipelines
-- TODO: Split ICMPSEL32 and IADD32 into separate pipelines, test dual-issue capabilities of Float and Int
+Floating-point pipelines (A15+, M1+)
+- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- ??? 4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
+- TODO: Do 16-bit operands take less cycles to convert?
 
 Complex integer and bitwise pipelines:
 - TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
