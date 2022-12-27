@@ -91,13 +91,13 @@ Floating-point pipelines (A15+, M1+)
 - 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
 - 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
 - 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
-- 4 cycles: convert I32 to F32, round F32 to U32/I32
+- 4 cycles: convert I32 to F32, round F32 to U32/I32, extract fractional part
 
 Complex integer and bitwise pipelines:
 - TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
 
-Transcendental math pipelines (1.5x per ALU):
-- TODO
+Transcendental math pipelines (1-1.5x per ALU):
+- TODO: Can multiple math operations happen simultaneously?
 
 ## Instruction Throughputs
 
@@ -120,11 +120,12 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
+| Fast RECIP16 |
 | Fast RECIP32 | 6 | 6 | 1 | 4 |
 | Fast RSQRT16 | 8, 8 | 8 | 1 | 4 |  
 | Fast RSQRT32 | 8, 8 | 8-9 | 1 | 4 |
-| Fast SIN32 |
-| Fast COS32 |
+| SIN_PT_1 |
+| SIN_PT_2 |
 | Fast EXP2 |
 | Fast LOG2 |
 | FMAX32 | 1, 1 | 3-4 | 3 | 12 |
@@ -206,6 +207,10 @@ ulong mul64x64_64(ulong x, ulong y) {
 | FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
 | Fast DIV | 6 | 9 | 1.5 | 6 |
 | Fast SQRT | 8 | 11 | TBD | TBD |
+| Fast SIN |
+| Fast COS |
+| Fast SINPI |
+| Fast COSPI |
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
@@ -236,6 +241,9 @@ ulong mul64x64_64(ulong x, ulong y) {
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
 | Fast DIV | Fast RECIP + FMUL32 |
+| TRIG_REDUCE | MUL + FRACT + FMA |
+| Fast SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
+| Fast COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
 | IMADHI16 | IMUL32 + NO-OP |
 
 </details>
