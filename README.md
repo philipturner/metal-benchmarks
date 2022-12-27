@@ -76,6 +76,8 @@ _IPC stands for instructions per clock. Integer IPC consists of adds and/or fuse
 
 TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipelines. This would boost INTOPS to 160-192/clock.
 
+TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float64.
+
 ## Instruction Throughputs
 
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
