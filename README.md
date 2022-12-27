@@ -24,11 +24,28 @@ _The M2 Pro and later statistics come from recent leaks from Apple's supply chai
 </details>
 
 Table of Contents
-<!-- - [Operations per Second](operations -->
+- [Memory](#memory)
+- [Operations per Second](#operations-per-second)
+- [Instruction Throughputs](#instruction-throughputs)
+- [ALU Bottlenecks](#alu-bottlenecks)
+- [Power Efficiency](#power-efficiency)
+- [References](#references)
+
+## Memory
+
+| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| Max Threads (Occupancy) | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
+| Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
+| Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
+| L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
+| L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+
+<img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
 ## Operations per Second
 
-The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). Expect future advancements to continue in the Neural Engine, such as FP8.
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). AI advancements could continue in the Neural Engine, such as FP8.
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -50,18 +67,6 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 | Int64 IPC | TBD | TBD | - | - | - | - | 0 | 0  |
 
 _IPC stands for instructions per clock._
-
-## SRAM
-
-| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Max Threads (Occupancy) | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
-| Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
-| L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-
-<img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
 ## Instruction Throughputs
 
@@ -176,7 +181,7 @@ TODO: Test Apple's claims about "double the FP32 math units" on A15.
 
 This analysis suggests an ALU has four concurrent pipelines. Each can execute either F32 or I32 math; both data types might share the same circuitry. 64-bit integer operations are one instruction in assembly code</s>, but 4-6x slower than 32-bit integer ops. <s>This is similar to the Apple AMX, where 64-bit floats are 4x slower than 32-bit floats because they don't have dedicated circuitry.</s> Also like the AMX, F16 is neither faster nor slower than F32. F16 mostly decreases register pressure, which increases occupancy and therefore ALU utilization. The AMD GPU also has Int64 math running 4x slower than Int32, <s>possibly</s> with better multiply throughput than Apple. Nvidia emulates it. </s> -->
 
-## Bottlenecks on Throughput
+## ALU Bottlenecks
 
 In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
 
@@ -255,11 +260,8 @@ https://github.com/dougallj/applegpu/issues/21
 
 https://chipsandcheese.com/2022/05/21/igpu-cache-setups-compared-including-m1/
 
-## US Patents
-
 <details>
- 
-<summary>Patents that may reveal design characteristics of the Apple GPU</summary>
+<summary>Patents related to the Apple GPU</summary>
   
 https://www.freepatentsonline.com/y2019/0057484.html
 
@@ -281,7 +283,8 @@ https://patents.justia.com/patent/10114446
 
 </details>
 
-## GPU Configurations
+<details>
+<summary> GPU configurations from IORegistry </summary>
 
 M1 (7-core): https://gist.github.com/IMS212/04d2a96a06eb2c8062029e5680d144f6
 
@@ -290,3 +293,5 @@ M1 (8-core): https://gist.github.com/tommythorn/0ba150bd7a377a6bed4443f412825e20
 M1 Pro (14-core): https://gist.github.com/useraccessdenied/60e211cc13f6986867b6a43ad08fd798
 
 M1 Max (32-core): https://gist.github.com/philipturner/48c72e3fcce0ce9489071eb083a5086e
+ 
+</details>
