@@ -88,10 +88,7 @@ For marketing, Apple says that each GPU core contains 128 ALUs. These roughly co
 A section below discusses ALU bottlenecks, and the ratio 3:4 appears quite often. For example, IMAD16 reaches full utilization with about 3/4 as many simds as IMAD32. At ILP = 1, the FADD16:FADD32 ratio is almost 4:3 and FFMA16 strangely has higher throughput (95/128 scalar IPC). At ILP = 3, the FADD32:FADD16 ratio is 3:4. This could be partially scheduling bottlenecks, but I propose an alternative explanation. 16-bit operations often finish early (3 cycles) in a series of 4 pipelines. The scheduler can't take advantage of extra concurrency and boost throughput, because all pipelines are some multiple of 4 cycles. This common denominator simplifies out-of-order pipelining. However, shorter 16-bit latency decreases how many commands you need running simultaneously. Even with multi-issue, this reduces the need for ILP.
 
 Floating-point pipelines (A15+, M1+) - hypothesis 1
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- TODO: Rethink hypothesis if FFMA32 has latency of 6 cycles, but FFMA16 has latency of 3 cycles.
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Floating-point pipelines (A15+, M1+) - hypothesis 2
@@ -99,10 +96,10 @@ Floating-point pipelines (A15+, M1+) - hypothesis 2
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
-- 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Integer and conversion pipelines
-- 
+- TODO: Split ICMPSEL32 and IADD32 into separate pipelines, test dual-issue capabilities of Float and Int
+- 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Complex integer and bitwise pipelines:
 - TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
