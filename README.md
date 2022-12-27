@@ -83,7 +83,7 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. For simplicity, we omit the fractional pipelines for A14. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. Integer pipelines process both I32 and U32 with the same latency.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This would encourage mixed-precision F16/F32 compute similar to RDNA. For simplicity, we omit the fractional pipelines for A14. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. Integer pipelines process both I32 and U32 with the same latency.
 
 Floating-point and simple integer pipelines
 - 3 cycles: FFMA16, FFMA32 (M1+ only), F/ICMPSEL32, IADD32
@@ -92,9 +92,10 @@ Floating-point and simple integer pipelines
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Complex integer and bitwise pipelines:
-- TODO
+- TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
 
-TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
+Transcendental math pipelines (1.5x per ALU):
+- TODO
 
 ## Instruction Throughputs
 
