@@ -120,14 +120,13 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
-| RECIP |
-| DIV |
-| RSQRT | 8, 8 | 12 | 1.5 | 6 |
-| SQRT |
-| SIN |
-| COS |
-| EXP2 |
-| LOG2 |
+| Fast RECIP | 6 | 6 | 1 | 4 |
+| Fast RSQRT | 8, 8 | 12 | 1.5 | 6 |
+| Fast SQRT |
+| Fast SIN |
+| Fast COS |
+| Fast EXP2 |
+| Fast LOG2 |
 | FMAX32 | 1, 1 | 3 | 3 | 12 |
 | FMIN32 | 1, 1 | 3 | 3 | 12 |
 | FCMPSEL |
@@ -193,10 +192,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 }
 ```
 
-```metal
-// TODO: Metal code for 8-cycle MAD
-```
-
 </details>
 
 
@@ -205,14 +200,23 @@ ulong mul64x64_64(ulong x, ulong y) {
 
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| ROUND_INF | &le;8.3 | &le;22 | 2-3 | 8-12 |
+| ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
 | FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
+| Fast DIV | 6 | 9 | 1.5 | 6 |
+| Precise RECIP |
+| Precise DIV |
+| Precise RSQRT |
+| Precise SQRT |
+| Precise SIN |
+| Precise COS |
+| Precise EXP2 |
+| Precise LOG2 |
 | IMADHI16 | 4 | 8 | 2 | 8 |
 | BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
 | RHADD16 | 4 | 16 | 4 | 16 |
 | RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
-| ABSDIFF32 | 4 | 8-10 | 2-3 | 8-12 |
-| IMULHI64 |
+| ABSDIFF32 | 4 | &le;10 | &le;3 | &le;12 |
+| IMULHI64 | 28 | &le;112 | TBD | TBD |
 | BITSHIFT64 |
 | BITEXTRACT64 |
 | BITWISE64 | 2 | 2 | 1 | 4 |
@@ -225,19 +229,11 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 3 FFMA32 + IADD64 |
 | 3 IADD32 + IADD64 |
 | 3 IMUL16 + 2 IADD64 |
-| Precise RECIP |
-| Precise DIV |
-| Precise RSQRT |
-| Precise SQRT |
-| Precise SIN |
-| Precise COS |
-| Precise EXP2 |
-| Precise LOG2 |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
-| IMADHI16 | IMUL32 + ISHIFT32 ??? |
-| RHADD32 | IADD32 + IADD32 + ISHIFT32 ??? |
+| Fast DIV | Fast RECIP + FMUL32 |
+| IMADHI16 | IMUL32 + NO-OP |
 
 </details>
 
