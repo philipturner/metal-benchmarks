@@ -209,18 +209,20 @@ ulong mul64x64_64(ulong x, ulong y) {
 | -------------------------- | ------ | ------- | ----------- | --- |
 | ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
 | FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
-| Fast DIV | 6 | 9 | 1.5 | 6 |
-| Fast SQRT | 8 | 11 | TBD | TBD |
-| Fast SIN |
-| Fast COS |
-| Fast SINPI |
-| Fast COSPI |
+| Fast DIV16 |
+| Fast DIV32 | 6 | 9 | 1.5 | 6 |
+| Fast SQRT16 |
+| Fast SQRT32 | 8 | 11 | TBD | TBD |
+| SIN16 | &le;14.6 |  &le;27.8 |
+| SINPI16 | &le;18.7 | &le;51.5 |
+| Fast SIN32 | &le;14.5 | &le;27.3 |
+| Fast SINPI32 | &le;26.3 |  &le;88.8 |
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
 | Precise SQRT |
-| Precise SIN |
-| Precise COS |
+| Precise SIN | &le;24.4 | &le;225.3 |
+| Precise SINPI | &le;30.4 | &le;104.4 |
 | Precise EXP2 |
 | Precise LOG2 |
 | IMADHI16 | 4 | 8 | 2 | 8 |
