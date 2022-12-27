@@ -122,16 +122,16 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
-| Fast RECIP16 | 6 | 6 | 1 | 4 |
-| Fast RECIP32 | 6 | 6-7 | 1 | 4 |
-| Fast RSQRT16 | 8, 8 | 8 | 1 | 4 |  
-| Fast RSQRT32 | 8, 8 | 8-9 | 1 | 4 |
+| Fast RECIP16 | 6 | &le;7.5 |  |  |
+| Fast RECIP32 | 6 | &le;8.0 |  |  |
+| Fast RSQRT16 | 8, 8 | TBD, &le;10.0 |  |  |  
+| Fast RSQRT32 | 8, 8 | TBD, &le;10.9 |  |  |
 | SIN_PT_1 |
 | SIN_PT_2 |
-| Fast EXP2_16 | 4 | 6 | 1.5 | 6 |
-| Fast LOG2_16 | 4 | 6 | 1.5 | 6 |
-| Fast EXP2_32 | 4 | 6 | 1.5 | 6 |
-| Fast LOG2_32 | 4 | 6 | 1.5 | 6 |
+| Fast EXP2_16 | 4 | 6 |  |  |
+| Fast LOG2_16 | 4 | 6 |  |  |
+| Fast EXP2_32 | 4 | 6 |  |  |
+| Fast LOG2_32 | 4 | 6 |  |  |
 | FMAX32 | 1, 1 | 3-4 | 3 | 12 |
 | FMIN32 | 1, 1 | 3-4 | 3 | 12 |
 | FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
@@ -141,10 +141,10 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | -------------------------- | ------ | ------- | ----------- | --- |
 | ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
 | FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
-| Fast DIV16 |
-| Fast DIV32 | 6 | 9 | 1.5 | 6 |
+| Fast DIV16 | 6 | &le;9.5 |
+| Fast DIV32 | 6 | &le;9.0 |
 | Fast SQRT16 |
-| Fast SQRT32 | 8 | 11 | TBD | TBD |
+| Fast SQRT32 | 8 | 11 |
 | Fast SIN16 | &le;14.6 |  &le;27.8 |
 | Fast SINPI16 | &le;18.7 | &le;51.5 |
 | Fast SIN32 | &le;14.5 | &le;27.3 |
