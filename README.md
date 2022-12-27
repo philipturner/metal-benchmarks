@@ -59,18 +59,20 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | F16 IPC | 128 | 128 | 128 | 128 | 256 | 2 | 128 | 128 |
 | F32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
 | F64 IPC | 0 | 0 | 4 | 4 | 8 | 4 | 2 | 2 |
-| Transcendental IPC |  TBD | TBD | TBD | 16 | TBD | 32 | 16 | 16 |
+| Transcendental IPC | TBD | TBD | TBD | 16 | TBD | 32 | 16 | 16 |
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | I16 OPs/Clock | >128 | 256 | 256 | 512 | 0 | 0 | 0 |
 | I32 OPs/Clock | >128 | 128 | 128 | 256 | 128 | 128 | 128 |
-| I64 OPs/Clock | TBD | 32 | 32 | 64 | 0 | 0 | 0 |
+| I64 OPs/Clock | >32 | 32 | 32 | 64 | 0 | 0 | 0 |
 | I16 IPC | 128 | 128 | 128 | 256 | 256 | 0 | 0 | 0 |
 | I32 IPC | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
-| I64 IPC | TBD | 16 | 16 | 32 | 0 | 0 | 0  |
+| I64 IPC | 32 | 16 | 16 | 32 | 0 | 0 | 0  |
 | I32 Adds/Clock | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | I32 Muls/Clock | 32 | 64 | 64 | 128 | 0 | 64 | 64 |
+| I64 Adds/Clock | 32 | 16 | 16 | 32 | 0 | 0 | 0 |
+| I64 Muls/Clock | 8 | 16 | 16 | 32 | 0 | 0 | 0 |
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest._
 
@@ -143,7 +145,7 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 </details>
 
 <details>
-  <summary>Notes on mixed-precision integer math</summary>
+<summary>Notes on mixed-precision Int64 math</summary>
 
 IMUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
 
