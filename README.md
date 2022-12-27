@@ -1,9 +1,9 @@
 # Metal Benchmarks
 
-Test suite to measure microarchitectural details of the M1 GPU. These details include latencies for each ALU assembly instruction, threadgroup memory bandwidth, and the number of unique instruction pipelines. This information will enable evidence-based reasoning about performance on the M1 GPU. This repository also compares the M1 to generations of AMD and Nvidia microarchitectures. Finally, it examines how Apple's design choices improve power efficiency compared to other vendors.
+This repository thoroughly documents the Apple GPU microarchitecture, specifically its GPGPU capabilities. Details include latencies for each ALU assembly instruction, register file, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the M1 GPU, to help people diagnose bottlenecks in real-world software. It also compares the M1 to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
 
 <details>
-<summary>Overview of Apple GPU series</summary>
+<summary>Overview of Apple-designed GPUs</summary>
 
 | Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 |
 | --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: |
@@ -19,6 +19,8 @@ Test suite to measure microarchitectural details of the M1 GPU. These details in
 | M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | >6800 |
 | M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | >13600 |
 
+_The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out._
+
 </details>
 
 Table of Contents
@@ -26,7 +28,7 @@ Table of Contents
 
 ## Operations per Second
 
-The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out.
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. Future chips will likely retain the same ratio of F32:F16:I32 compute power. The Apple GPU architecture may become "frozen" as Moore's Law grinds to a halt; all major vendors have converged on 256 FP32 Ops/clock. Future improvements will include hardware-accelerated ray tracing, but not tensor cores.
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
