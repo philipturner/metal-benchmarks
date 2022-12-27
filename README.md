@@ -87,12 +87,22 @@ For marketing, Apple says that each GPU core contains 128 ALUs. These roughly co
 
 A section below discusses ALU bottlenecks, and the ratio 3:4 appears quite often. For example, IMAD16 reaches full utilization with about 3/4 as many simds as IMAD32. At ILP = 1, the FADD16:FADD32 ratio is almost 4:3 and FFMA16 strangely has higher throughput (95/128 scalar IPC). At ILP = 3, the FADD32:FADD16 ratio is 3:4. This could be partially scheduling bottlenecks, but I propose an alternative explanation. 16-bit operations often finish early (3 cycles) in a series of 4 pipelines. The scheduler can't take advantage of extra concurrency and boost throughput, because all pipelines are some multiple of 4 cycles. This common denominator simplifies out-of-order pipelining. However, shorter 16-bit latency decreases how many commands you need running simultaneously. Even with multi-issue, this reduces the need for ILP.
 
-Floating-point and simple integer pipelines (A15+, M1+)
+Floating-point pipelines (A15+, M1+) - hypothesis 1
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
+
+Floating-point pipelines (A15+, M1+) - hypothesis 2
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: convert I32 to F32, round F32 to U32/I32
+
+Integer and conversion pipelines
+- 
 
 Complex integer and bitwise pipelines:
 - TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
@@ -113,12 +123,12 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1, 1 | 3 | 3, 4 | 12, 16 |
-| FMUL16 | 1, 1 | 3 | 3, 4 | 12, 16 |
-| FFMA16 | 1, 1 | 3 | 3, 4 | 12, 16 |
-| FADD32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
-| FMUL32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
-| FFMA32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
+| FADD16 | 1, 1 | ??? | ???, ??? | ???, ??? |
+| FMUL16 | 1, 1 | ??? | ???, ??? | ???, ??? |
+| FFMA16 | 1, 1 | 3 | ???, ??? | ???, ??? |
+| FADD32 | 2, 1 | ???, ??? | ???, ??? | ???, ??? |
+| FMUL32 | 2, 1 | ???, ??? | ???, ??? | ???, ??? |
+| FFMA32 | 2, 1 | 6, 6 | ???, ??? | ???, ??? |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
@@ -140,10 +150,10 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | 3 | 3 | 12 |
+| IADD16 | 1, 1 | ??? | ??? | ??? |
 | IMUL16 | 4, 4 | 4 | 1 | 4 |
 | IMAD16 | 4, 4 | 4 | 1 | 4 |
-| IADD32 | 1, 1 | 3 | 3 | 12 |
+| IADD32 | 1, 1 | ??? | ??? | ??? |
 | IMUL32 | 4, 4 | 4 | 1 | 4 |
 | IMAD32 | 4, 4 | 4 | 1 | 4 |
 | IMADHI32 | 8 | 8 | 1 | 4 |
