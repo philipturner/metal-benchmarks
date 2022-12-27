@@ -137,6 +137,34 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
 | FCMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
+| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
+| FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
+| Fast DIV16 |
+| Fast DIV32 | 6 | 9 | 1.5 | 6 |
+| Fast SQRT16 |
+| Fast SQRT32 | 8 | 11 | TBD | TBD |
+| Fast SIN16 | &le;14.6 |  &le;27.8 |
+| Fast SINPI16 | &le;18.7 | &le;51.5 |
+| Fast SIN32 | &le;14.5 | &le;27.3 |
+| Fast SINPI32 | &le;26.3 |  &le;88.8 |
+| Precise RECIP |
+| Precise DIV |
+| Precise RSQRT |
+| Precise SQRT |
+| Precise SIN | &le;24.4 | &le;225.3 |
+| Precise SINPI | &le;30.4 | &le;104.4 |
+| Precise EXP2 |
+| Precise LOG2 |
+
+| Instruction Sequence | Actual Instructions |
+| -------------------------- | ------ |
+| Fast DIV | Fast RECIP + FMUL32 |
+| TRIG_REDUCE | MUL + FRACT + FMA |
+| Fast SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
+| Fast COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
+
 </details>
 
 <details>
@@ -168,12 +196,45 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | ICMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
 | ICMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
+| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| IMADHI16 | 4 | 8 | 2 | 8 |
+| BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
+| RHADD16 | 4 | 16 | 4 | 16 |
+| RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
+| ABSDIFF32 | 4 | &le;10 | &le;3 | &le;12 |
+| IMULHI64 | 28 | &le;112 | TBD | TBD |
+| BITSHIFT64 |
+| BITEXTRACT64 |
+| BITWISE64 | 2 | 2 | 1 | 4 |
+| BITREV64 |
+| POPCOUNT64 |
+| CLZ/CTZ64 |
+| IMAX64 |
+| IMIN64 |
+| ICMPSEL64 |
+
+| Instruction Sequence | Actual Instructions |
+| -------------------------- | ------ |
+| IMADHI16 | IMUL32 + NO-OP |
+
 </details>
 
 <details>
-<summary>Notes on mixed-precision Int64 math</summary>
+<summary>Mixed workload performance</summary>
 
-IMUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
+| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
+| -------------------------- | ------ | ------- | ----------- | --- |
+| FFMA32 + FFMA16 |
+| 3 FFMA32 + IADD64 |
+| 3 IADD32 + IADD64 |
+| 3 IMUL16 + 2 IADD64 |
+
+| Instruction Sequence | Actual Instructions |
+| -------------------------- | ------ |
+| IMADHI16 | IMUL32 + NO-OP |
+
+Regarding mixed-precision Int64 math: MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
 
 ```metal
 // 12 cycles - don't do this.
@@ -198,59 +259,6 @@ ulong mul64x64_64(ulong x, ulong y) {
   return x * y;
 }
 ```
-
-</details>
-
-
-<details>
-<summary>Multi-instruction operations</summary>
-
-| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
-| ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
-| FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
-| Fast DIV16 |
-| Fast DIV32 | 6 | 9 | 1.5 | 6 |
-| Fast SQRT16 |
-| Fast SQRT32 | 8 | 11 | TBD | TBD |
-| SIN16 | &le;14.6 |  &le;27.8 |
-| SINPI16 | &le;18.7 | &le;51.5 |
-| Fast SIN32 | &le;14.5 | &le;27.3 |
-| Fast SINPI32 | &le;26.3 |  &le;88.8 |
-| Precise RECIP |
-| Precise DIV |
-| Precise RSQRT |
-| Precise SQRT |
-| Precise SIN | &le;24.4 | &le;225.3 |
-| Precise SINPI | &le;30.4 | &le;104.4 |
-| Precise EXP2 |
-| Precise LOG2 |
-| IMADHI16 | 4 | 8 | 2 | 8 |
-| BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
-| RHADD16 | 4 | 16 | 4 | 16 |
-| RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
-| ABSDIFF32 | 4 | &le;10 | &le;3 | &le;12 |
-| IMULHI64 | 28 | &le;112 | TBD | TBD |
-| BITSHIFT64 |
-| BITEXTRACT64 |
-| BITWISE64 | 2 | 2 | 1 | 4 |
-| BITREV64 |
-| POPCOUNT64 |
-| CLZ/CTZ64 |
-| IMAX64 |
-| IMIN64 |
-| ICMPSEL64 |
-| 3 FFMA32 + IADD64 |
-| 3 IADD32 + IADD64 |
-| 3 IMUL16 + 2 IADD64 |
-
-| Instruction Sequence | Actual Instructions |
-| -------------------------- | ------ |
-| Fast DIV | Fast RECIP + FMUL32 |
-| TRIG_REDUCE | MUL + FRACT + FMA |
-| Fast SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
-| Fast COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
-| IMADHI16 | IMUL32 + NO-OP |
 
 </details>
 
