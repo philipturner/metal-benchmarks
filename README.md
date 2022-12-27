@@ -199,7 +199,7 @@ ulong mul64x64_64(ulong x, ulong y) {
 ```
 
 ```metal
-// TODO: MAD
+// TODO: Metal code for 8-cycle MAD
 ```
 
 </details>
