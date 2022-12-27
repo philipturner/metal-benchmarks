@@ -83,14 +83,13 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we have fractional F32 pipelines/ALU.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". For simplicity, we assume fused F16/F32 pipelines with 6 cycles for F32. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost.
 
-Floating point pipelines (A14)
-- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
-- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
-- F16: FADD16, FMUL16, or FFMA16 in 3 cycles
-- F32: FADD32, FMUL32, or FFMA32 in 3 cycles
-- Half of (F32: FADD32, FMUL32, or FFMA32 in 3 cycles)
+Floating point pipelines:
+- F32: FFMA32 in 3 cycles (6 for A14 unless F16)
+- F32: FFMA32 in 3 cycles (6 for A14 unless F16)
+- F32: FFMA32 in 3 cycles (6 for A14 unless F16)
+- F32: convert from U32/I32 to F32, or round from F32 to U32/I32
 
 ## Instruction Throughputs
 
@@ -108,9 +107,9 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FADD16 | 1, 1 | 3 | 3 | 12 |
 | FMUL16 | 1, 1 | 3 | 3 | 12 |
 | FFMA16 | 1, 1 | 3 | 3 | 12 |
-| FADD32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
-| FMUL32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
-| FFMA32 | 2, 1 | 3, 3 | 1.5, 3 | 6, 12 |
+| FADD32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
+| FMUL32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
+| FFMA32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
