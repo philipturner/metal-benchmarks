@@ -28,7 +28,7 @@ Table of Contents
 
 ## Operations per Second
 
-The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. Future chips will likely retain the same ratio of F32:F16:I32 compute power. The Apple GPU architecture may become "frozen" as Moore's Law grinds to a halt; all major vendors have converged on 256 FP32 Ops/clock. Future improvements will include hardware-accelerated ray tracing, but not tensor cores.
+The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). Expect future advancements to continue in the Neural Engine, such as FP8.
 
 | Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
