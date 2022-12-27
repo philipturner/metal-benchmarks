@@ -26,14 +26,14 @@ _The M2 Pro and later statistics come from recent leaks from Apple's supply chai
 </details>
 
 Table of Contents
-- [Memory](#memory)
+- [On-Chip Memory](#on-chip-memory)
 - [Operations per Second](#operations-per-second)
 - [Instruction Throughputs](#instruction-throughputs)
 - [ALU Bottlenecks](#alu-bottlenecks)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
 
-## Memory
+## On-Chip Memory
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
@@ -78,7 +78,7 @@ TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipel
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. If listed with a comma, throughputs differ between A14 and M1. A14 is listed first. Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -153,7 +153,7 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | IMULHI64 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
-| BITWISE64 | 1 | 1 | 1 | 4 |
+| BITWISE64 | 2 | 2 | 1 | 4 |
 | BITREV64 |
 | POPCOUNT64 |
 | CLZ/CTZ64 |
