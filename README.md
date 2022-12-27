@@ -85,7 +85,7 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost.
 
-Floating-point and simple integer pipelines (A14+, per 2 ALUs)
+Floating-point and simple integer pipelines (A11 - A14, per 2 ALUs)
 - 3 cycles: FFMA16, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, F/ICMPSEL32, IADD32
@@ -95,7 +95,7 @@ Floating-point and simple integer pipelines (A14+, per 2 ALUs)
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
-Floating-point and simple integer pipelines (M1+)
+Floating-point and simple integer pipelines (A15+, M1+)
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
 - 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
