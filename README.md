@@ -51,7 +51,7 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 
 Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). AI advancements could continue in the Neural Engine, such as FP8.
 
-| Per Core | A14 | M1, Apple 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| Per Core | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | F16 OPs/Clock | 256 | 256 | 256 | 256 | 512 | 4 | 256 | 256 |
 | F32 OPs/Clock | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
@@ -64,11 +64,13 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | I16 OPs/Clock | >128 | 256 | 256 | 512 | 0 | 0 | 0 |
-| I32 OPs/Clock | >128 | 128 | 128 | 256 |
+| I32 OPs/Clock | >128 | 128 | 128 | 256 | 128 | 128 | 128 |
 | I64 OPs/Clock | TBD | 32 | 32 | 64 | 0 | 0 | 0 |
 | I16 IPC | 128 | 128 | 128 | 256 | 256 | 0 | 0 | 0 |
 | I32 IPC | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | I64 IPC | TBD | 16 | 16 | 32 | 0 | 0 | 0  |
+| I32 Adds/Clock | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
+| I32 Muls/Clock | 32 | 64 | 64 | 128 | 0 | 64 | 64 |
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest._
 
