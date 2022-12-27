@@ -86,10 +86,10 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". For simplicity, we assume fused F16/F32 pipelines with 6 cycles for F32. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost.
 
 F32 and simple I32 pipelines:
-- F32, 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
-- F32, 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
-- F32, 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
-- F32, 4 cycles: convert from U32/I32 to F32, or round from F32 to U32/I32
+- 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
+- 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
+- 3 cycles: FFMA16/FFMA32 (A14 takes 6 cycles), FCMPSEL32, IADD32
+- 4 cycles: convert from U32/I32 to F32, or round from F32 to U32/I32
 
 ## Instruction Throughputs
 
