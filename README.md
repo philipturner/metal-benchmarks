@@ -112,12 +112,12 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1, 1 | ??? | ???, ??? | ???, ??? |
-| FMUL16 | 1, 1 | ??? | ???, ??? | ???, ??? |
-| FFMA16 | 1, 1 | 3 | 3 | ???, ??? |
-| FADD32 | 2, 1 | ???, ??? | ???, ??? | ???, ??? |
-| FMUL32 | 2, 1 | ???, ??? | ???, ??? | ???, ??? |
-| FFMA32 | 2, 1 | 3 | 3 | ???, ??? |
+| FADD16 | 1, 1 | 3 | 3, 3 | 12, 12 |
+| FMUL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
+| FFMA16 | 1, 1 | 3 | 3, 3 | 12, 12 |
+| FADD32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
+| FMUL32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
+| FFMA32 | 2, 1 | 3-4 | 1.5, 3 | 6, 12 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
@@ -139,18 +139,19 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | ??? | ??? | ??? |
+| IADD16 | 1, 1 | 3 | 3 | 12 |
 | IMUL16 | 4, 4 | 4 | 1 | 4 |
 | IMAD16 | 4, 4 | 4 | 1 | 4 |
-| IADD32 | 1, 1 | ??? | ??? | ??? |
+| IADD32 | 1, 1 | 3-4 | 3 | 12 |
 | IMUL32 | 4, 4 | 4 | 1 | 4 |
 | IMAD32 | 4, 4 | 4 | 1 | 4 |
 | IMADHI32 | 8 | 8 | 1 | 4 |
-| IMAD(32x32+64=64) | 8 |
-| IMAD(64x32+64=64) | 12 |
-| IADD64 | 4 |
-| IMUL64 | 16 |
-| IMAD64 | 16 |
+| IMAD((32x32=32)+64) | 4 | &le;15 | TBD | TBD |
+| IMAD((32x32=64)+64) | 8 | 8 | 1 | 4 |
+| IMAD(64x32+64=64) | 12 | &le;24 | TBD | TBD |
+| IADD64 | 4 | &le;14 | TBD | TBD 
+| IMUL64 | 16 | &le;32 | TBD | TBD |
+| IMAD64 | 16 | &le;32 | TBD | TBD |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 | 1 | 1 | 1 | 4 |
