@@ -10,12 +10,13 @@ using namespace metal;
 
 // Benchmark instruction cache and register cache.
 
-#define FLOAT float
+#define FLOAT half
 #define FLOAT4 vec<FLOAT, 4>
 #define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL13
+#define HALF_SET 0
+#define TWO_SET 1
 
-// TODO: Test integer, MAD, and FMA as well.
-// Other instructions should use 720 iterations, 10x oversubscription
+// Complex instructions should use 720 iterations, 10x oversubscription
 
 // ILP 1  = MUL13
 // ILP 2  = MUL12
@@ -26,8 +27,55 @@ using namespace metal;
 
 // MARK: - Multiply Macros
 
-#define OP(x, y) x + y;
-//#define OP(x, y) x * y + y;
+//__attribute__((__always_inline__))
+//uint mul32x32_64(uint x, uint y) {
+//  ulong result64 = ulong(x) * as_type<ulong>(uint2(y, x)) * as_type<ulong>(uint2(y, x));
+//  uint lo = as_type<uint2>(result64)[0];
+//  uint hi = as_type<uint2>(result64)[1];
+//  return hi;
+//
+////  uint lo = x * y;
+////  uint hi = mulhi(x, y);
+////  return lo ^ hi;
+//};
+
+#define OP(x, y) x * y + x;
+//#define OP(x, y) as_type<half4>(as_type<short4>(as_type<short4>(max(x, y)) | as_type<short4>(y)));
+//#define OP(x, y) mul32x32_64(x, y);
+//#define OP(x, y) madhi(x, y, x);
+//#define OP(x, y, z) median3(x, y, as_type<half>(short(as_type<short>(z))));
+//#define OP(x, y, z) median3(x, y, z);
+
+//// ILP = 1
+//#define TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
+//vec1[0] = OP(vec1[0], vec6[3], vec6[2]); \
+//vec1[1] = OP(vec1[1], vec1[0], vec6[3]); \
+//vec1[2] = OP(vec1[2], vec1[1], vec1[0]); \
+//vec1[3] = OP(vec1[3], vec1[2], vec1[1]); \
+
+// ILP = 1
+#define TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
+vec1[0] = OP(vec1[0], vec6[0], vec6[2]); \
+vec1[1] = OP(vec1[1], vec6[1], vec6[3]); \
+vec1[2] = OP(vec1[2], vec6[2], vec1[0]); \
+vec1[3] = OP(vec1[3], vec6[3], vec1[1]); \
+
+#define TWENTY_FOUR_GROUP_FMA01 \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec2, vec1) \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec3, vec2) \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec4, vec3) \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec5, vec4) \
+TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec6, vec5) \
+
+// ILP = 1
+#define TWENTY_FOUR_GROUP_MUL13 \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec1, vec6) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec2, vec1) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec3, vec2) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec4, vec3) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec5, vec4) \
+TWENTY_FOUR_GROUP_MUL13_SUBSECTION(vec6, vec5) \
 
 #define TWENTY_FOUR_GROUP_MUL10 \
 vec1 = OP(vec1, vec1); \
@@ -225,12 +273,12 @@ vec2.xyz = vec2.xyz * vec1.xyz; \
 // MARK: - FMA Macros
 
 #define TWENTY_FOUR_GROUP_FMA0 \
-vec1 = fma(vec1, vec2, vec3); \
-vec4 = fma(vec4, vec5, vec6); \
-vec2 = fma(vec1, vec2, vec3); \
-vec5 = fma(vec4, vec5, vec6); \
-vec3 = fma(vec1, vec2, vec3); \
-vec6 = fma(vec4, vec5, vec6); \
+vec1 = OP(vec1, vec2, vec3); \
+vec4 = OP(vec4, vec5, vec6); \
+vec2 = OP(vec1, vec2, vec3); \
+vec5 = OP(vec4, vec5, vec6); \
+vec3 = OP(vec1, vec2, vec3); \
+vec6 = OP(vec4, vec5, vec6); \
 
 #define TWENTY_FOUR_GROUP_FMA1 \
 vec1 = fma(vec1, vec2, vec3); \
@@ -375,8 +423,16 @@ kernel void testCache(device FLOAT4 *inputs [[buffer(0)]],
 //    TWENTY_FOUR_GROUP
 //    TWENTY_FOUR_GROUP
 
+#if HALF_SET
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+#elif TWO_SET
     SEVEN_TWENTY_GROUP
     SEVEN_TWENTY_GROUP
+#else
+    SEVEN_TWENTY_GROUP
+#endif
 //    SEVEN_TWENTY_GROUP
 //    SEVEN_TWENTY_GROUP
 
