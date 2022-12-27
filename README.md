@@ -85,14 +85,14 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. For floating-point pipelines, the 32-bit register dependency invokes a 1-cycle penalty until ILP approaches 4.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. For floating-point pipelines, a 32-bit register dependency invokes a ~1-cycle penalty until ILP approaches 4.
 
 On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power).
 
 Floating-point pipelines (A15+, M1+)
-- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
-- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
-- 3-4 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
 - 4 cycles: convert I32 to F32, round F32 to U32/I32, extract fractional part
 
 Complex integer and bitwise pipelines:
@@ -103,7 +103,7 @@ Transcendental math pipelines (1-1.5x per ALU):
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are sometimes recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -137,10 +137,10 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
 | FCMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
 
-| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
-| ROUND_INF | &le;8.3 | &le;22 | &le;3 | &le;12 |
-| FMEDIAN | &le;3.6 | &le;10 | 3 | 12 | 
+| Instruction Sequence | Throughput | Latency |
+| -------------------------- | ------ | ------- |
+| ROUND_INF | &le;8.3 | &le;22 |
+| FMEDIAN | &le;3.6 | &le;10 |
 | Fast DIV16 | 6 | &le;9.5 |
 | Fast DIV32 | 6 | &le;9.0 |
 | Fast SQRT16 |
@@ -172,41 +172,41 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | 3 | 3 | 12 |
-| IMUL16 | 4, 4 | 4 | 1 | 4 |
-| IMAD16 | 4, 4 | 4 | 1 | 4 |
-| IADD32 | 1, 1 | 3-4 | 3 | 12 |
-| IMUL32 | 4, 4 | 4 | 1 | 4 |
-| IMAD32 | 4, 4 | 4 | 1 | 4 |
-| IMADHI32 | 8 | 8 | 1 | 4 |
-| IMAD((32x32=32)+64) | 4 | &le;15 | TBD | TBD |
-| IMAD((32x32=64)+64) | 8 | 8 | 1 | 4 |
-| IMAD(64x32+64=64) | 12 | &le;24 | TBD | TBD |
-| IADD64 | 4 | &le;14 | TBD | TBD 
-| IMUL64 | 16 | &le;32 | TBD | TBD |
-| IMAD64 | 16 | &le;32 | TBD | TBD |
+| IADD16 | 1, 1 | 2.97-3.34 |
+| IMUL16 | 4, 4 | 4.20-5.39 | 
+| IMAD16 | 4, 4 | 4.18-5.38 |
+| IADD32 | 1, 1 | 3.51-3.91 |
+| IMUL32 | 4, 4 | 4.30-5.72 |
+| IMAD32 | 4, 4 | 4 |
+| IMADHI32 | 8 | 8 |
+| IMAD((32x32=32)+64) | 4 | &le;15 |
+| IMAD((32x32=64)+64) | 8 | 8 |
+| IMAD(64x32+64=64) | 12 | &le;24 |
+| IADD64 | 4 | &le;14 |
+| IMUL64 | 16 | &le;32 |
+| IMAD64 | 16 | &le;32 |
 | BITSHIFT32 |
 | BITEXTRACT32 |
-| BITWISE32 | 1 | 1 | 1 | 4 |
-| BITREV32 | 4 | 3 | 1 | 4 |
+| BITWISE32 | 1 | 1 |
+| BITREV32 | 4 | 3 |
 | POPCOUNT32 |
 | CTZ/CLZ32 |
-| IMAX32 | 1, 1 | 3-4 | 3 | 12 |
-| IMIN32 | 1, 1 | 3-4 | 3 | 12 |
-| ICMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
-| ICMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
+| IMAX32 | 1, 1 | 3-4 |
+| IMIN32 | 1, 1 | 3-4 |
+| ICMPSEL16 | 1, 1 | 3 |
+| ICMPSEL32 | 1, 1 | 3-4 |
 
 | Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IMADHI16 | 4 | 8 | 2 | 8 |
-| BITREV16 | &le;4.2 | &le;13 | 3 | 12 |
-| RHADD16 | 4 | 16 | 4 | 16 |
-| RHADD32 | 6 | &le;36 | &le;6 | &le;24 |
-| ABSDIFF32 | 4 | &le;10 | &le;3 | &le;12 |
-| IMULHI64 | 28 | &le;112 | TBD | TBD |
+| IMADHI16 | 4 | &le;7.3 |
+| BITREV16 | &le;4.2 | &le;13 |
+| RHADD16 | 4 | 16 |
+| RHADD32 | 6 | &le;36 |
+| ABSDIFF32 | 4 | &le;10 |
+| IMULHI64 | 28 | &le;112 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
-| BITWISE64 | 2 | 2 | 1 | 4 |
+| BITWISE64 |
 | BITREV64 |
 | POPCOUNT64 |
 | CLZ/CTZ64 |
