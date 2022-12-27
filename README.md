@@ -83,24 +83,15 @@ TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. On A14, we might have separate F16 and F32 pipelines (1.5 F32 @ 3 cycles). This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). For simplicity, the A14 pipeline structure is omitted.
 
-Floating-point and simple integer pipelines (A11 - A14, per 2 ALUs)
-- 3 cycles: FFMA16, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- If the above pipelines actually take 4 cycles, add two pipelines here.
-- 4 cycles: convert I32 to F32, round F32 to U32/I32
-- 4 cycles: convert I32 to F32, round F32 to U32/I32
+A section below discussed ALU bottlenecks, and the ratio 3:4 appears quite often. For example, IADD16 reaches full utilization with about 3/4 as many simds as IADD32. At ILP = 1, the FADD16:FADD32 ratio is almost 4:3 and FFMA16 strangely has higher throughput (95/128 scalar IPC). At ILP = 3, the FADD32:FADD16 ratio is 3:4. This could be partially scheduling bottlenecks, but I propose an alternative explanation. 16-bit operations often finish early (3 cycles) in a series of 4 pipelines. The scheduler can't take advantage of extra concurrency and boost throughput, because all pipelines are some multiple of 4 cycles. This common denominator simplifies out-of-order pipelining. However, shorter 16-bit latency decreases how many commands you need running simultaneously. Even with multi-issue, this reduces the need for ILP.
 
 Floating-point and simple integer pipelines (A15+, M1+)
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- 3 cycles: FFMA16, FFMA32, F/ICMPSEL32, IADD32
-- If the above pipelines actually take 4 cycles, add another pipeline here.
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
+- 4 cycles: FFMA32, F/ICMPSEL32, IADD32, 3 cycles: FFMA16, IADD16
 - 4 cycles: convert I32 to F32, round F32 to U32/I32
 
 Complex integer and bitwise pipelines:
@@ -122,12 +113,12 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1, 1 | 3 | 3 | 12 |
-| FMUL16 | 1, 1 | 3 | 3 | 12 |
-| FFMA16 | 1, 1 | 3 | 3 | 12 |
-| FADD32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
-| FMUL32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
-| FFMA32 | 2, 1 | 3-6, 3 | 1.5-3, 3 | 6-12, 12 |
+| FADD16 | 1, 1 | 3 | 3, 4 | 12, 16 |
+| FMUL16 | 1, 1 | 3 | 3, 4 | 12, 16 |
+| FFMA16 | 1, 1 | 3 | 3, 4 | 12, 16 |
+| FADD32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
+| FMUL32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
+| FFMA32 | 2, 1 | 4, 4 | 2, 4 | 8, 16 |
 | ROUND_EVEN | 4 | 4 | 1 | 4 |
 | CONVERT(I to F) | 4 | 4 | 1 | 4 |
 | RECIP |
