@@ -87,13 +87,15 @@ On A14, we might have separate F16 and F32 pipelines. This would reflect how Met
 
 ---
 
-Floating-point pipelines (A15+, M1+)
-- 3 cycles: F/IADD32, F/ICMPSEL32, BITSHIFT32(<<4)
-- 3 cycles: F/IADD32, F/ICMPSEL32, BITSHIFT32(<<4)
-- 3 cycles: F/IADD32, F/ICMPSEL32, BITSHIFT32(<<4)
+Core compute pipelines (A15+, M1+)
+- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
+- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
+- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
 - 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
 - 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
 - 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
+
+Other pipelines
 - 4 cycles: convert I32 to F32, round F32 to U32/I32, extract fractional part
 - TODO: Test whether `fract` can happen concurrently to `rint`.
 
@@ -115,8 +117,6 @@ This model is somewhat oversimplified. The FFMA16 instruction may share a modula
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are sometimes recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. Benchmarks issued 250x the amount of work needed to fully occupy a core's register file.
 
 Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
-
-TODO: Transform "optimal repetitions" for instruction sequences into executable size.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -223,12 +223,12 @@ _\*\* Based on results of the instruction sequence BITINSERT32 + ADD32, BITINSER
 | BITWISE32 + ADD32 | 2.11 | 5.56-6.44 | 720 |
 | BITINSERT32 + ADD32 | 4.42 | 9.56-10.23 | 240-360 |
 | BITREV16 | 4 | 5.76-6.76 | 480 |
-| BITROTATE | 8.20 | 22.84-22.70 | 720-1440 |
+| BITROTATE32 | 8.20 | 22.84-22.70 | 720-1440 |
 | RHADD16 | 4 | 15.65-16.42 | 480 |
 | RHADD32 | 6 | 18.96-20.89 | 240 |
 | CLZ32 | 4.05 | 7.67-9.33 | 480-960 |
-| LSHIFT32 | 4.01 | 5.56-6.74 | 720 |
-| RSHIFT32 | 7.89 | 10.80-12.19 | 720 |
+| LSHIFT32\* | 4.01 | 5.56-6.74 | 720 |
+| RSHIFT32\* | 7.89 | 10.80-12.19 | 720 |
 | ABSDIFF32 | 4.03 | 8.27-9.97 | 480-1440 |
 | IADD(32+32=64) | 3.07 | 6.89-7.86 | 480 |
 | IADD(64+32=64) | 3.30 | 9.63-9.78 | 360-480 |
@@ -239,6 +239,8 @@ _\*\* Based on results of the instruction sequence BITINSERT32 + ADD32, BITINSER
 | IMAD((32x32=64)+64) | 8.03 | 19.04-19.85 | 720-960 |
 | IMAD((64x64=64)+64) | 16.58 | 21.32-25.94 | 180 |
 | IMULHI64 | 22.22 | 37.87-45.32 | &le;120 |
+
+_\* When the shift amount is unknown at compile time, LSHIFT32 and RSHIFT32 appear like multi-instruction sequences according to the 12 KB instruction cache. I cannot specify a constant amount without the compiler optimizing it away._
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
@@ -321,12 +323,38 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD32 + 4 IADD16 | 9.20 |
 | IMAD32 + IMAD((32x32=32)+64) + 4 IADD16 | 11.16 |
 | IMAD((32x32=32)+64) + 4 IADD16 | 8.44 |
+
+| Instruction Sequence | Throughput |
+| -------------------------- | ------ |
 | IMUL64 + FMUL32 | TODO |
 | IMUL64 + 2 FMUL32 | TODO |
 | IMUL64 + 3 FMUL32 | TODO |
 | IMUL64 + 4 FMUL32 | TODO |
-| IMUL + LSHIFT32 | TODO |
-| IMUL + BITSHIFT(<<4) | TODO |
+| IMUL32 + IADD32 | 4.00 |
+| IMUL32 + 2 IADD32 | 4.12 |
+| IMUL32 + 3 IADD32 | 5.36 |
+| 3 IMUL32 + IADD32 | 12.00 |
+| IMAD32 + IADD32 | 4.00 |
+| IMAD32 + 2 IADD32 | 4.12 |
+| IMAD32 + 3 IADD32 | 5.40 |
+| 3 IMAD32 + IADD32 | 12.08 |
+| IMAD32 + LSHIFT32 | 8.02 |
+| IMUL32 + BITREV32 | 8.00 |
+| IMAD32 + BITREV32 | 8.00 |
+| IMAD32 + POPCOUNT32 | 8.00 |
+| IMUL32 + FMUL32 | 4.00 |
+| IMUL32 + 2 FMUL32 | 4.00 |
+| IMUL32 + 3 FMUL32 | 5.20 |
+| IMUL32 + BITWISE32 | 4.00 |
+| IMUL32 + FADD32 | 4.00 |
+| IMUL32 + FADD32 + BITWISE32 | 4.24 |
+| IMUL32 + RINT32 + FADD32 + BITWISE32 | 8.02 |
+| RINT32 + BITWISE32 |
+| RINT32 + FRACT32 |
+| RINT32 + LSHIFT32 |
+| RINT32 + BITREV32 |
+| RINT32 + IADD32 |
+| FRACT32 + IADD32 |
 
 </details>
 
