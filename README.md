@@ -158,8 +158,8 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
-| FMEDIAN16 | 6.54 | 15.00-16.41 | ~120-240 |
-| FMEDIAN32 | 3.65 | 9.20-10.86 | ~360-480 |
+| FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
+| FMEDIAN32 | 3.65 | 9.20-10.86 | 360-480 |
 | Fast DIV16 | TBD, 6 | TBD, &le;9.5 |
 | Fast DIV32 | TBD, 6 | TBD, &le;9.0 |
 | Fast SQRT16 | TBD, 8 | TBD, 9.56-10.74 | 960 |
@@ -191,21 +191,19 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | 2.97-3.34 |
+| IADD16 | 1, 1 | 2.97-3.34 | TODO |
 | IMUL16 | 4, 4 | 4.20-5.39 | 
 | IMAD16 | 4, 4 | 4.18-5.38 |
 | IADD32 | 1, 1 | 3.51-3.91 |
 | IMUL32 | 4, 4 | 4.30-5.72 |
 | IMAD32 | 4, 4 | 7.13-7.67 |
-| IADD(32+32=64) | &le; 3 | TODO |
-| IMAD((32x32=32)+64) | 4 | &le;15 |
-| IMADHI32 | 8 | 9.83-12.20 |
-| IMAD((32x32=64)+64) | 8 | 8 |
-| IMAD(64x32+64=64) | 12 | &le;24 |
-| BITSHIFT32 |
-| BITEXTRACT32 |
-| BITWISE32 | 1 | 1 |
-| BITREV32 | 4 | 3 |
+| IMULHI32 | 8.01 | 10.59-11.53 |
+| IMUL(32x32=64) | ??? | ??? |
+| BITSHIFT32(<<4) | TODO
+| BITSHIFT32 | TODO
+| BITEXTRACT32 | TODO
+| BITWISE32 | 1 | 1 ??? |
+| BITREV32 | 4 | 3 ??? |
 | POPCOUNT32 |
 | CTZ/CLZ32 |
 | ICMPSEL16 | 1, 1 | 2.98-3.34 |
@@ -222,10 +220,16 @@ TODO: Test optimal repetitions on mixed-precision integer math. Are they all per
 | RHADD16 | 4 | 15.65-16.42 | 480
 | RHADD32 | 6 | 18.96-20.89 | 240
 | ABSDIFF32 | 4 | &le;10 |
+| IADD(32+32=64) | 3.07 | 6.89-7.86 | 480 |
+| IADD(64+32=64) | 3.30 | 9.63-9.78 | 360-480 |
+| IMAD((32x32=32)+64) | 4.80 | 11.21-12.26 | 360 |
+| IMAD((32x32=64)+64) | 8 ??? | 8 ??? | ??? |
+| IMADHI32 | 8.01 | 9.83-12.20 |
+| IMAD((64x32=64)+64) | 12 | &le;24 |
 | IADD64 | 4.68 | 10.01-11.62 | 360 |
-| IMUL64 | 16 | 15.18-21.72 | 240 |
+| IMUL64 | 16.06 | 15.18-21.72 | 240 |
 | IMAD64 | 16.58 | 21.32-25.94 | 180 |
-| IMULHI64 | 28 | &le;112 |
+| IMULHI64 | 22.22 | 37.87-45.32 | 120 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
 | BITWISE64 |
@@ -239,9 +243,12 @@ TODO: Test optimal repetitions on mixed-precision integer math. Are they all per
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
 | IMADHI16 | IMUL32 + REG_MOVE |
+| IADD(32+32=64) | ~3 instructions |
+| IADD(64+32=64) | ~3-4 instructions |
 | IADD64 | ~4 instructions |
 | IMUL64 | ~6 instructions |
 | IMAD64 | ~8 instructions |
+| IMULHI64 | ~12 instructions |
 
 _Register move may be implemented through an instruction that adds zero._
 
@@ -312,8 +319,8 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD((32x32=32)+64=64) + 4 IADD16 | 13.04 |
 | 2 IMUL32 + 4 IADD16 | 9.20 |
 | 2 IMAD32 + 4 IADD16 | 9.20 |
-| IMAD32 + IMAD((32x32=32)+64=64) + 4 IADD16 | 11.16 |
-| IMAD((32x32=32)+64=64) + 4 IADD16 | 8.44 |
+| IMAD32 + IMAD((32x32=32)+64) + 4 IADD16 | 11.16 |
+| IMAD((32x32=32)+64) + 4 IADD16 | 8.44 |
 
 </details>
 
