@@ -87,7 +87,7 @@ On A14, we might have separate F16 and F32 pipelines. This would reflect how Met
 
 ---
 
-Core compute pipelines (3x per ALU):
+Core compute pipelines (3x conper ALU):
 - Only one pipeline simultaneously utilized, except during FFMA32 and F/ICMPSEL32.
 - 3 cycles: F/IADD32/LSHIFT32(k=1-4), compare part of F/ICMPSEL32, add part of FFMA32
 - 3 cycles: BITWISE32, select part of F/ICMPSEL32
@@ -108,23 +108,25 @@ Transcendental math pipelines (1-2x per ALU):
 
 ---
 
-This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines.
+This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. 
 
-## Instruction Throughputs
-
-Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
-
-Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Although floating-point operations have 3 cycles latency, you can imagine them as a single pipeline with 1 cycle latency. The following formulae help:
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
 
+Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+
+## Instruction Throughputs
+
+Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
+
 <details>
 <summary>Floating-point performance</summary>
 
-| Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
+| Float Instruction | Throughput | Latency |
+| -------------------------- | ------ | ------- |
 | FADD16 | 1, 1 | 2.97-3.33 |
 | FMUL16 | 1, 1 | 2.98-3.34 |
 | FFMA16 | 1, 1 | 2.97-3.35 |
@@ -185,9 +187,9 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 <details>
 <summary>Integer performance</summary>
 
-| Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | 2.97-3.34 | TODO
+| Int Instruction | Throughput | Latency |
+| -------------------------- | ------ | ------- |
+| IADD16 | 1, 1 | 2.97-3.34 |
 | IMUL16 | 4, 4 | 4.20-5.39 | 
 | IMAD16 | 4, 4 | 4.18-5.38 |
 | IMUL(16x16=32) | 4 | 4.14-5.56 |
@@ -405,15 +407,15 @@ The graphs below depict scalar instructions per cycle across the entire compute 
 
 ## Power Efficiency
 
-<img src="./Documentation/Power_Performance_M1_Max.png" alt="Graph of power vs. performance for an M1 Max at 1296 MHz" width="75%" />
-
 The M1 Max has 32 GPU cores, but can perform up to 96 compute commands simultaneously. The A15 has slightly more the concurrency, performing 20 commands on 5 GPU cores. In comparison, all Nvidia GPUs top out at 128 concurrent commands. To reach the same concurrency, an Nvidia GPU must have at most 32-42 SMs. This is true for the RTX 3060, but not for more powerful GPUs. While the concurrency seems excessive for the purpose of multitasking, it has another purpose. Say that one task requires resources from 22 GPU cores, and another requires resources from 11. A naive GPU design would only permit 4 concurrent commands. That would allocate 16 GPU cores to the first task and 8 to the second, wasting the other 8. Apple's design lets you divide work more finely.
 
 There's one more usage. The hypothetical workload divides evenly among 33 GPU cores, but we have 32. You could reimagine each task as requiring 32/33x the resources, but the new resource requirements are fractions. With the M1 GPU, you can divide an individual core into fractions. That drastically reduces the load imbalance between tasks 1 and 2. This benefit is most useful on A-series chips with only 3-5 GPU cores to subdivide. For the Mac, it's overkill but contributes to incredible (power) efficiency. I don't know whether the A15 has greater (4/3x) concurrency because it's from the Apple8 generation, or because it's an A-series GPU.
 
 This sub-core concurrency only happens among commands within the same `MTLComputeCommandEncoder`. For commands on different Metal command queues, there's only 2x concurrency across the entire GPU. This makes it similar to early dual-core CPUs, designed in part to be more responsive. Even if a background task is taking several frames, a high-priority UI command can quickly seize half the GPU cores. Beyond that purpose, there's little motive to create any circuitry for 3+ concurrent command queues.
 
-TODO: less/slower? threadgroup memory, power varying with clock speed
+<img src="./Documentation/Power_Performance_M1_Max.png" alt="Graph of power vs. performance for an M1 Max at 1296 MHz" width="75%" />
+
+TODO: less/slower? threadgroup memory, turning off individual ALUs to save power
 
 ## References
 
