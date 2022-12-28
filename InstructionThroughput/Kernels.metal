@@ -10,13 +10,15 @@ using namespace metal;
 
 // Benchmark instruction cache and register cache.
 
-#define FLOAT half
+#define FLOAT float
 #define FLOAT4 vec<FLOAT, 4>
-#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL13
+#define TWENTY_FOUR_GROUP TWENTY_FOUR_GROUP_MUL14
+#define SIXTH_SET 0
+#define THIRD_SET 0
 #define HALF_SET 0
+#define TWO_THIRD_SET 0
+#define FOUR_THIRD_SET 0
 #define TWO_SET 1
-
-// Complex instructions should use 720 iterations, 10x oversubscription
 
 // ILP 1  = MUL13
 // ILP 2  = MUL12
@@ -25,26 +27,151 @@ using namespace metal;
 // ILP 8  = MUL14
 // ILP 16 = MUL11
 
-// MARK: - Multiply Macros
+// Complex instructions should use 720 iterations, 10x oversubscription
 
-//__attribute__((__always_inline__))
-//uint mul32x32_64(uint x, uint y) {
-//  ulong result64 = ulong(x) * as_type<ulong>(uint2(y, x)) * as_type<ulong>(uint2(y, x));
-//  uint lo = as_type<uint2>(result64)[0];
-//  uint hi = as_type<uint2>(result64)[1];
-//  return hi;
-//
-////  uint lo = x * y;
-////  uint hi = mulhi(x, y);
-////  return lo ^ hi;
-//};
+#define OP(x, y) float_function(x, y)
+//#define OP(x, y) as_type<float2>(ushort4(as_type<ushort4>(int2(rint(y))).xyzw));
+//#define OP(x, y) as_type<half>(as_type<ushort2>(round(y))[1]);
 
-#define OP(x, y) x * y + x;
+//#define OP(x, y) x / y
+//#define OP(x, y) as_type<half>(ushort(as_type<ushort>(1 / (y)) ^ ushort(0x98)))
+//#define OP(x, y) as_type<float>(uint(as_type<uint>(1 / (y)) ^ uint(0x98)))
+//#define OP(x, y) as_type<float>(as_type<ushort2>(rsqrt(y)) )
 //#define OP(x, y) as_type<half4>(as_type<short4>(as_type<short4>(max(x, y)) | as_type<short4>(y)));
 //#define OP(x, y) mul32x32_64(x, y);
 //#define OP(x, y) madhi(x, y, x);
 //#define OP(x, y, z) median3(x, y, as_type<half>(short(as_type<short>(z))));
 //#define OP(x, y, z) median3(x, y, z);
+
+template <typename T, typename U = short>
+T float_function(T x, T y) {
+//  T cosval;
+//  T sinval = sincos(x, cosval);
+//  return as_type<U>(sinval) ^ as_type<U>(cosval);
+//  return fast::sinpi(x);
+  
+//  short pt1 = as_type<short>(x.x) + as_type<short>(y.x) ;//+ as_type<short>(y.x);
+//  half3 pt2 = as_type<half3>(x.yzw) * as_type<half3>(y.yzw) + as_type<half3>(y.yzw);
+//  return half4(as_type<half>(pt1), as_type<half3>(pt2));
+
+#define USHORT_CAST(x, i) as_type<ushort2>(x)[i]
+#define UINT_CAST(x) as_type<uint>(x)
+#define FLOAT_CAST(x) as_type<float>(x)
+  
+  ulong result64 = as_type<ulong>(uint2(UINT_CAST(x[0]), UINT_CAST(x[1]))) + as_type<ulong>(uint2(UINT_CAST(y[0]), UINT_CAST(y[1])));
+  uint result_hi = as_type<uint2>(result64)[1];
+  
+  ulong result64b = as_type<ulong>(uint2(UINT_CAST(x[0]), UINT_CAST(x[1]))) - as_type<ulong>(uint2(UINT_CAST(y[0]), UINT_CAST(y[1])));
+  uint result_hib = as_type<uint2>(result64b)[1];
+  
+  ulong result642 = as_type<ulong>(uint2(UINT_CAST(x[2]), UINT_CAST(x[3]))) + as_type<ulong>(uint2(UINT_CAST(y[2]), UINT_CAST(y[3])));
+  uint result_hi2 = as_type<uint2>(result642)[1];
+  
+  ulong result64b2 = as_type<ulong>(uint2(UINT_CAST(x[2]), UINT_CAST(x[3]))) - as_type<ulong>(uint2(UINT_CAST(y[2]), UINT_CAST(y[3])));
+  uint result_hib2 = as_type<uint2>(result64b2)[1];
+
+//  uint result_hi = UINT_CAST(x[0]) * UINT_CAST(y[0]) + UINT_CAST(y[0]);
+
+//  ulong result64b = uint(UINT_CAST(x[1]) * UINT_CAST(x[1])) + as_type<ulong>(uint2(UINT_CAST(y[1]), UINT_CAST(y[1])));
+//  uint result_hib = as_type<uint2>(result64b)[1];
+
+//  ulong result64b = as_type<ulong>(uint2(UINT_CAST(x[1]), 0)) + as_type<ulong>(uint2(UINT_CAST(y[1]), 0));
+//  uint result_hib = as_type<uint2>(result64b)[0];
+
+//  uint result_hib = UINT_CAST(x[1]) + UINT_CAST(y[1]);
+
+//  ulong result64c = as_type<ulong>(uint2(UINT_CAST(x[2]), 0)) + as_type<ulong>(uint2(UINT_CAST(y[2]), 0));
+//  uint result_hic = as_type<uint2>(result64c)[1];
+  
+//  ushort pt2a = USHORT_CAST(x[2], 0) + USHORT_CAST(y[2], 0);
+//  ushort pt2b = USHORT_CAST(x[2], 1) + USHORT_CAST(y[2], 1);
+//  uint pt = as_type<uint>(ushort2(pt2a, pt2b));
+
+//  ushort pt2a = USHORT_CAST(x[2], 0) + USHORT_CAST(y[2], 0);
+//  ushort pt2b = USHORT_CAST(x[2], 1) + USHORT_CAST(y[2], 1);
+//  uint pt2 = as_type<uint>(ushort2(pt2a, pt2b));
+//
+//  uint result_lo = UINT_CAST(x[3]) + UINT_CAST(y[3]);
+//  uint pt4 = UINT_CAST(x[3]) + UINT_CAST(y[0]);
+//  ushort pt4a = USHORT_CAST(x[3], 0) ^ USHORT_CAST(y[3], 1);
+//  ushort pt4b = USHORT_CAST(x[3], 1) + USHORT_CAST(y[3], 0);
+//  uint pt4 = as_type<uint>(ushort2(pt4a, pt4b));
+
+//  ulong result64d = as_type<ulong>(uint2(UINT_CAST(x[3]), 0)) + as_type<ulong>(uint2(UINT_CAST(y[3]), 0));
+//  uint result_hid = as_type<uint2>(result64d)[1];
+
+  return float4(FLOAT_CAST(result_hi),
+                FLOAT_CAST(result_hib),
+                FLOAT_CAST(result_hi2),
+                FLOAT_CAST(result_hib2));
+//                FLOAT_CAST(pt2),
+//                FLOAT_CAST(result_lo),
+//                FLOAT_CAST(pt4));
+  
+//#define HALF_CAST(x) as_type<half2>(x)[1]
+//#define FLOAT_CAST(x) as_type<half2>(x)[1]
+
+//  float part1 = fma(x.x, y.x, y.x);
+//  float part2 = (fma(HALF_CAST(x.y), HALF_CAST(y.y), HALF_CAST(y.y)));
+//  float part3 = fma(x.z, y.z, y.z);
+//  float part4 = (fma(HALF_CAST(x.w), HALF_CAST(y.w), HALF_CAST(y.w)));
+//  return T(part1, part2, part3, part4);
+}
+
+__attribute__((__always_inline__))
+ushort mul32x32_64(ushort x, ushort y) {
+//  ulong result64 = as_type<ulong>(uint2(x, y)) * as_type<ulong>(uint2(x, y)) + as_type<ulong>(uint2(y, y));
+//  ulong result64 = ulong(x) * ulong(y) ;//+ as_type<ulong>(uint2(y, y));
+//  uint lo = as_type<uint2>(result64).x;
+//  uint hi = as_type<uint2>(result64).y;
+//  return lo ;
+  return x * y + y;
+
+//  ulong result64 = mulhi( as_type<ulong>(uint2(x, y)), as_type<ulong>(uint2(y, y)) );
+////  ulong result64 = ulong(uint(x * y)) + as_type<ulong>(uint2(x, y));
+////  uint lo = as_type<uint2>(result64).x;
+//  uint hi = as_type<uint2>(result64).y;
+//  return hi;
+  
+//  ushort lo_part = as_type<ushort2>(lo).y;
+//  ushort hi_part = as_type<ushort2>(hi).x;
+//  ushort2 combined(lo_part, hi_part);
+//  return as_type<uint>(combined);
+  
+  //  ulong result64 = ulong(x) * as_type<ulong>(uint2(y, x)) * as_type<ulong>(uint2(y, x));
+  
+//  ulong2 result64 = ulong2(uint2(x * y)) + as_type<ulong2>(uint4(x, y));
+//  uint2 lo = as_type<uint4>(result64).xy;
+//  uint2 hi = as_type<uint4>(result64).zw;
+//  ushort2 lo_part = as_type<ushort4>(lo).zw;
+//  ushort2 hi_part = as_type<ushort4>(hi).xy;
+//  ushort4 combined(lo_part, hi_part);
+//  return as_type<uint2>(combined);
+  
+//  return uint2((ulong2(uint2(x * y)) + ulong2(as_type<ulong2>(uint4(x.x, y.x, x.y, y.y)))) >> 16);
+//  return x * y;
+}
+
+////  uint lo = x * y;
+////  uint hi = mulhi(x, y);
+////  return lo ^ hi;
+//};
+
+//template <typename T = half, typename U = short>
+//vec<FLOAT, 2> mixedOp(vec<FLOAT, 2> x, vec<FLOAT, 2> y) {
+//  T lo_part = as_type<T>(x[0]) + as_type<T>(y[0]);
+//  U hi_part = as_type<U>(x[1]) + as_type<U>(y[1]);
+//  return vec<FLOAT, 2>(as_type<FLOAT>(lo_part), as_type<FLOAT>(hi_part));
+//}
+
+//template <typename T = half2, typename U = short2>
+//vec<FLOAT, 4> mixedOp(vec<FLOAT, 4> x, vec<FLOAT, 4> y) {
+//  T lo_part = max(as_type<T>(x.xy), as_type<T>(y.xy));
+//  U hi_part = as_type<U>(x.zw) + as_type<U>(y.zw);
+//  return vec<FLOAT, 4>(as_type<vec<FLOAT, 2>>(lo_part), as_type<vec<FLOAT, 2>>(hi_part));
+//}
+
+// MARK: - Multiply Macros
 
 //// ILP = 1
 //#define TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
@@ -55,10 +182,10 @@ using namespace metal;
 
 // ILP = 1
 #define TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
-vec1[0] = OP(vec1[0], vec6[0], vec6[2]); \
-vec1[1] = OP(vec1[1], vec6[1], vec6[3]); \
-vec1[2] = OP(vec1[2], vec6[2], vec1[0]); \
-vec1[3] = OP(vec1[3], vec6[3], vec1[1]); \
+vec1[0] = OP(vec1[0], vec6[3], vec6[2]); \
+vec1[1] = OP(vec1[1], vec1[0], vec6[3]); \
+vec1[2] = OP(vec1[2], vec1[1], vec1[0]); \
+vec1[3] = OP(vec1[3], vec1[2], vec1[1]); \
 
 #define TWENTY_FOUR_GROUP_FMA01 \
 TWENTY_FOUR_GROUP_FMA01_SUBSECTION(vec1, vec6) \
@@ -95,11 +222,15 @@ vec3 = OP(vec3, vec1); \
 vec6 = OP(vec6, vec4); \
 
 // ILP = 2
+//#define TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec1, vec6) \
+//vec1[0] = OP(vec1[0], vec6[2]); \
+//vec1[1] = OP(vec1[1], vec6[3]); \
+//vec1[2] = OP(vec1[2], vec1[0]); \
+//vec1[3] = OP(vec1[3], vec1[1]); \
+
 #define TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec1, vec6) \
-vec1[0] = OP(vec1[0], vec6[2]); \
-vec1[1] = OP(vec1[1], vec6[3]); \
-vec1[2] = OP(vec1[2], vec1[0]); \
-vec1[3] = OP(vec1[3], vec1[1]); \
+vec1.xy = OP(vec1.xy, vec6.zw); \
+vec1.zw = OP(vec1.zw, vec1.xy); \
 
 #define TWENTY_FOUR_GROUP_MUL12 \
 TWENTY_FOUR_GROUP_MUL12_SUBSECTION(vec1, vec6) \
@@ -274,10 +405,10 @@ vec2.xyz = vec2.xyz * vec1.xyz; \
 
 #define TWENTY_FOUR_GROUP_FMA0 \
 vec1 = OP(vec1, vec2, vec3); \
-vec4 = OP(vec4, vec5, vec6); \
 vec2 = OP(vec1, vec2, vec3); \
-vec5 = OP(vec4, vec5, vec6); \
 vec3 = OP(vec1, vec2, vec3); \
+vec4 = OP(vec4, vec5, vec6); \
+vec5 = OP(vec4, vec5, vec6); \
 vec6 = OP(vec4, vec5, vec6); \
 
 #define TWENTY_FOUR_GROUP_FMA1 \
@@ -423,7 +554,26 @@ kernel void testCache(device FLOAT4 *inputs [[buffer(0)]],
 //    TWENTY_FOUR_GROUP
 //    TWENTY_FOUR_GROUP
 
-#if HALF_SET
+#if SIXTH_SET
+    ONE_TWENTY_GROUP
+#elif THIRD_SET
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+#elif HALF_SET
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+#elif TWO_THIRD_SET
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+#elif FOUR_THIRD_SET
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
+    ONE_TWENTY_GROUP
     ONE_TWENTY_GROUP
     ONE_TWENTY_GROUP
     ONE_TWENTY_GROUP
