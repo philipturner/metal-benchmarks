@@ -107,7 +107,7 @@ Transcendental math pipelines (1-2x per ALU):
 
 ---
 
-The model above is likely a bit flawed. The FFMA16 instruction may share a modular multiplier circuit with FFMA32 (1 cycle/16x16). The pipeline might begin with a 1-cycle check on the exponent of the F16/F32. It might end with a 1-cycle mantissa addition (23+23=24). The FFMA32 would take `1 + (32x32/16x16) + 1` cycles, while FFMA16 would take `1 + (16x16/16x16) + 1` cycles, in line with latency measurements.
+This model is somewhat oversimplified. The FFMA16 instruction may share a modular multiplier circuit with FFMA32 (1 cycle/16x16=32). If so, the pipeline begins with a 1-cycle check on the exponent of the F16/F32. It ends with a mantissa addition. FFMA32 takes `1` + `roundup((24x24/16x16)^2)` + `roundup(48/24)` = `6` cycles. FFMA16 takes `1` + `roundup((11x11/16x16)^2)` + `roundup(22/24)` = `3` cycles. This aligns with latency measurements. FFMA16 will not reach higher throughput than FFMA32 because the scheduler only dispatches 1 IPC/ALU. The FFMA32 reaches full utilization - 6 cycles latency, harnessing 6 concurrent pipelines.
 
 ## Instruction Throughputs
 
