@@ -87,22 +87,20 @@ On A14, we might have separate F16 and F32 pipelines. This would reflect how Met
 
 ---
 
-Core compute pipelines (A15+, M1+)
-- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
-- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
-- 3 cycles: F/IADD32, F/ICMPSEL32, LSHIFT32(k=1-4), BITWISE32
-- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
-- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
-- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
+Core compute pipelines (3x per ALU):
+- Only one pipeline simultaneously utilized, except during FFMA32 and F/ICMPSEL32.
+- 3 cycles: F/IADD32/LSHIFT32(k=1-4), compare part of F/ICMPSEL32, add part of FFMA32
+- 3 cycles: BITWISE32, select part of F/ICMPSEL32
+- 3 cycles: FMUL32, multiply part of FFMA32
+- 3 cycles: FFMA16, F/ICMPSEL16
+- 2 cycles: add part of IMAD32 and half of IADD64
 
-Other pipelines
-- 4 cycles: convert I32 to F32, round F32 to U32/I32, extract fractional part
-- TODO: Test whether `fract` can happen concurrently to `rint`.
-
-Complex integer and bitwise pipelines:
-- 4 cycles: one 32x32 chunk of a large-integer product, BITSHIFT32 by an amount unknown at compile-time
-- 1 cycle: BITWISE32
-- TODO: Is the bit editing pipeline independent of integer multiply?
+Integer and complex pipelines (1.25x per ALU)
+- Only one pipeline simultaneously utilized.
+- 5 cycles: CONVERT(F->I), CONVERT(I->F), RINT
+- 5 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
+- 5 cycles: IMUL32, one 32x32=32 chunk of an integer product
+- 10 cycles: IMUL(32x32=64), one 32x32=64 chunk of an integer product
 
 Transcendental math pipelines (1-2x per ALU):
 - TODO: The actual pipelines.
@@ -110,11 +108,11 @@ Transcendental math pipelines (1-2x per ALU):
 
 ---
 
-This model is somewhat oversimplified. The FFMA16 instruction may share a modular multiplier circuit with FFMA32 (1 cycle/16x16=32). If so, the pipeline begins with a 1-cycle check on the exponent of the F16/F32. It ends with a mantissa addition. FFMA32 takes `1` + `roundup((24x24/16x16)^2)` + `roundup(48/24)` = `6` cycles. FFMA16 takes `1` + `roundup((11x11/16x16)^2)` + `roundup(22/24)` = `3` cycles. This aligns with latency measurements. FFMA16 will not reach higher throughput than FFMA32 because the scheduler only dispatches 1 IPC/ALU. FFMA32 reaches full utilization - 6 cycles latency, harnessing 6 concurrent pipelines.
+This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines.
 
 ## Instruction Throughputs
 
-Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are sometimes recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. Benchmarks issued 250x the amount of work needed to fully occupy a core's register file.
+Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
 
 Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
@@ -127,48 +125,45 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 
 | Float Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| FADD16 | 1, 1 | TBD, 2.97-3.33 |
-| FMUL16 | 1, 1 | TBD, 2.98-3.34 |
-| FFMA16 | 1, 1 | TBD, 2.97-3.35 |
-| FADD32 | 2, 1 | TBD, 3.50-3.90 |
-| FMUL32 | 2, 1 | TBD, 3.50-3.91 |
-| FFMA32 | 2, 1 | TBD, 5.84-6.18 |
-| ROUND_EVEN(F->I32) | 4 | 3.78-5.36 |
-| ROUND_EVEN(F->I64) |
-| FRACT_PART16 |
-| FRACT_PART32 |
-| CONVERT(I32->F) | 4 |
-| CONVERT(I64->F) |
-| Fast RECIP16 | TBD, 6 | TBD |  |  |
-| Fast RECIP32 | TBD, 6 | TBD |  |  |
-| Fast RSQRT16 | 8, 8 | TBD, 7.11-9.78 |  |  |  
-| Fast RSQRT32 | 8, 8 | TBD, 7.13-10.69 |  |  |
+| FADD16 | 1, 1 | 2.97-3.33 |
+| FMUL16 | 1, 1 | 2.98-3.34 |
+| FFMA16 | 1, 1 | 2.97-3.35 |
+| FADD32 | 2, 1 | 3.50-3.90 |
+| FMUL32 | 2, 1 | 3.50-3.91 |
+| FFMA32 | 2, 1 | 5.84-6.18 |
+| CONVERT(F->I32) | 4 | 3.78-5.36 |
+| RINT32 | 4 | 3.78-5.36 |
+| Fast RECIP16 | 6 | TBD |  |  |
+| Fast RECIP32 | 6 | TBD |  |  |
+| Fast RSQRT16 | 8, 8 | 7.11-9.78 |  |  |  
+| Fast RSQRT32 | 8, 8 | 7.13-10.69 |  |  |
 | SIN_PT_1 |
 | SIN_PT_2 |
-| Fast EXP2_16 | TBD, 4 | TBD, 6 ??? |  |  |
-| Fast LOG2_16 | TBD, 4 | TBD, 6 ??? |  |  |
-| Fast EXP2_32 | TBD, 4 | TBD, 6 ??? |  |  |
-| Fast LOG2_32 | TBD, 4 | TBD, 6 ??? |  |  |
-| FMAX32 | 1, 1 | 3-4 ??? |
-| FMIN32 | 1, 1 | 3-4 ??? |
-| FCMPSEL16 | 1, 1 | 3 ??? |
-| FCMPSEL32 | 1, 1 | 3-4 ??? |
-
-TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 throughputs. Look for disparities between F16 and F32.
+| Fast EXP2_16 | 4 | 6 ??? |  |  |
+| Fast LOG2_16 | 4 | 6 ??? |  |  |
+| Fast EXP2_32 | 4 | 6 ??? |  |  |
+| Fast LOG2_32 | 4 | 6 ??? |  |  |
+| FMAX32 | 1, 1 | 6.30-6.61 |
+| FMIN32 | 1, 1 | 6.31-6.63 |
+| FCMPSEL16 | 1, 1 | 2.98-3.34 |
+| FCMPSEL32 | 1, 1 | 6.31-6.64 |
 
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
+| CONVERT(F->I64) | 7.11 | 10.30-12.67 | 240 |
+| FRACT32 | &le;4.13 | TBD | TBD |
+| FRACT32 + BITWISE32 | 4.13 | 6.27-7.29 | 360-480 |
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
 | FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
 | FMEDIAN32 | 3.65 | 9.20-10.86 | 360-480 |
-| Fast DIV16 | TBD, 6 | TBD, &le;9.5 |
-| Fast DIV32 | TBD, 6 | TBD, &le;9.0 |
-| Fast SQRT16 | TBD, 8 | TBD, 9.56-10.74 | 960 |
-| Fast SQRT32 | TBD, 8 | TBD, 8.57-11.13 | 960 |
-| Fast SIN16 | TBD, &le;14.6 | TBD, &le;27.8 | ???
-| Fast SINPI16 | TBD, &le;18.7 | TBD, &le;51.5 | ???
-| Fast SIN32 | TBD, &le;14.5 | TBD, &le;27.3 | ???
-| Fast SINPI32 | TBD, &le;26.3 |  TBD, &le;88.8 | ???
+| Fast DIV16 | 6 | &le;9.5 |
+| Fast DIV32 | 6 | &le;9.0 |
+| Fast SQRT16 | 8 | 9.56-10.74 | 960 |
+| Fast SQRT32 | 8 | 8.57-11.13 | 960 |
+| Fast SIN16 | &le;14.6 | &le;27.8 | ???
+| Fast SINPI16 | &le;18.7 | &le;51.5 | ???
+| Fast SIN32 | &le;14.5 | &le;27.3 | ???
+| Fast SINPI32 | &le;26.3 |  &le;88.8 | ???
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
@@ -208,9 +203,9 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 | BITWISE32 | 1.06 | TBD |
 | BITREV32 | 4.00 | 3.76-5.32 |
 | POPCOUNT32 | 4.00 | 3.76-5.32 |
-| ICMPSEL16 | 1, 1 | 2.98-3.34 |
 | IMAX32 | 1, 1 | 6.30-6.61 |
 | IMIN32 | 1, 1 | 6.31-6.63 |
+| ICMPSEL16 | 1, 1 | 2.98-3.34 |
 | ICMPSEL32 | 1, 1 | 6.31-6.64 |
 
 _\* BITEXTRACT32 must extract a number of bits known at compile-time. Otherwise, throughput is 8 cycles. For BITINSERT32, the offset must be known at compile-time. Creating the offset dynamically worsens throughput to ~8 cycles. Creating the number of bits dynamically worsens throughput to ~12 cycles, regardless of how the offset is created._
@@ -234,7 +229,7 @@ _\*\* Based on results of the instruction sequence BITINSERT32 + ADD32, BITINSER
 | IADD(64+32=64) | 3.30 | 9.63-9.78 | 360-480 |
 | IADD(64+64=64) | 4.68 | 10.01-11.62 | 360 |
 | IMUL(64x64=64) | 16.06 | 15.18-21.72 | 240 |
-| IMADHI32 | 8.01 | 9.83-12.20 | TBD |
+| IMADHI32 | 8.01 | 9.04-11.61 | 720 |
 | IMAD((32x32=32)+64) | 4.80 | 11.21-12.26 | 360 |
 | IMAD((32x32=64)+64) | 8.03 | 19.04-19.85 | 720-960 |
 | IMAD((64x64=64)+64) | 16.58 | 21.32-25.94 | 180 |
@@ -326,10 +321,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 
 | Instruction Sequence | Throughput |
 | -------------------------- | ------ |
-| IMUL64 + FMUL32 | TODO |
-| IMUL64 + 2 FMUL32 | TODO |
-| IMUL64 + 3 FMUL32 | TODO |
-| IMUL64 + 4 FMUL32 | TODO |
 | IMUL32 + IADD32 | 4.00 |
 | IMUL32 + 2 IADD32 | 4.12 |
 | IMUL32 + 3 IADD32 | 5.36 |
@@ -349,12 +340,17 @@ ulong mul64x64_64(ulong x, ulong y) {
 | IMUL32 + FADD32 | 4.00 |
 | IMUL32 + FADD32 + BITWISE32 | 4.24 |
 | IMUL32 + RINT32 + FADD32 + BITWISE32 | 8.02 |
-| RINT32 + BITWISE32 |
-| RINT32 + FRACT32 |
-| RINT32 + LSHIFT32 |
-| RINT32 + BITREV32 |
-| RINT32 + IADD32 |
-| FRACT32 + IADD32 |
+| IMUL32 + FRACT32 + FADD32 + BITWISE32 | 8.22 |
+| IMUL32 + RINT32 + BITWISE32 | 8.02 |
+| RINT32 + BITWISE32 | 4.01 |
+| RINT32 + FRACT32 + 2 BITWISE32 | 8.02 |
+| RINT32 + LSHIFT32 + 2 BITWISE32 | 8.02 |
+| FRACT32 + LSHIFT32 + 2 BITWISE32 | 8.48 |
+| FRACT32 + LSHIFT32 + BITWISE32 | 8.08 |
+| FRACT32 + IMUL32 + BITWISE32 | 8.08 |
+| FRACT32 + BITREV32 + BITWISE32 | 8.04 |
+| FRACT32 + IADD32 + BITWISE32 | 4.88 |
+| RINT32 + IADD32 + BITWISE32 | 4.06 |
 
 </details>
 
