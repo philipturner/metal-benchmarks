@@ -9,17 +9,17 @@ This repository also contains open-source benchmarking scripts. They allow anyon
 
 | Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 |
 | --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: |
-| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | >654 |
-| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | >1309 |
-| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | >2654 |
-| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | >5308 |
-| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | >10620 |
-| A15 | Apple 8 | 1336 MHz | 5 | 1710 | 1710 | >855 |
-| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | >1789 |
-| A16 | Apple 8 | &ge;1336 MHz | 5 | &ge;1710 | &ge;1710 | >855 |
-| M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | >3221 |
-| M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | >6800 |
-| M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | >13600 |
+| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | 654 |
+| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | 1309 |
+| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | 2654 |
+| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | 5308 |
+| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 |
+| A15 | Apple 8 | 1336 MHz | 5 | 1710 | 1710 | 855 |
+| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 |
+| A16 | Apple 8 | &ge;1336 MHz | 5 | &ge;1710 | &ge;1710 | 855 |
+| M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | 3221 |
+| M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | 6800 |
+| M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | 13600 |
 
 _The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out._
 
@@ -66,9 +66,9 @@ _On Nvidia chips, all major transcendentals take the same amount of time. On App
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 OPs/Clock | >128 | 256 | 256 | 512 | 0 | 0 | 0 |
-| I32 OPs/Clock | >128 | 128 | 128 | 256 | 128 | 128 | 128 |
-| I64 OPs/Clock | >32 | 32 | 32 | 64 | 0 | 0 | 0 |
+| I16 OPs/Clock | 128 | 256 | 256 | 512 | 0 | 0 | 0 |
+| I32 OPs/Clock | 128 | 128 | 128 | 256 | 128 | 128 | 128 |
+| I64 OPs/Clock | 32 | 32 | 32 | 64 | 0 | 0 | 0 |
 | I16 IPC | 128 | 128 | 128 | 256 | 256 | 0 | 0 | 0 |
 | I32 IPC | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
 | I64 IPC | 32 | 16 | 16 | 32 | 0 | 0 | 0  |
@@ -78,10 +78,6 @@ _On Nvidia chips, all major transcendentals take the same amount of time. On App
 | I64 Muls/Clock | 8 | 16 | 16 | 32 | 0 | 0 | 0 |
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
-
-TODO: Check whether the IMAD32 pipeline is concurrent to the IADD32/FADD32 pipelines. This would boost INTOPS to 160-192/clock.
-
-TODO: Fill in emulated instructions with "0 (XXe)" suffix, reference metal-float64.
 
 ## Pipelines per ALU
 
@@ -125,30 +121,35 @@ TODO: Transform "optimal repetitions" for instruction sequences into executable 
 | FMUL32 | 2, 1 | TBD, 3.50-3.91 |
 | FFMA32 | 2, 1 | TBD, 5.84-6.18 |
 | ROUND_EVEN | 4 | 3.78-5.36 |
-| CONVERT(I to F) | 4 | 4 |
+| FRACT_PART16 | TBD | TBD |
+| FRACT_PART32 | TBD | TBD |
+| CONVERT(I to F) | 4 | ???? |
 | Fast RECIP16 | TBD, 6 | TBD, &le;7.5 |  |  |
 | Fast RECIP32 | TBD, 6 | TBD, &le;8.0 |  |  |
-| Fast RSQRT16 | 8, 8 | TBD, &le;10.0 |  |  |  
-| Fast RSQRT32 | 8, 8 | TBD, &le;10.9 |  |  |
+| Fast RSQRT16 | 8, 8 | TBD, 7.11-9.78 |  |  |  
+| Fast RSQRT32 | 8, 8 | TBD, 7.13-10.69 |  |  |
 | SIN_PT_1 |
 | SIN_PT_2 |
 | Fast EXP2_16 | TBD, 4 | TBD, 6 |  |  |
 | Fast LOG2_16 | TBD, 4 | TBD, 6 |  |  |
 | Fast EXP2_32 | TBD, 4 | TBD, 6 |  |  |
 | Fast LOG2_32 | TBD, 4 | TBD, 6 |  |  |
-| FMAX32 | 1, 1 | 3-4 | 3 | 12 |
-| FMIN32 | 1, 1 | 3-4 | 3 | 12 |
-| FCMPSEL16 | 1, 1 | 3 | 3, 3 | 12, 12 |
-| FCMPSEL32 | 1, 1 | 3-4 | 3, 3 | 12, 12 |
+| FMAX32 | 1, 1 | 3-4 |
+| FMIN32 | 1, 1 | 3-4 |
+| FCMPSEL16 | 1, 1 | 3 |
+| FCMPSEL32 | 1, 1 | 3-4 |
+
+TODO: Test FFMA and transcendental latencies on A14. Look for disparities between F16 and F32.
 
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
-| FMEDIAN | &le;3.6 | 25.86-25.81 | TBD |
+| FMEDIAN16 | 6.54 | 15.00-16.41 | ~120-240 |
+| FMEDIAN32 | 3.65 | 9.20-10.86 | ~360-480 |
 | Fast DIV16 | TBD, 6 | TBD, &le;9.5 |
 | Fast DIV32 | TBD, 6 | TBD, &le;9.0 |
-| Fast SQRT16 |
-| Fast SQRT32 | TBD, 8 | TBD, 11 |
+| Fast SQRT16 | TBD, 8 | TBD, 9.56-10.74 | 960 |
+| Fast SQRT32 | TBD, 8 | TBD, 8.57-11.13 | 960 |
 | Fast SIN16 | TBD, &le;14.6 | TBD, &le;27.8 |
 | Fast SINPI16 | TBD, &le;18.7 | TBD, &le;51.5 |
 | Fast SIN32 | TBD, &le;14.5 | TBD, &le;27.3 |
@@ -220,25 +221,20 @@ TODO: Transform "optimal repetitions" for instruction sequences into executable 
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
-| IMADHI16 | IMUL32 + NO-OP |
+| IMADHI16 | IMUL32 + REG_MOVE |
+
+_Register move may be implemented through an instruction that adds zero._
 
 </details>
 
 <details>
-<summary>Mixed workload performance</summary>
+<summary>64-bit integer math</summary>
 
-| Instruction Sequence | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
-| -------------------------- | ------ | ------- | ----------- | --- |
-| FFMA32 + FFMA16 |
-| 3 FFMA32 + IADD64 |
-| 3 IADD32 + IADD64 |
-| 3 IMUL16 + 2 IADD64 |
+According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes 4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The I64 addition also happens concurrently to I32 additions in the floating point pipelines. I64 addition seems to be implemented natively as a (32x32=32)+64=64 fused multiply-add, where the first two I32 operands are zero.
 
-| Instruction Sequence | Actual Instructions |
-| -------------------------- | ------ |
-| IMADHI16 | IMUL32 + NO-OP |
+With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle.
 
-Regarding mixed-precision Int64 math: MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
+MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
 
 ```metal
 // 12 cycles - don't do this.
@@ -263,6 +259,31 @@ ulong mul64x64_64(ulong x, ulong y) {
   return x * y;
 }
 ```
+
+</details>
+
+<details>
+<summary>Mixed workload performance</summary>
+
+| Instruction Sequence | Throughput |
+| -------------------------- | ------ |
+| 4 FADD/FFMA/IADD16 | 4.12 |
+| 4 FADD/FFMA/IADD32 | 4.12 |
+| 2 IADD32 + 2 IADD16 | 4.16 |
+| 2 FADD/FFMA32 + 2 FADD/FFMA16 | 4.16 |
+| IMUL/MAD16 + 3 FADD/FFMA/IADD16 | 4.84 |
+| IADD32 + 4 FADD16 | 5.16 |
+| IMUL32 + 4 FADD16 | 5.56 |
+| IMAD16 + 4 IADD16 | 5.88 |
+| IMAD32 + 4 IADD16 | 6.08 |
+| 2 IMAD16 + 4 IADD16 | 9.68 |
+| 2 IMAD32 + 4 IADD16 | 9.20 |
+| 3 IMAD32 + 2 IADD16 | 12.00 |
+| IADD64 + 3 FADD32 |
+| IADD64 + 3 IADD32 |
+| IMAD((32x32=32)+64=64) + 3 IADD32 |
+
+
 
 </details>
 
