@@ -83,19 +83,31 @@ _IPC stands for instructions per clock. Integer IPC consists of adds and/or fuse
 
 For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. For floating-point pipelines, a 32-bit register dependency invokes a ~1-cycle penalty until ILP approaches 4.
 
-On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power).
+On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). We omit the A14 design for simplicity.
+
+---
 
 Floating-point pipelines (A15+, M1+)
-- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
-- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
-- 3 cycles (F32/I32), 3 cycles (F16/I16): FFMA, F/ICMPSEL, IADD
+- 3 cycles: F/IADD32, F/ICMPSEL32, add part of FFMA32
+- 3 cycles: F/IADD32, F/ICMPSEL32, add part of FFMA32
+- 3 cycles: F/IADD32, F/ICMPSEL32, add part of FFMA32
+- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
+- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
+- 3 cycles: FMUL32, FFMA16, multiply part of FFMA32
 - 4 cycles: convert I32 to F32, round F32 to U32/I32, extract fractional part
+- TODO: Test whether `fract` can happen concurrently to `rint`.
 
 Complex integer and bitwise pipelines:
-- TODO: Sort out the number of unique pipelines. Does a separate Int64 pipeline exist, similar to what AMD has? Concurrent execution may allow for better performance in metal-float64. Are bitwise pipelines independent of complex integer? Does IMAD delegate the add to one of the dedicated IADD32 pipelines?
+- 4 cycles: one 32x32 chunk of a large-integer product, BITSHIFT32 by an amount unknown at compile-time
+- 1 cycle: BITWISE32
 
-Transcendental math pipelines (1-1.5x per ALU):
+Transcendental math pipelines (1-2x per ALU):
+- TODO: The actual pipelines.
 - TODO: Can multiple math operations happen simultaneously?
+
+---
+
+The model above is likely a bit flawed. The FFMA16 instruction may share a modular multiplier circuit with FFMA32 (1 cycle/16x16). The pipeline might begin with a 1-cycle check on the exponent of the F16/F32. It might end with a 1-cycle mantissa addition (23+23=24). The FFMA32 would take `1 + (32x32/16x16) + 1` cycles, while FFMA16 would take `1 + (16x16/16x16) + 1` cycles, in line with latency measurements.
 
 ## Instruction Throughputs
 
@@ -120,10 +132,12 @@ TODO: Transform "optimal repetitions" for instruction sequences into executable 
 | FADD32 | 2, 1 | TBD, 3.50-3.90 |
 | FMUL32 | 2, 1 | TBD, 3.50-3.91 |
 | FFMA32 | 2, 1 | TBD, 5.84-6.18 |
-| ROUND_EVEN | 4 | 3.78-5.36 |
-| FRACT_PART16 | TBD | TBD |
-| FRACT_PART32 | TBD | TBD |
-| CONVERT(I to F) | 4 | ???? |
+| ROUND_EVEN(F->I32) | 4 | 3.78-5.36 |
+| ROUND_EVEN(F->I64) |
+| FRACT_PART16 |
+| FRACT_PART32 |
+| CONVERT(I32->F) | 4 |
+| CONVERT(I64->F) |
 | Fast RECIP16 | TBD, 6 | TBD, &le;7.5 |  |  |
 | Fast RECIP32 | TBD, 6 | TBD, &le;8.0 |  |  |
 | Fast RSQRT16 | 8, 8 | TBD, 7.11-9.78 |  |  |  
@@ -139,7 +153,7 @@ TODO: Transform "optimal repetitions" for instruction sequences into executable 
 | FCMPSEL16 | 1, 1 | 3 |
 | FCMPSEL32 | 1, 1 | 3-4 |
 
-TODO: Test FFMA and transcendental latencies on A14. Look for disparities between F16 and F32.
+TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 throughputs. Look for disparities between F16 and F32.
 
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
@@ -183,8 +197,9 @@ TODO: Test FFMA and transcendental latencies on A14. Look for disparities betwee
 | IADD32 | 1, 1 | 3.51-3.91 |
 | IMUL32 | 4, 4 | 4.30-5.72 |
 | IMAD32 | 4, 4 | 7.13-7.67 |
-| IMADHI32 | 8 | 9.83-12.20 |
+| IADD(32+32=64) | &le; 3 | TODO |
 | IMAD((32x32=32)+64) | 4 | &le;15 |
+| IMADHI32 | 8 | 9.83-12.20 |
 | IMAD((32x32=64)+64) | 8 | 8 |
 | IMAD(64x32+64=64) | 12 | &le;24 |
 | IADD64 | 4 | &le;14 |
@@ -200,6 +215,8 @@ TODO: Test FFMA and transcendental latencies on A14. Look for disparities betwee
 | IMAX32 | 1, 1 | 6.30-6.61 |
 | IMIN32 | 1, 1 | 6.31-6.63 |
 | ICMPSEL32 | 1, 1 | 6.31-6.64 |
+
+TODO: Test optimal repetitions on mixed-precision integer math. Are they all performed in a single instruction?
 
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ----- |
@@ -230,7 +247,11 @@ _Register move may be implemented through an instruction that adds zero._
 <details>
 <summary>64-bit integer math</summary>
 
-According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes 4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The I64 addition also happens concurrently to I32 additions in the floating point pipelines. I64 addition seems to be implemented natively as a (32x32=32)+64=64 fused multiply-add, where the first two I32 operands are zero.
+According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes 4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The IADD64 pipeline seems to interfere with the FADD32/IADD32 pipeline in the following way:
+
+> Throughput &ge; 4(number IADD64s) + 1(number IADD32s) + 1(number FADD32s)
+
+This suggests that it hijacks the IADD32 integer pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
 
 With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle.
 
@@ -279,11 +300,17 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD16 + 4 IADD16 | 9.68 |
 | 2 IMAD32 + 4 IADD16 | 9.20 |
 | 3 IMAD32 + 2 IADD16 | 12.00 |
-| IADD64 + 3 FADD32 |
-| IADD64 + 3 IADD32 |
-| IMAD((32x32=32)+64=64) + 3 IADD32 |
-
-
+| IADD64 + 3 FADD32 | 7.36 |
+| IADD64 + 3 IADD32 | 7.32 |
+| IADD64 + 4 IADD16 | 8.96 |
+| 2 IADD64 + 2 FADD32 | 15.20 |
+| 2 IADD64 + 2 IADD32 | 15.24 |
+| IADD64 + 2 IADD32 + 2 IADD16 | 9.04 |
+| 2 IMAD((32x32=32)+64=64) + 4 IADD16 | 13.04 |
+| 2 IMUL32 + 4 IADD16 | 9.20 |
+| 2 IMAD32 + 4 IADD16 | 9.20 |
+| IMAD32 + IMAD((32x32=32)+64=64) + 4 IADD16 | 11.16 |
+| IMAD((32x32=32)+64=64) + 4 IADD16 | 8.44 |
 
 </details>
 
