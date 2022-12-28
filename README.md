@@ -202,9 +202,6 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 | IMADHI32 | 8 | 9.83-12.20 |
 | IMAD((32x32=64)+64) | 8 | 8 |
 | IMAD(64x32+64=64) | 12 | &le;24 |
-| IADD64 | 4 | &le;14 |
-| IMUL64 | 16 | &le;32 |
-| IMAD64 | 16 | &le;32 |
 | BITSHIFT32 |
 | BITEXTRACT32 |
 | BITWISE32 | 1 | 1 |
@@ -225,6 +222,9 @@ TODO: Test optimal repetitions on mixed-precision integer math. Are they all per
 | RHADD16 | 4 | 15.65-16.42 | 480
 | RHADD32 | 6 | 18.96-20.89 | 240
 | ABSDIFF32 | 4 | &le;10 |
+| IADD64 | 4.68 | 10.01-11.62 | 360 |
+| IMUL64 | 16 | 15.18-21.72 | 240 |
+| IMAD64 | 16.58 | 21.32-25.94 | 180 |
 | IMULHI64 | 28 | &le;112 |
 | BITSHIFT64 |
 | BITEXTRACT64 |
@@ -239,6 +239,9 @@ TODO: Test optimal repetitions on mixed-precision integer math. Are they all per
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
 | IMADHI16 | IMUL32 + REG_MOVE |
+| IADD64 | ~4 instructions |
+| IMUL64 | ~6 instructions |
+| IMAD64 | ~8 instructions |
 
 _Register move may be implemented through an instruction that adds zero._
 
@@ -247,7 +250,7 @@ _Register move may be implemented through an instruction that adds zero._
 <details>
 <summary>64-bit integer math</summary>
 
-According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes 4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The IADD64 pipeline seems to interfere with the FADD32/IADD32 pipeline in the following way:
+According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes ~4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The IADD64 pipeline seems to interfere with the FADD32/IADD32 pipeline in the following way:
 
 > Throughput &ge; 4(number IADD64s) + 1(number IADD32s) + 1(number FADD32s)
 
