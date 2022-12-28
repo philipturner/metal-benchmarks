@@ -1,6 +1,6 @@
 # Metal Benchmarks
 
-This document thoroughly explains the Apple GPU microarchitecture, specifically its GPGPU capabilities. Details include latencies for each ALU assembly instruction, cache sizes, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the M1 GPU, helping people diagnose bottlenecks in real-world software. It also compares the M1 to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
+This document thoroughly explains the Apple GPU microarchitecture, focusing on its GPGPU performance. Details include latencies for each ALU assembly instruction, cache sizes, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the M1 GPU, helping people diagnose bottlenecks in real-world software. It also compares the M1 to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
 
 This repository also contains open-source benchmarking scripts. They allow anyone to reproduce and verify the author's claims about performance.
 
@@ -336,6 +336,8 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 3 | 88 simds/core | FMUL, FADD, IADD | 1.37 | 1.04 |
 | 4 | 88 simds/core | FMUL, FADD, IADD | 1.01 | 1.02 |
 
+_ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
+
 | ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
 | - | - | - | - | - |
 | 1 | 4 simds/core | FFMA | 11.34 | 3.94 |
@@ -351,11 +353,9 @@ In low-occupancy situations, or situations with heavy register dependencies, F16
 | 3 | 88 simds/core | FFMA | 1.35 | 1.04 |
 | 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
 
-_ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
-
 </details>
 
-The next graphs show scalar instructions per cycle in the entire compute unit. This relates to the reciprocal of amortized cycles/instruction. FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
+The graphs below depict scalar instructions per cycle across the entire compute unit. This metric relates to the reciprocal of amortized cycles/instruction (throughput). FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
 
 | ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
 | - | - |
