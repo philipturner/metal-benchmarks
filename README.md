@@ -100,6 +100,7 @@ Floating-point pipelines (A15+, M1+)
 Complex integer and bitwise pipelines:
 - 4 cycles: one 32x32 chunk of a large-integer product, BITSHIFT32 by an amount unknown at compile-time
 - 1 cycle: BITWISE32
+- TODO: Is the bit editing pipeline independent of integer multiply?
 
 Transcendental math pipelines (1-2x per ALU):
 - TODO: The actual pipelines.
@@ -138,20 +139,20 @@ TODO: Transform "optimal repetitions" for instruction sequences into executable 
 | FRACT_PART32 |
 | CONVERT(I32->F) | 4 |
 | CONVERT(I64->F) |
-| Fast RECIP16 | TBD, 6 | TBD, &le;7.5 |  |  |
-| Fast RECIP32 | TBD, 6 | TBD, &le;8.0 |  |  |
+| Fast RECIP16 | TBD, 6 | TBD |  |  |
+| Fast RECIP32 | TBD, 6 | TBD |  |  |
 | Fast RSQRT16 | 8, 8 | TBD, 7.11-9.78 |  |  |  
 | Fast RSQRT32 | 8, 8 | TBD, 7.13-10.69 |  |  |
 | SIN_PT_1 |
 | SIN_PT_2 |
-| Fast EXP2_16 | TBD, 4 | TBD, 6 |  |  |
-| Fast LOG2_16 | TBD, 4 | TBD, 6 |  |  |
-| Fast EXP2_32 | TBD, 4 | TBD, 6 |  |  |
-| Fast LOG2_32 | TBD, 4 | TBD, 6 |  |  |
-| FMAX32 | 1, 1 | 3-4 |
-| FMIN32 | 1, 1 | 3-4 |
-| FCMPSEL16 | 1, 1 | 3 |
-| FCMPSEL32 | 1, 1 | 3-4 |
+| Fast EXP2_16 | TBD, 4 | TBD, 6 ??? |  |  |
+| Fast LOG2_16 | TBD, 4 | TBD, 6 ??? |  |  |
+| Fast EXP2_32 | TBD, 4 | TBD, 6 ??? |  |  |
+| Fast LOG2_32 | TBD, 4 | TBD, 6 ??? |  |  |
+| FMAX32 | 1, 1 | 3-4 ??? |
+| FMIN32 | 1, 1 | 3-4 ??? |
+| FCMPSEL16 | 1, 1 | 3 ??? |
+| FCMPSEL32 | 1, 1 | 3-4 ??? |
 
 TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 throughputs. Look for disparities between F16 and F32.
 
@@ -164,10 +165,10 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 | Fast DIV32 | TBD, 6 | TBD, &le;9.0 |
 | Fast SQRT16 | TBD, 8 | TBD, 9.56-10.74 | 960 |
 | Fast SQRT32 | TBD, 8 | TBD, 8.57-11.13 | 960 |
-| Fast SIN16 | TBD, &le;14.6 | TBD, &le;27.8 |
-| Fast SINPI16 | TBD, &le;18.7 | TBD, &le;51.5 |
-| Fast SIN32 | TBD, &le;14.5 | TBD, &le;27.3 |
-| Fast SINPI32 | TBD, &le;26.3 |  TBD, &le;88.8 |
+| Fast SIN16 | TBD, &le;14.6 | TBD, &le;27.8 | ???
+| Fast SINPI16 | TBD, &le;18.7 | TBD, &le;51.5 | ???
+| Fast SIN32 | TBD, &le;14.5 | TBD, &le;27.3 | ???
+| Fast SINPI32 | TBD, &le;26.3 |  TBD, &le;88.8 | ???
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
@@ -191,54 +192,53 @@ TODO: Test FFMA and transcendental latencies on A14, verify FADD32 and FMUL32 th
 
 | Int Instruction | Throughput | Latency | Concurrency/ALU | Concurrency/Core |
 | -------------------------- | ------ | ------- | ----------- | --- |
-| IADD16 | 1, 1 | 2.97-3.34 | TODO |
+| IADD16 | 1, 1 | 2.97-3.34 | TODO
 | IMUL16 | 4, 4 | 4.20-5.39 | 
 | IMAD16 | 4, 4 | 4.18-5.38 |
+| IMUL(16x16=32) | 4 | 4.14-5.56 |
+| IMAD((16x16=32)+32) | 4 | 4.34-5.67 |
 | IADD32 | 1, 1 | 3.51-3.91 |
 | IMUL32 | 4, 4 | 4.30-5.72 |
 | IMAD32 | 4, 4 | 7.13-7.67 |
 | IMULHI32 | 8.01 | 10.59-11.53 |
-| IMUL(32x32=64) | ??? | ??? |
-| BITSHIFT32(<<4) | TODO
-| BITSHIFT32 | TODO
-| BITEXTRACT32 | TODO
-| BITWISE32 | 1 | 1 ??? |
-| BITREV32 | 4 | 3 ??? |
-| POPCOUNT32 |
-| CTZ/CLZ32 |
+| IMUL(32x32=64) | 8.01 | 10.59-11.54 |
+| IADDSAT32 | 1.02 | 3.53-3.92 |
+| BITEXTRACT32\* | 4.01 | 4.30-5.72 |
+| BITINSERT32\*\* | &le;4.42 | TBD |
+| BITWISE32 | 1.06 | TBD |
+| BITREV32 | 4.00 | 3.76-5.32 |
+| POPCOUNT32 | 4.00 | 3.76-5.32 |
 | ICMPSEL16 | 1, 1 | 2.98-3.34 |
 | IMAX32 | 1, 1 | 6.30-6.61 |
 | IMIN32 | 1, 1 | 6.31-6.63 |
 | ICMPSEL32 | 1, 1 | 6.31-6.64 |
 
-TODO: Test optimal repetitions on mixed-precision integer math. Are they all performed in a single instruction?
+_\* BITEXTRACT32 must extract a number of bits known at compile-time. Otherwise, throughput is 8 cycles. For BITINSERT32, the offset must be known at compile-time. Creating the offset dynamically worsens throughput to ~8 cycles. Creating the number of bits dynamically worsens throughput to ~12 cycles, regardless of how the offset is created._
+
+_\*\* Based on results of the instruction sequence BITINSERT32 + ADD32, BITINSERT32 might not be a unique instruction. This conclusion conflicts with Dougall Johnson's [G13 GPU reference](https://dougallj.github.io/applegpu/docs.html). I cannot set up a proper benchmark without the compiler optimizing everything away._
 
 | Instruction Sequence | Throughput | Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ----- |
-| IMADHI16 | 4 | 6.23-7.29 | 720
-| BITREV16 | 4 | 5.76-6.76 | 480
-| RHADD16 | 4 | 15.65-16.42 | 480
-| RHADD32 | 6 | 18.96-20.89 | 240
-| ABSDIFF32 | 4 | &le;10 |
+| IMADHI16 | 4 | 6.23-7.29 | 720 |
+| BITWISE32 + ADD32 | 2.11 | 5.56-6.44 | 720 |
+| BITINSERT32 + ADD32 | 4.42 | 9.56-10.23 | 240-360 |
+| BITREV16 | 4 | 5.76-6.76 | 480 |
+| BITROTATE | 8.20 | 22.84-22.70 | 720-1440 |
+| RHADD16 | 4 | 15.65-16.42 | 480 |
+| RHADD32 | 6 | 18.96-20.89 | 240 |
+| CLZ32 | 4.05 | 7.67-9.33 | 480-960 |
+| LSHIFT32 | 4.01 | 5.56-6.74 | 720 |
+| RSHIFT32 | 7.89 | 10.80-12.19 | 720 |
+| ABSDIFF32 | 4.03 | 8.27-9.97 | 480-1440 |
 | IADD(32+32=64) | 3.07 | 6.89-7.86 | 480 |
 | IADD(64+32=64) | 3.30 | 9.63-9.78 | 360-480 |
+| IADD(64+64=64) | 4.68 | 10.01-11.62 | 360 |
+| IMUL(64x64=64) | 16.06 | 15.18-21.72 | 240 |
+| IMADHI32 | 8.01 | 9.83-12.20 | TBD |
 | IMAD((32x32=32)+64) | 4.80 | 11.21-12.26 | 360 |
-| IMAD((32x32=64)+64) | 8 ??? | 8 ??? | ??? |
-| IMADHI32 | 8.01 | 9.83-12.20 |
-| IMAD((64x32=64)+64) | 12 | &le;24 |
-| IADD64 | 4.68 | 10.01-11.62 | 360 |
-| IMUL64 | 16.06 | 15.18-21.72 | 240 |
-| IMAD64 | 16.58 | 21.32-25.94 | 180 |
-| IMULHI64 | 22.22 | 37.87-45.32 | 120 |
-| BITSHIFT64 |
-| BITEXTRACT64 |
-| BITWISE64 |
-| BITREV64 |
-| POPCOUNT64 |
-| CLZ/CTZ64 |
-| IMAX64 |
-| IMIN64 |
-| ICMPSEL64 |
+| IMAD((32x32=64)+64) | 8.03 | 19.04-19.85 | 720-960 |
+| IMAD((64x64=64)+64) | 16.58 | 21.32-25.94 | 180 |
+| IMULHI64 | 22.22 | 37.87-45.32 | &le;120 |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
@@ -248,7 +248,7 @@ TODO: Test optimal repetitions on mixed-precision integer math. Are they all per
 | IADD64 | ~4 instructions |
 | IMUL64 | ~6 instructions |
 | IMAD64 | ~8 instructions |
-| IMULHI64 | ~12 instructions |
+| IMULHI64 | &ge;12 instructions |
 
 _Register move may be implemented through an instruction that adds zero._
 
@@ -321,6 +321,12 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD32 + 4 IADD16 | 9.20 |
 | IMAD32 + IMAD((32x32=32)+64) + 4 IADD16 | 11.16 |
 | IMAD((32x32=32)+64) + 4 IADD16 | 8.44 |
+| IMUL64 + FMUL32 | TODO |
+| IMUL64 + 2 FMUL32 | TODO |
+| IMUL64 + 3 FMUL32 | TODO |
+| IMUL64 + 4 FMUL32 | TODO |
+| IMUL + LSHIFT32 | TODO |
+| IMUL + BITSHIFT(<<4) | TODO |
 
 </details>
 
