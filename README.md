@@ -81,35 +81,38 @@ _IPC stands for instructions per clock. Integer IPC consists of adds and/or fuse
 
 ## Pipelines per ALU
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines accept 16-bit operands or write 16-bit results, with zero additional cost. For floating-point pipelines, a 32-bit register dependency invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling.
+For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. For core compute pipelines, a 32-bit input invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling. This problem is less pronounced for 16-bit inputs.
 
-On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power). We omit the A14 design for simplicity.
+On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power via emulation). We omit the A14 design for simplicity.
 
 ---
 
-Core compute pipelines (3x per ALU):
-- Only one sub-pipeline simultaneously utilized, except during FFMA32 and F/ICMPSEL32.
-- 3 cycles: F/IADD32/LSHIFT32(k=1-4), compare part of F/ICMPSEL32, add part of FFMA32
-- 3 cycles: BITWISE32, select part of F/ICMPSEL32
-- 3 cycles: FMUL32, multiply part of FFMA32
-- 3 cycles: FFMA16, F/ICMPSEL16
-- 2 cycles: add part of IMAD32 and half of IADD64
+Core compute pipelines:
+- Only two sub-pipelines simultaneously utilized, except during FFMA32 and F/ICMPSEL32 (4 cycles). The F/IADD32 pipeline is used during IMAD32 (add after IMUL), IADD64 (32+32=33 chunk), FFMA32 (add after FMUL), and F/ICMPSEL32 (comparison). We don't depict this for simplicity.
+- 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
+- 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
+- 2 cycles: BITWISE32, select part of F/ICMPSEL32
+- 2 cycles: BITWISE32, select part of F/ICMPSEL32
+- 2 cycles: FMUL32, multiply part of FFMA32
+- 2 cycles: FMUL32, multiply part of FFMA32
+- 2 cycles: FFMA16, F/ICMPSEL16
+- 2 cycles: FFMA16, F/ICMPSEL16
 
-Integer and complex pipelines (1.25x per ALU)
+Integer and complex pipelines:
 - Only one sub-pipeline simultaneously utilized.
-- 5 cycles: CONVERT(F->I), CONVERT(I->F), RINT
-- 5 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
-- 5 cycles: IMUL32, one 32x32=32 chunk of an integer product
-- 10 cycles: IMUL(32x32=64), one 32x32=64 chunk of an integer product
+- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT
+- 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
+- 4 cycles: IMUL32, 32x32=32 chunks of IMUL64
+- 8 cycles: IMUL(32x32=64), 32x32=64 chunk of IMUL64
 
-Transcendental math pipelines (variable per ALU):
+Transcendental math pipelines:
 - All can be accessed simultaneously (???).
-- ~10 cycles, 1.25x: RSQRT
-- ~12 cycles, 1.25x: SIN_PT_1
-- ~12 cycles, 1.25x: SIN_PT_2
-- ~5-6 cycles, 1.25-1.5x: EXP2, LOG2
-- ~6-9 cycles, 1.0-1.5x: RECIP
-- TODO: Can multiple math operations happen simultaneously? Can they happen simultaneously to integer multiply?
+- 4 cycles: EXP2, LOG2
+- 6 cycles: RECIP
+- 8 cycles: RSQRT
+- 10 cycles: SIN_PT_1
+- 10 cycles: SIN_PT_2
+- TODO: Can multiple math operations happen simultaneously? Can EXP2 happen simultaneously to integer multiply?
 
 ---
 
@@ -128,53 +131,54 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
 
 <details>
-<summary>Control group</summary>
+<summary>Control group (calibration)</summary>
 
 | No Operations | Throughput | Virtual Repetitions |
 | ------- | ---------- | ----- |
 | 2-4 simds, 16-bit | &ge;1.17 | 1440 |
-| 2-4 simds, 16-bit | &ge;3.34 | 720 |
-| 2-4 simds, 16-bit | &ge;6.68 | 360 |
-| 2-4 simds, 32-bit | &ge;1.70 | 1440 |
+| 2-4 simds, 16-bit | &ge;2.34 | 720 |
+| 2-4 simds, 16-bit | &ge;4.68 | 360 |
+| 2-4 simds, 16-bit | &ge;7.02 | 240 |
+| 2-4 simds, 16-bit | &ge;14.04 | 120 |
+| 2-4 simds, 32-bit | &ge;1.27-1.70 | 1440 |
 | 2-4 simds, 32-bit | &ge;3.40 | 720 |
 | 2-4 simds, 32-bit | &ge;6.80 | 360 |
 | 2-4 simds, 32-bit | &ge;10.20 | 240 |
 | 2-4 simds, 32-bit | &ge;13.60 | 120 |
 
-
-_At a minimum, the numbers above should be subtracted from measured latencies._
+_At a minimum, the numbers above should be subtracted from measured latencies. However, the original raw latencies will be presented in the tables._
 
 </details>
 
 <details>
 <summary>Floating-point performance</summary>
 
-| Float Instruction | Throughput | Latency |
-| -------------------------- | ------ | ------- |
-| FADD16 | 1, 1 | 2.97-3.33 |
-| FMUL16 | 1, 1 | 2.98-3.34 |
-| FFMA16 | 1, 1 | 2.97-3.35 |
-| FADD32 | 2, 1 | 3.50-3.90 |
-| FMUL32 | 2, 1 | 3.50-3.91 |
-| FFMA32 | 2, 1 | 5.84-6.18 |
-| CONVERT(F->I32) | 4 | 3.78-5.36 |
-| RINT32 | 4 | 3.78-5.36 |
-| Fast RECIP16 | 6 | TBD |
-| Fast RECIP32 | 6 | 5.80-8.20 |
-| Fast RSQRT16 | 8, 8 | 7.11-9.78 | 
-| Fast RSQRT32 | 8, 8 | 7.13-10.69 |
-| SIN_PT_1 | ~9.6 | ~12 |
-| SIN_PT_2 | ~9.6 | ~12 |
-| Fast EXP2_16 | 4.00 | 5.38-5.79 |
-| Fast LOG2_16 | 4.00 | 5.38-5.79 |
-| Fast EXP2_32 | 4.00 | 5.38-6.01 |
-| Fast LOG2_32 | 4.00 | 5.36-6.01 |
-| FMAX32 | 1, 1 | 6.30-6.61 |
-| FMIN32 | 1, 1 | 6.31-6.63 |
-| FCMPSEL16 | 1, 1 | 2.98-3.34 |
-| FCMPSEL32 | 1, 1 | 6.31-6.64 |
+| Float Instruction | Throughput | Raw Latency | Adjusted Latency |
+| -------------------------- | ------ | ------- | ------- |
+| FADD16 | 1, 1 | 2.97-3.33 | 2.16 |
+| FMUL16 | 1, 1 | 2.98-3.34 | 2.17 |
+| FFMA16 | 1, 1 | 2.97-3.35 | 2.18 |
+| FADD32 | 2, 1 | 3.50-3.90 | 2.20 |
+| FMUL32 | 2, 1 | 3.50-3.91 | 2.21 |
+| FFMA32 | 2, 1 | 5.84-6.18 | 4.48 |
+| CONVERT(F->I32) | 4 | 3.78-5.36 | 3.66 |
+| RINT32 | 4 | 3.78-5.36 | 3.66 |
+| Fast RECIP16 | 6 | TBD | 6.50 |
+| Fast RECIP32 | 6 | 5.80-8.20 | 6.50 |
+| Fast RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
+| Fast RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
+| SIN_PT_1 | ~10 | TBD | ~10 |
+| SIN_PT_2 | ~10 | TBD | ~10 |
+| Fast EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
+| Fast LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
+| Fast EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
+| Fast LOG2_32 | 4.00 | 5.36-6.01 | 4.31 |
+| FMAX32 | 1, 1 | 6.11-6.44 | 4.74 |
+| FMIN32 | 1, 1 | 6.11-6.44 | 4.74 |
+| FCMPSEL16 | 1, 1 | 2.98-3.34 | 2.17 |
+| FCMPSEL32 | 1, 1 | 6.11-6.44 | 4.74 |
 
-| Instruction Sequence | Throughput | Latency | Optimal Repetitions |
+| Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
 | CONVERT(F->I64) | 7.11 | 10.30-12.67 | 240 |
 | FRACT32 | &le;4.13 | TBD | TBD |
@@ -194,14 +198,14 @@ _At a minimum, the numbers above should be subtracted from measured latencies._
 | Fast LOGe_32 | 4.00 | 7.61-7.66 | 960 |
 | Fast EXP10_32 | 4.00 | 7.61-7.66 | 960 |
 | Fast LOG10_32 | 4.00 | 7.61-7.66 | 960 |
-| Precise RECIP |
-| Precise DIV |
-| Precise RSQRT |
-| Precise SQRT |
-| Precise SIN | &le;24.4 | &le;225.3 |
-| Precise SINPI | &le;30.4 | &le;104.4 |
-| Precise EXP2 |
-| Precise LOG2 |
+| Precise RECIP | TBD | TBD |
+| Precise DIV | TBD | TBD |
+| Precise RSQRT | TBD | TBD |
+| Precise SQRT | TBD | TBD |
+| Precise SIN | TBD | TBD |
+| Precise SINPI | TBD | TBD |
+| Precise EXP2 | TBD | TBD |
+| Precise LOG2 | TBD | TBD |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
@@ -215,34 +219,34 @@ _At a minimum, the numbers above should be subtracted from measured latencies._
 <details>
 <summary>Integer performance</summary>
 
-| Int Instruction | Throughput | Latency |
+| Int Instruction | Throughput | Raw Latency | Adjusted Latency |
 | -------------------------- | ------ | ------- |
-| IADD16 | 1, 1 | 2.97-3.34 |
-| IMUL16 | 4, 4 | 4.20-5.39 | 
-| IMAD16 | 4, 4 | 4.18-5.38 |
-| IMUL(16x16=32) | 4 | 4.14-5.56 |
-| IMAD((16x16=32)+32) | 4 | 4.34-5.67 |
-| IADD32 | 1, 1 | 3.51-3.91 |
-| IMUL32 | 4, 4 | 4.30-5.72 |
-| IMAD32 | 4, 4 | 7.13-7.67 |
-| IMULHI32 | 8.01 | 10.59-11.53 |
-| IMUL(32x32=64) | 8.01 | 10.59-11.54 |
-| IADDSAT32 | 1.02 | 3.53-3.92 |
-| BITEXTRACT32\* | 4.01 | 4.30-5.72 |
-| BITINSERT32\*\* | &le;4.42 | TBD |
-| BITWISE32 | 1.06 | TBD |
-| BITREV32 | 4.00 | 3.76-5.32 |
-| POPCOUNT32 | 4.00 | 3.76-5.32 |
-| IMAX32 | 1, 1 | 6.30-6.61 |
-| IMIN32 | 1, 1 | 6.31-6.63 |
-| ICMPSEL16 | 1, 1 | 2.98-3.34 |
-| ICMPSEL32 | 1, 1 | 6.31-6.64 |
+| IADD16 | 1, 1 | 2.97-3.34 | 2.17 |
+| IMUL16 | 4, 4 | 4.20-5.39 | 3.69 |
+| IMAD16 | 4, 4 | 4.18-5.38 | 3.68 |
+| IMUL(16x16=32) | 4 | 4.14-5.56 | 3.86 |
+| IMAD((16x16=32)+32) | 4 | 4.34-5.67 | 3.97 |
+| IADD32 | 1, 1 | 3.51-3.91 | 2.21 |
+| IMUL32 | 4, 4 | 4.30-5.72 | 4.02 |
+| IMAD32 | 4, 4 | 7.13-7.67 | 5.97 |
+| IMULHI32 | 8.01 | 10.59-11.53 | 9.83 |
+| IMUL(32x32=64) | 8.01 | 10.59-11.54 | 9.84 |
+| IADDSAT32 | 1.02 | 3.53-3.92 | 2.75 |
+| BITEXTRACT32\* | 4.01 | 4.30-5.72 | 4.02 |
+| BITINSERT32\*\* | &le;4.42 | TBD | TBD |
+| BITWISE32 | 1.06 | TBD | TBD |
+| BITREV32 | 4.00 | 3.76-5.32 | 3.62 |
+| POPCOUNT32 | 4.00 | 3.76-5.32 | 3.62 |
+| IMAX32 | 1, 1 | 6.11-6.44 | 4.74 |
+| IMIN32 | 1, 1 | 6.11-6.44 | 4.74 |
+| ICMPSEL16 | 1, 1 | 2.98-3.34 | 2.17 |
+| ICMPSEL32 | 1, 1 | 6.11-6.44 | 4.74 |
 
 _\* BITEXTRACT32 must extract a number of bits known at compile-time. Otherwise, throughput is 8 cycles. For BITINSERT32, the offset must be known at compile-time. Creating the offset dynamically worsens throughput to ~8 cycles. Creating the number of bits dynamically worsens throughput to ~12 cycles, regardless of how the offset is created._
 
 _\*\* Based on results of the instruction sequence BITINSERT32 + ADD32, BITINSERT32 might not be a unique instruction. This conclusion conflicts with Dougall Johnson's [G13 GPU reference](https://dougallj.github.io/applegpu/docs.html). I cannot set up a proper benchmark without the compiler optimizing everything away._
 
-| Instruction Sequence | Throughput | Latency | Optimal Repetitions |
+| Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ----- |
 | IMADHI16 | 4 | 6.23-7.29 | 720 |
 | BITWISE32 + ADD32 | 2.11 | 5.56-6.44 | 720 |
@@ -384,6 +388,7 @@ ulong mul64x64_64(ulong x, ulong y) {
 
 | Instruction Sequence | Throughput |
 | -------------------------- | ------ |
+| Fast EXP2_32 + LOG2_32 |
 | Fast EXP2_32 + FMUL32 |
 | Fast EXP2_32 + 2 FMUL32 |
 | Fast EXP2_32 + 3 FMUL32 |
@@ -393,7 +398,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 | Fast EXP2_32 + IMUL32 |
 | Fast RSQRT32 + IMUL32 |
 | Fast DIV32 + IMUL32 |
-| Fast EXP2_32 + LOG2_32 |
 | Fast EXP2_32 + RSQRT32 |
 | Fast EXP2_32 + DIV32 |
 | Fast RSQRT32 + DIV32 |
