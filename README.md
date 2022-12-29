@@ -43,6 +43,8 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+| Shared Bandwidth/Cyc |
+| Device Bandwidth/Cyc |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
@@ -127,6 +129,8 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 ## Instruction Throughputs
 
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
+
+Some supposed "instruction sequences" have optimal throughputs and latencies at different numbers of repetitions. This shouldn't be possible, as only one amount of instructions saturates the instruction cache. This suggests that the benchmarking mechanism is breaking, so take any such statistics with a grain of salt. Notable examples are SIN32, BITINSERT32, and quad BALLOT.
 
 <details>
 <summary>Control group (calibration)</summary>
@@ -218,7 +222,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 <summary>Integer performance</summary>
 
 | Int Instruction | Throughput | Raw Latency | Adjusted Latency |
-| -------------------------- | ------ | ------- |
+| -------------------------- | ------ | ------- | ---- |
 | IADD16 | 1, 1 | 2.97-3.34 | 2.17 |
 | IMUL16 | 4, 4 | 4.20-5.39 | 3.69 |
 | IMAD16 | 4, 4 | 4.18-5.38 | 3.68 |
@@ -424,48 +428,71 @@ ulong mul64x64_64(ulong x, ulong y) {
 </details>
 
 <details>
-<summary>SIMD-scoped operations</summary>
+<summary>Intra-simd communication</summary>
 
 | SIMD Instruction | Throughput | Raw Latency | Adjusted Latency |
 | -------------------------- | ------ | ------- | --- |
-| BALLOT | 2.04 | 5.48-6.47 |
-| ICMP_BALLOT | 2.04 | 5.48-6.47 |
-| FCMP_BALLOT | 2.04 | 5.48-6.47 |
+| BALLOT | 2.02 | 5.39-5.44 | 4.27 |
+| ICMP_BALLOT | 2.04 | 5.48-6.47 | 4.77 |
+| FCMP_BALLOT | 2.04 | 5.48-6.47 | 4.77 |
 | BROADCAST32 | 2.04 | 5.41-5.48 | 3.73 |
 | SHUFFLE_ROTATE32 | 2.04 | 5.41-5.47 | 3.72 |
-| SHUFFLE_DOWNUP32 | 2.04 | 5.41-5.48 | 3.73 |
+| SHUFFLE_NOROTATE32 | 2.04 | 5.41-5.48 | 3.73 |
 | SUM\<F16\> | 17.10 | 25.17-27.94 | 26.77 |
 | SUM\<F32\> | 14.54 | 25.95-29.25 | 27.55 |
-| SUM\<I16\> | 17.16 | 25.21-28.21 | 27.04 |
+| SUM\<I16\> | 17.16 | 30.14-35.05 | 33.88 |
 | SUM\<I32\> | 17.05 | 28.07-34.27 | 32.57 |
 | PRODUCT\<F16\> | 17.11 | 26.21-27.99 | 26.82 |
 | PRODUCT\<F32\> | 14.65 | 26.14-29.26 | 27.56 |
-| PREFIX_ESUM\<F32\> | 11.84 | 20.07-23.63 | 21.93 |
-| PREFIX_ISUM\<F32\> | 13.20 | 23.91-25.96 | 24.26 |
-| PREFIX_ESUM\<I32\> | 11.89 | 20.51-23.80 | 22.10 |
-| PREFIX_ISUM\<I32\> | 14.20 | 23.05-26.48 | 24.78 |
+| BITWISE_REDUCE16 | 16.25 | 28.51-31.73 | 30.56 |
+| BITWISE_REDUCE32 | 14.53 | 25.62-29.49 | 27.79 |
+| PREFIX_ESUM\<F32\> | 11.57 | 20.07-23.63 | 21.93 |
+| PREFIX_ISUM\<F32\> | 12.60 | 23.91-25.96 | 24.26 |
+| PREFIX_ESUM\<I32\> | 11.75 | 20.51-23.80 | 22.10 |
+| PREFIX_ISUM\<I32\> | 13.01 | 23.05-26.48 | 24.78 |
+| PREFIX_EPROD\<F32\> | 11.57 | 20.07-23.63 | 21.93 |
+| PREFIX_IPROD\<F32\> | 12.60 | 23.91-25.96 | 24.26 |
 | MATMUL\<F16x8x8\> | ~20.87 | TBD | ~40 |
 | MATMUL\<F32x8x8\> | ~20.14 | TBD | ~40 |
 
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | --- | --- | --- | --- |
-| SHUFFLE_SAME32 | 28.25 | 41.06-50.85 | 120-480 |
-| SHUFFLE_DIFF32 | 32.32 | 45.49-55.27 | 72-240 |
-| PRODUCT<I16> | 20.51 | 219.34-277.56 | 120-240 |
-| PRODUCT<I32> | 20.42 | 218.56-219.60 | 240-360 |
+| SHUFFLE_RANDOM_SAME32 | 28.25 | 41.06-50.85 | 120-480 |
+| SHUFFLE_RANDOM_DIFF32 | 32.32 | 45.49-55.27 | 72-240 |
+| PRODUCT\<I16\> | 20.51 | 111.23-139.28 | &le;24-240 |
+| PRODUCT\<I32\> | 20.42 | 120.33-124.89 | &le;24-360 |
 
 | Quad Instruction | Throughput | Raw Latency | Adjusted Latency |
-| -------------------------- | ------ | ------- |
-| SUM<F16> |
-| SUM<F32> |
-| SUM<I16> |
-| SUM<I32> |
-| PRODUCT<F16> |
-| PRODUCT<F32> |
-| PREFIX_ESUM<F32> |
-| PREFIX_ISUM<F32> |
-| PREFIX_ESUM<I32> |
-| PREFIX_ISUM<I32> |
+| -------------------------- | ------ | ------- | ---- |
+| BROADCAST32 | 2.01 | 4.40-4.46 | 2.76 |
+| SHUFFLE_ROTATE32 | 2.01 | 4.39-4.45 | 2.77 |
+| SHUFFLE_DOWNUP32 | 2.01 | 4.39-4.45 | 2.77 |
+| SUM\<F16\> | 9.04 | 12.97-14.72 |
+| SUM\<F32\> | 6.02 | 13.44-15.23 |
+| SUM\<I16\> | 9.17 | 14.45-17.43 |
+| SUM\<I32\> | 6.78 | 14.51-17.90 |
+| PRODUCT\<F16\> | 9.03 | 13.01-14.74 |
+| PRODUCT\<F32\> | 6.02 | 13.40-15.36 |
+| BITWISE_REDUCE16 | 6.25 | 14.45-17.44 |
+| BITWISE_REDUCE32 | 6.78 | 14.45-17.89 |
+| PREFIX_ESUM\<F32\> | 2.03 |
+| PREFIX_ISUM\<F32\> | 3.19 |
+| PREFIX_ESUM\<I32\> | 2.69 |
+| PREFIX_ISUM\<I32\> | 3.81 |
+| PREFIX_EPROD\<F32\> | 2.03 |
+| PREFIX_IPROD\<F32\> | 3.18 |
+
+| Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
+| --- | --- | --- | --- |
+| BALLOT\* | 3.02 | 6.79-6.88 | 720-1440 |
+| ICMP_BALLOT\* | 3.01 | 13.24-13.63 | 720-1440 |
+| FCMP_BALLOT\* | 3.01 | 13.24-13.63 | 720-1440 |
+| SHUFFLE_RANDOM_SAME32 |
+| SHUFFLE_RANDOM_DIFF32 |
+| PRODUCT\<I16\> | 9.96 | 81.28-98.25 | 24 |
+| PRODUCT\<I32\> | 10.90 | 90.40-90.93 | 24 |
+
+_\* Latency was best at 720 repetitions. Throughput was best at 1440 repetitions. Many genuine instruction sequences also have optimal throughput at more repetitions than latency. These are probably not genuine instruction sequences._
 
 </details>
 
