@@ -89,7 +89,7 @@ On A14, we might have separate F16 and F32 pipelines. This would reflect how Met
 
 ---
 
-Core compute pipelines:
+Core compute pipelines (F16/F32, "integer and conditional"):
 - Only two pipelines simultaneously utilized, except during FFMA32 and F/ICMPSEL32 (4 cycles). The F/IADD32 pipeline is used during IMAD32 (add after IMUL), IADD64 (32+32=33 chunk), FFMA32 (add after FMUL), and F/ICMPSEL32 (comparison). We don't depict this usage for simplicity.
 - 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
 - 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
@@ -100,7 +100,7 @@ Core compute pipelines:
 - 2 cycles: FFMA16, F/ICMPSEL16
 - 2 cycles: FFMA16, F/ICMPSEL16
 
-Integer and complex pipelines:
+Int64 and transcendental pipelines ("integer and complex"):
 - Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are always accessed simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
 - 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
