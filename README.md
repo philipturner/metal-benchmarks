@@ -43,8 +43,8 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| Shared Bandwidth/Cyc |
-| Device Bandwidth/Cyc |
+| Shared BW/Cyc |
+| Device BW/Cyc |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
@@ -103,16 +103,16 @@ Core compute pipelines (F16/F32, "integer and conditional"):
 - 2 cycles: FFMA16, F/ICMPSEL16
 
 Int64 and transcendental pipelines ("integer and complex"):
-- Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are always accessed simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
-- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT
+- Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are accessible simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
+- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FREXP
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
 - 4 cycles: IMUL32, 32x32=32 chunks of IMUL64
 - 8 cycles: IMUL(32x32=64), 32x32=64 chunk of IMUL64
 - 4 cycles: EXP2, LOG2
 - 6 cycles: RECIP
 - 8 cycles: RSQRT
-- ~10-15 cycles: SIN_PT_1
-- ~10-15 cycles: SIN_PT_2
+- 8 cycles: SIN_PT_1
+- 8 cycles: SIN_PT_2
 
 ---
 
@@ -129,8 +129,6 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 ## Instruction Throughputs
 
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
-
-Some supposed "instruction sequences" have optimal throughputs and latencies at different numbers of repetitions. This shouldn't be possible, as only one amount of instructions saturates the instruction cache. This suggests that the benchmarking mechanism is breaking, so take any such statistics with a grain of salt. Notable examples are SIN32, BITINSERT32, and quad BALLOT.
 
 <details>
 <summary>Control group (calibration)</summary>
@@ -165,16 +163,17 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | FFMA32 | 2, 1 | 5.84-6.18 | 4.48 |
 | CONVERT(F->I32) | 4 | 3.78-5.36 | 3.66 |
 | RINT32 | 4 | 3.78-5.36 | 3.66 |
-| Fast RECIP16 | 6 | TBD | 6.50 |
-| Fast RECIP32 | 6 | 5.80-8.20 | 6.50 |
-| Fast RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
-| Fast RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
-| SIN_PT_1 | ~10-15 | TBD | ~10-15 |
-| SIN_PT_2 | ~10-15 | TBD | ~10-15 |
-| Fast EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
-| Fast LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
-| Fast EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
-| Fast LOG2_32 | 4.00 | 5.36-6.01 | 4.31 |
+| TRUNC32 | 4 | TBD | TBD |
+| RECIP16 | 6 | TBD | 6.50 |
+| RECIP32 | 6 | 5.80-8.20 | 6.50 |
+| RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
+| RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
+| SIN_PT_1 | ~8 | TBD | ~8 |
+| SIN_PT_2 | ~8 | TBD | ~8 |
+| EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
+| LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
+| EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
+| LOG2_32 | 4.00 | 5.36-6.01 | 4.31 |
 | FMAX32 | 1, 1 | 6.11-6.44 | 4.74 |
 | FMIN32 | 1, 1 | 6.11-6.44 | 4.74 |
 | FCMPSEL16 | 1, 1 | 2.98-3.34 | 2.17 |
@@ -188,33 +187,34 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
 | FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
 | FMEDIAN32 | 3.65 | 9.20-10.86 | 360-480 |
-| Fast DIV16 | 6.01 | 8.58-9.36 | 960 |
-| Fast DIV32 | 6.01 | 7.62-8.90 | 960 |
-| Fast SQRT16 | 8 | 9.56-10.74 | 960 |
-| Fast SQRT32 | 8 | 8.57-11.13 | 960 |
-| Fast SIN16 | 10.04 | 23.78-27.90 | 24-240 |
-| Fast SINPI16 | 12.40 | 35.57-44.71 | 24 |
-| Fast SIN32 | 9.96 | 23.04-27.35 | 24-240 |
-| Fast SINPI32 | 17.26 | 50.87-51.11 | 24 |
-| Fast EXPe_32 | 4.00 | 7.61-7.66 | 960 |
-| Fast LOGe_32 | 4.00 | 7.61-7.66 | 960 |
-| Fast EXP10_32 | 4.00 | 7.61-7.66 | 960 |
-| Fast LOG10_32 | 4.00 | 7.61-7.66 | 960 |
-| Precise RECIP | TBD | TBD |
-| Precise DIV | TBD | TBD |
-| Precise RSQRT | TBD | TBD |
-| Precise SQRT | TBD | TBD |
-| Precise SIN | TBD | TBD |
-| Precise SINPI | TBD | TBD |
-| Precise EXP2 | TBD | TBD |
-| Precise LOG2 | TBD | TBD |
+| DIV16 | 6.01 | 8.58-9.36 | 960 |
+| DIV32 | 6.01 | 7.62-8.90 | 960 |
+| SQRT16 | 8 | 9.56-10.74 | 960 |
+| SQRT32 | 8 | 8.57-11.13 | 960 |
+| SIN16 | 13.56 | 23.78-27.90 | 240 |
+| SINPI16 | 18.64 | 34.42-39.47 | 120-240 |
+| SIN32 | 14.28 | 23.04-27.35 | 240 |
+| COS32 | 14.28 | 23.04-27.35 | 240 |
+| SINPI32 | 25.03 | 52.58-56.44 | 48-72 |
+| EXPE_32 | 4.00 | 7.61-7.66 | 960 |
+| LOGE_32 | 4.00 | 7.61-7.66 | 960 |
+| EXP10_32 | 4.00 | 7.61-7.66 | 960 |
+| LOG10_32 | 4.00 | 7.61-7.66 | 960 |
+| Precise RECIP32 | TBD | TBD |
+| Precise DIV32 | TBD | TBD |
+| Precise RSQRT32 | TBD | TBD |
+| Precise SQRT32 | TBD | TBD |
+| Precise SIN32 | 24.39 | 224.42-225.66 | 240 |
+| Precise SINPI32 |  |  |
+| Precise EXP2_32 | TBD | TBD |
+| Precise LOG2_32 | TBD | TBD |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
-| Fast DIV | Fast RECIP + FMUL32 |
-| TRIG_REDUCE | MUL + FRACT + FMA |
-| Fast SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
-| Fast COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
+| DIV | RECIP + FMUL32 |
+| TRIG_REDUCE | FMUL + FRACT + FFMA |
+| SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
+| COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
 
 </details>
 
@@ -441,7 +441,7 @@ ulong mul64x64_64(ulong x, ulong y) {
 | SUM\<F16\> | 17.10 | 25.17-27.94 | 26.77 |
 | SUM\<F32\> | 14.54 | 25.95-29.25 | 27.55 |
 | SUM\<I16\> | 17.16 | 30.14-35.05 | 33.88 |
-| SUM\<I32\> | 17.05 | 28.07-34.27 | 32.57 |
+| SUM\<I32\> | 16.64 | 28.07-34.27 | 32.57 |
 | PRODUCT\<F16\> | 17.11 | 26.21-27.99 | 26.82 |
 | PRODUCT\<F32\> | 14.65 | 26.14-29.26 | 27.56 |
 | BITWISE_REDUCE16 | 16.25 | 28.51-31.73 | 30.56 |
@@ -467,30 +467,30 @@ ulong mul64x64_64(ulong x, ulong y) {
 | BROADCAST32 | 2.01 | 4.40-4.46 | 2.76 |
 | SHUFFLE_ROTATE32 | 2.01 | 4.39-4.45 | 2.77 |
 | SHUFFLE_DOWNUP32 | 2.01 | 4.39-4.45 | 2.77 |
-| SUM\<F16\> | 9.04 | 12.97-14.72 |
-| SUM\<F32\> | 6.02 | 13.44-15.23 |
-| SUM\<I16\> | 9.17 | 14.45-17.43 |
-| SUM\<I32\> | 6.78 | 14.51-17.90 |
-| PRODUCT\<F16\> | 9.03 | 13.01-14.74 |
-| PRODUCT\<F32\> | 6.02 | 13.40-15.36 |
-| BITWISE_REDUCE16 | 6.25 | 14.45-17.44 |
-| BITWISE_REDUCE32 | 6.78 | 14.45-17.89 |
-| PREFIX_ESUM\<F32\> | 2.03 |
-| PREFIX_ISUM\<F32\> | 3.19 |
-| PREFIX_ESUM\<I32\> | 2.69 |
-| PREFIX_ISUM\<I32\> | 3.81 |
-| PREFIX_EPROD\<F32\> | 2.03 |
-| PREFIX_IPROD\<F32\> | 3.18 |
+| SHUFFLE_RANDOM_SAME32 | 2.01 | 4.39-4.44 | 2.74 |
+| SHUFFLE_RANDOM_DIFF32 | 2.01 | 4.38-4.46 | 2.76 |
+| SUM\<F16\> | 9.04 | 12.97-14.72 | 13.55 |
+| SUM\<F32\> | 6.02 | 13.44-15.23 | 13.53 |
+| SUM\<I16\> | 9.17 | 14.45-17.43 | 16.26 |
+| SUM\<I32\> | 6.78 | 14.51-17.90 | 16.20 |
+| PRODUCT\<F16\> | 9.03 | 13.01-14.74 | 13.57 |
+| PRODUCT\<F32\> | 6.02 | 13.40-15.36 | 13.66 |
+| BITWISE_REDUCE16 | 6.25 | 14.45-17.44 | 16.27 |
+| BITWISE_REDUCE32 | 6.78 | 14.45-17.89 | 16.19 |
+| PREFIX_ESUM\<F32\> | 2.03 | 6.54-6.78 | 5.08 |
+| PREFIX_ISUM\<F32\> | 3.19 | 10.04-10.88 | 9.18 |
+| PREFIX_ESUM\<I32\> | 2.69 | 6.54-6.80 | 5.10 |
+| PREFIX_ISUM\<I32\> | 3.81 | 9.96-10.43 | 8.73 |
+| PREFIX_EPROD\<F32\> | 2.03 | 6.54-6.78 | 5.08 |
+| PREFIX_IPROD\<F32\> | 3.18 | 10.04-10.91 | 9.21 |
 
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | --- | --- | --- | --- |
 | BALLOT\* | 3.02 | 6.79-6.88 | 720-1440 |
 | ICMP_BALLOT\* | 3.01 | 13.24-13.63 | 720-1440 |
 | FCMP_BALLOT\* | 3.01 | 13.24-13.63 | 720-1440 |
-| SHUFFLE_RANDOM_SAME32 |
-| SHUFFLE_RANDOM_DIFF32 |
-| PRODUCT\<I16\> | 9.96 | 81.28-98.25 | 24 |
-| PRODUCT\<I32\> | 10.90 | 90.40-90.93 | 24 |
+| PRODUCT\<I16\> | 9.96 | 81.28-98.25 | &le;24 |
+| PRODUCT\<I32\> | 10.90 | 90.40-90.93 | &le;24 |
 
 _\* Latency was best at 720 repetitions. Throughput was best at 1440 repetitions. Many genuine instruction sequences also have optimal throughput at more repetitions than latency. These are probably not genuine instruction sequences._
 
