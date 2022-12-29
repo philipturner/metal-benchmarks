@@ -28,7 +28,7 @@ _The M2 Pro and later statistics come from recent leaks from Apple's supply chai
 Table of Contents
 - [On-Chip Memory](#on-chip-memory)
 - [Operations per Second](#operations-per-second)
-- [Pipelines per ALU](#pipelines-per-alu)
+- [ALU Layout](#alu-layout)
 - [Instruction Throughputs](#instruction-throughputs)
 - [ALU Bottlenecks](#alu-bottlenecks)
 - [Power Efficiency](#power-efficiency)
@@ -79,16 +79,18 @@ _On Nvidia chips, all major transcendentals take the same amount of time. On App
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
 
-## Pipelines per ALU
+## ALU Layout
 
-For marketing, Apple says that each GPU core contains 128 ALUs. These roughly correspond to all the pipelines necessary to sustain one scalar/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. For core compute pipelines, a 32-bit input invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling. This problem is less pronounced for 16-bit inputs.
+Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. Any 32-bit operand invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling. This problem bottlenecks\* the core compute pipelines unless you use 16-bit operands.
+
+\* As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. Not sure whether Apple has 4 schedulers with single-issue (like very old Nvidia GPUs), 2 schedulers with dual-issue (like Ampere), or a hybrid setup that can do both. Latency benchmarks assume 4 schedulers.
 
 On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power via emulation). We omit the A14 design for simplicity.
 
 ---
 
 Core compute pipelines:
-- Only two sub-pipelines simultaneously utilized, except during FFMA32 and F/ICMPSEL32 (4 cycles). The F/IADD32 pipeline is used during IMAD32 (add after IMUL), IADD64 (32+32=33 chunk), FFMA32 (add after FMUL), and F/ICMPSEL32 (comparison). We don't depict this for simplicity.
+- Only two pipelines simultaneously utilized, except during FFMA32 and F/ICMPSEL32 (4 cycles). The F/IADD32 pipeline is used during IMAD32 (add after IMUL), IADD64 (32+32=33 chunk), FFMA32 (add after FMUL), and F/ICMPSEL32 (comparison). We don't depict this usage for simplicity.
 - 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
 - 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
 - 2 cycles: BITWISE32, select part of F/ICMPSEL32
@@ -99,24 +101,20 @@ Core compute pipelines:
 - 2 cycles: FFMA16, F/ICMPSEL16
 
 Integer and complex pipelines:
-- Only one sub-pipeline simultaneously utilized.
+- Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are always accessed simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
 - 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
 - 4 cycles: IMUL32, 32x32=32 chunks of IMUL64
 - 8 cycles: IMUL(32x32=64), 32x32=64 chunk of IMUL64
-
-Transcendental math pipelines:
-- All can be accessed simultaneously (???).
 - 4 cycles: EXP2, LOG2
 - 6 cycles: RECIP
 - 8 cycles: RSQRT
-- 10 cycles: SIN_PT_1
-- 10 cycles: SIN_PT_2
-- TODO: Can multiple math operations happen simultaneously? Can EXP2 happen simultaneously to integer multiply?
+- ~10-15 cycles: SIN_PT_1
+- ~10-15 cycles: SIN_PT_2
 
 ---
 
-This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. 
+This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. Also, the numbers for SIN_PT_1 and SIN_PT_2 are not ranges of "variable latency cycles". They're the upper and lower estimate of an unchanging latency. Possible flaws in the measurement technique make this uncertain.
 
 Although floating-point operations have 3 cycles latency, you can imagine them as a single pipeline with 1 cycle latency. The following formulae help:
 
@@ -167,8 +165,8 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | Fast RECIP32 | 6 | 5.80-8.20 | 6.50 |
 | Fast RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
 | Fast RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
-| SIN_PT_1 | ~10 | TBD | ~10 |
-| SIN_PT_2 | ~10 | TBD | ~10 |
+| SIN_PT_1 | ~10-15 | TBD | ~10-15 |
+| SIN_PT_2 | ~10-15 | TBD | ~10-15 |
 | Fast EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | Fast LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | Fast EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
@@ -292,7 +290,7 @@ According to the Metal Feature Set Tables, the A11 and later have "64-bit intege
 
 > Throughput &ge; 4(number IADD64s) + 1(number IADD32s) + 1(number FADD32s)
 
-This suggests that it hijacks the IADD32 integer pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
+This suggests that IADD64 hijacks the IADD32 pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
 
 With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle.
 
@@ -388,20 +386,40 @@ ulong mul64x64_64(ulong x, ulong y) {
 
 | Instruction Sequence | Throughput |
 | -------------------------- | ------ |
-| Fast EXP2_32 + LOG2_32 |
-| Fast EXP2_32 + FMUL32 |
-| Fast EXP2_32 + 2 FMUL32 |
-| Fast EXP2_32 + 3 FMUL32 |
-| Fast DIV32 + FMUL32 |
-| Fast DIV32 + 2 FMUL32 |
-| Fast DIV32 + 3 FMUL32 |
-| Fast EXP2_32 + IMUL32 |
-| Fast RSQRT32 + IMUL32 |
-| Fast DIV32 + IMUL32 |
-| Fast EXP2_32 + RSQRT32 |
-| Fast EXP2_32 + DIV32 |
-| Fast RSQRT32 + DIV32 |
-| Fast EXP2_32 + RSQRT32 + DIV32 |
+| Fast EXP2_32 + LOG2_32 | 8.00 |
+| Fast EXP2_32 + FMUL32 | 4.02 |
+| Fast EXP2_32 + 2 FMUL32 | 4.08 |
+| Fast EXP2_32 + 3 FMUL32 | 5.20 |
+| Fast RECIP32 + FMUL32 | 6.04 |
+| Fast RECIP32 + 2 FMUL32 | 6.04 |
+| Fast RECIP32 + 3 FMUL32 | 6.16 |
+| Fast DIV32 + FMUL32 | 6.24 |
+| Fast DIV32 + 2 FMUL32 | 7.16 |
+| Fast DIV32 + 3 FMUL32 | 7.40 |
+| Fast EXP2_32 + IMUL32 | 9.94 |
+| Fast RSQRT32 + IMUL32 | 12.90 |
+| Fast RSQRT32 + LSHIFT32 | 12.90 |
+| Fast RSQRT32 + IADD32 | 8.02 |
+| Fast RSQRT32 + IADD(32+32=64) | 8.02 |
+| Fast RSQRT32 + IMUL(32x32=64) | 17.14 |
+| Fast RECIP32 + IMUL32 | 11.12 |
+| Fast RECIP32 + IMUL(32x32=64) | 15.60 |
+| Fast EXP2_32 + RSQRT32 | 10.85 |
+| Fast EXP2_32 + RECIP32 + 2 FFMA32 | 8.76 |
+| Fast RSQRT32 + RECIP32 | 10.86 |
+| Fast EXP2_32 + RSQRT32 + DIV32 | 16.08 |
+| Fast EXP2_32 + RSQRT32 + DIV32 + IMUL32 | 24.04 |
+| Fast DIV32 + IMUL32 | 11.14 |
+| Fast EXP2_32 + SIN32 | 19.58 |
+| Fast DIV_32 + SIN32 | 20.02 |
+| Fast RSQRT32 + SIN32 | 22.82 |
+| Fast SIN32 + FADD32 | 15.54 |
+| Fast RSQRT32 + DIV32 | 14.02 |
+| Fast EXP2_32 + DIV32 | 8.72 |
+| Fast LOG2_32 + DIV32 | 9.68 |
+| Fast EXP2_32 + RINT32 + FADD32 | 10.46 |
+
+> \* There seems to be some kind of "mode thrashing" in the EXP2/LOG2 unit. Overhead decreases with 3 of 
 
 </details>
 
