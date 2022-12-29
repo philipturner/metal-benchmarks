@@ -8,27 +8,37 @@
 import Metal
 import QuartzCore
 
+struct Processor {
+  var cores: Int
+  var frequency: Int
+  var GOPS: Int {
+    (cores * 128 * frequency) / 1000
+  }
+  
+  static let M1Max = Processor(cores: 32, frequency: 1296)
+  static let A15 = Processor(cores: 5, frequency: 1336)
+  static let A14 = Processor(cores: 4, frequency: 1278)
+}
+
 func mainFunc() {
   let is32Bit = true
   let residentThreadgroupsRange = 2...8
   
   // Constants to initialize the shader.
-  let numCores = 32 // 5
+  let processor: Processor = .M1Max
+  let numCores = processor.cores
   let overSubscription = 250
   let numTrials = 3
-  let theoreticalGOPS = 5308 // 855
-  
-  // A14 @ 1270 MHz
-  // A15 @ 1335 MHz
+  let theoreticalGOPS = processor.GOPS
   
   // Specify amount of work done.
-  let numInstructions = 720 * 2 + 120 * 0 + 24 * 0 // 120 * 2
+  let numInstructions = 720 * 1/2 + 120 * 0 + 24 * 0
   
   var configs: [Int: (simdsPerThreadgroup: Int, threadgroupMemory: Int)]
   if is32Bit {
     // FADD32 configs
     configs = [
-      1 : (32, 32 * 1024), // 11 (30 simds)
+//      1 : (32, 32 * 1024), // 11 (30 simds)
       2 : (23, 31 * 1024), // 19 (46 simds)
       3 : (15, 20 * 1024), // 28 (45 simds)
       4 : (11, 16 * 1024), // 36 (44 simds)
@@ -61,7 +71,7 @@ func mainFunc() {
   let pipeline = try! device.makeComputePipelineState(function: function)
   let maxSimdsPerThreadgroup = pipeline.maxTotalThreadsPerThreadgroup / 32
   if maxSimdsPerThreadgroup < 32 {
-    print("Overallocated registers: \(maxSimdsPerThreadgroup) simds")
+    print("Overallocated registers: \(maxSimdsPerThreadgroup) simds \(pipeline.maxTotalThreadsPerThreadgroup)")
   }
   
   let inputsBuffer = device.makeBuffer(length: 1024 * 1024)!
@@ -129,7 +139,7 @@ func mainFunc() {
   // Display each trial's results, then the maximum.
   print("Occupancy Benchmark")
   let allowedKeys = [
-    1,2, 3, 4, 5, 6, 8, 10,
+    2, 3, 4, 5, 6, 8, 10,
     12, 15, 16, 18, 20,
     24, 30, 32, 36, 40, 48, 56, 64, 72
   ]
