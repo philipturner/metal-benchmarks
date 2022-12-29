@@ -168,12 +168,15 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | RECIP32 | 6 | 5.80-8.20 | 6.50 |
 | RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
 | RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
+| Precise RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
 | SIN_PT_1 | ~8 | TBD | ~8 |
 | SIN_PT_2 | ~8 | TBD | ~8 |
 | EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
 | LOG2_32 | 4.00 | 5.36-6.01 | 4.31 |
+| Precise EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
+| Precise LOG2_32 | 4.00 | 5.38-6.01 | 4.31 |
 | FMAX32 | 1, 1 | 6.11-6.44 | 4.74 |
 | FMIN32 | 1, 1 | 6.11-6.44 | 4.74 |
 | FCMPSEL16 | 1, 1 | 2.98-3.34 | 2.17 |
@@ -200,14 +203,11 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | LOGE_32 | 4.00 | 7.61-7.66 | 960 |
 | EXP10_32 | 4.00 | 7.61-7.66 | 960 |
 | LOG10_32 | 4.00 | 7.61-7.66 | 960 |
-| Precise RECIP32 | TBD | TBD |
-| Precise DIV32 | TBD | TBD |
-| Precise RSQRT32 | TBD | TBD |
-| Precise SQRT32 | TBD | TBD |
+| Precise RECIP32 | 10.46 | 24.99-28.48 | 120 |
+| Precise DIV32 | 36.24 | TBD | 24 |
+| Precise SQRT32 | 15.03 | 34.27-37.12 | 72 |
 | Precise SIN32 | 24.39 | 224.42-225.66 | 240 |
-| Precise SINPI32 |  |  |
-| Precise EXP2_32 | TBD | TBD |
-| Precise LOG2_32 | TBD | TBD |
+| Precise SINPI32 | 29.08 | 56.16-64.09 | 48 |
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
