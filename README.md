@@ -87,8 +87,8 @@ On A14, we might have separate F16 and F32 pipelines. This would reflect how Met
 
 ---
 
-Core compute pipelines (3x conper ALU):
-- Only one pipeline simultaneously utilized, except during FFMA32 and F/ICMPSEL32.
+Core compute pipelines (3x per ALU):
+- Only one sub-pipeline simultaneously utilized, except during FFMA32 and F/ICMPSEL32.
 - 3 cycles: F/IADD32/LSHIFT32(k=1-4), compare part of F/ICMPSEL32, add part of FFMA32
 - 3 cycles: BITWISE32, select part of F/ICMPSEL32
 - 3 cycles: FMUL32, multiply part of FFMA32
@@ -96,15 +96,20 @@ Core compute pipelines (3x conper ALU):
 - 2 cycles: add part of IMAD32 and half of IADD64
 
 Integer and complex pipelines (1.25x per ALU)
-- Only one pipeline simultaneously utilized.
+- Only one sub-pipeline simultaneously utilized.
 - 5 cycles: CONVERT(F->I), CONVERT(I->F), RINT
 - 5 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
 - 5 cycles: IMUL32, one 32x32=32 chunk of an integer product
 - 10 cycles: IMUL(32x32=64), one 32x32=64 chunk of an integer product
 
-Transcendental math pipelines (1-2x per ALU):
-- TODO: The actual pipelines.
-- TODO: Can multiple math operations happen simultaneously?
+Transcendental math pipelines (variable per ALU):
+- All can be accessed simultaneously (???).
+- ~10 cycles, 1.25x: Fast RSQRT32
+- ~12 cycles, 1.25x: SIN_PT_1
+- ~12 cycles, 1.25x: SIN_PT_2
+- ~5-6 cycles, 1.25-1.5x: Fast EXP2_32, Fast LOG2_32
+- ~6-8 cycles, 1.0-1.33x: Fast RECIP32
+- TODO: Can multiple math operations happen simultaneously? Can they happen simultaneously to integer multiply?
 
 ---
 
@@ -135,16 +140,16 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | FFMA32 | 2, 1 | 5.84-6.18 |
 | CONVERT(F->I32) | 4 | 3.78-5.36 |
 | RINT32 | 4 | 3.78-5.36 |
-| Fast RECIP16 | 6 | TBD |  |  |
-| Fast RECIP32 | 6 | TBD |  |  |
-| Fast RSQRT16 | 8, 8 | 7.11-9.78 |  |  |  
-| Fast RSQRT32 | 8, 8 | 7.13-10.69 |  |  |
-| SIN_PT_1 |
-| SIN_PT_2 |
-| Fast EXP2_16 | 4 | 6 ??? |  |  |
-| Fast LOG2_16 | 4 | 6 ??? |  |  |
-| Fast EXP2_32 | 4 | 6 ??? |  |  |
-| Fast LOG2_32 | 4 | 6 ??? |  |  |
+| Fast RECIP16 | 6 | TBD |
+| Fast RECIP32 | 6 | 5.80-8.20 |
+| Fast RSQRT16 | 8, 8 | 7.11-9.78 | 
+| Fast RSQRT32 | 8, 8 | 7.13-10.69 |
+| SIN_PT_1 | ~9.6 | ~12 |
+| SIN_PT_2 | ~9.6 | ~12 |
+| Fast EXP2_16 | 4.00 | 5.38-5.79 |
+| Fast LOG2_16 | 4.00 | 5.38-5.79 |
+| Fast EXP2_32 | 4.00 | 5.38-6.01 |
+| Fast LOG2_32 | 4.00 | 5.36-6.01 |
 | FMAX32 | 1, 1 | 6.30-6.61 |
 | FMIN32 | 1, 1 | 6.31-6.63 |
 | FCMPSEL16 | 1, 1 | 2.98-3.34 |
@@ -158,14 +163,18 @@ Throughput and latency are measured in cycles. If listed with a comma, throughpu
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
 | FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
 | FMEDIAN32 | 3.65 | 9.20-10.86 | 360-480 |
-| Fast DIV16 | 6 | &le;9.5 |
-| Fast DIV32 | 6 | &le;9.0 |
+| Fast DIV16 | 6.01 | 8.58-9.36 | 960 |
+| Fast DIV32 | 6.01 | 7.62-8.90 | 960 |
 | Fast SQRT16 | 8 | 9.56-10.74 | 960 |
 | Fast SQRT32 | 8 | 8.57-11.13 | 960 |
-| Fast SIN16 | &le;14.6 | &le;27.8 | ???
-| Fast SINPI16 | &le;18.7 | &le;51.5 | ???
-| Fast SIN32 | &le;14.5 | &le;27.3 | ???
-| Fast SINPI32 | &le;26.3 |  &le;88.8 | ???
+| Fast SIN16 | 10.04 | 23.78-27.90 | 24-240 |
+| Fast SINPI16 | 12.40 | 35.57-44.71 | 24 |
+| Fast SIN32 | 9.96 | 23.04-27.35 | 24-240 |
+| Fast SINPI32 | 17.26 | 50.87-51.11 | 24 |
+| Fast EXPe_32 | 4.00 | 7.61-7.66 | 960 |
+| Fast LOGe_32 | 4.00 | 7.61-7.66 | 960 |
+| Fast EXP10_32 | 4.00 | 7.61-7.66 | 960 |
+| Fast LOG10_32 | 4.00 | 7.61-7.66 | 960 |
 | Precise RECIP |
 | Precise DIV |
 | Precise RSQRT |
@@ -353,6 +362,23 @@ ulong mul64x64_64(ulong x, ulong y) {
 | FRACT32 + BITREV32 + BITWISE32 | 8.04 |
 | FRACT32 + IADD32 + BITWISE32 | 4.88 |
 | RINT32 + IADD32 + BITWISE32 | 4.06 |
+
+| Instruction Sequence | Throughput |
+| -------------------------- | ------ |
+| Fast EXP2_32 + FMUL32 |
+| Fast EXP2_32 + 2 FMUL32 |
+| Fast EXP2_32 + 3 FMUL32 |
+| Fast DIV32 + FMUL32 |
+| Fast DIV32 + 2 FMUL32 |
+| Fast DIV32 + 3 FMUL32 |
+| Fast EXP2_32 + IMUL32 |
+| Fast RSQRT32 + IMUL32 |
+| Fast DIV32 + IMUL32 |
+| Fast EXP2_32 + LOG2_32 |
+| Fast EXP2_32 + RSQRT32 |
+| Fast EXP2_32 + DIV32 |
+| Fast RSQRT32 + DIV32 |
+| Fast EXP2_32 + RSQRT32 + DIV32 |
 
 </details>
 
