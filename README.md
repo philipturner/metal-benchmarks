@@ -284,6 +284,51 @@ _Register move may be implemented through an instruction that adds zero._
 </details>
 
 <details>
+<summary>SIMD-group operations</summary>
+
+| SIMD Instruction | Throughput | Raw Latency | Adjusted Latency |
+| -------------------------- | ------ | ------- |
+| ALL |
+| BALLOT |
+| BROADCAST_KNOWN32 |
+| BROADCAST_UNKNOWN32 |
+| BROADCAST_FIRST32 |
+| SHUFFLE_KNOWN_SAME32 |
+| SHUFFLE_RANDOM_SAME32 |
+| SHUFFLE_RANDOM_DIFF32 |
+| SHUFFLE_ROTATE32 |
+| SUM<F16> | 17.10 | 25.17-27.94 | 26.77 |
+| SUM<F32> | 14.54 | 25.95-29.25 | 27.55 |
+| SUM<I16> | 17.16 | 25.21-28.21 | 27.04 |
+| SUM<I32> | 17.05 | 28.07-34.27 | 32.57 |
+| PRODUCT<F16> | 17.11 | 26.21-27.99 | 26.82 |
+| PRODUCT<F32> | 14.65 | 26.14-29.26 | 27.56 |
+| PREFIX_ESUM<F32> | 11.84 | 20.07-23.63 | 21.93 |
+| PREFIX_ISUM<F32> | 13.20 | 23.91-25.96 | 24.26 |
+| PREFIX_ESUM<I32> | 11.89 | 20.51-23.80 | 22.10 |
+| PREFIX_ISUM<I32> | 14.20 | 23.05-26.48 | 24.78 |
+
+| Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
+| --- | --- | --- | --- |
+| PRODUCT<I16> | 20.51 | 219.34-277.56 | 120-240 |
+| PRODUCT<I32> | 20.42 | 218.56-219.60 | 240-360 |
+
+| Quad Instruction | Throughput | Raw Latency | Adjusted Latency |
+| -------------------------- | ------ | ------- |
+| SUM<F16> |
+| SUM<F32> |
+| SUM<I16> |
+| SUM<I32> |
+| PRODUCT<F16> |
+| PRODUCT<F32> |
+| PREFIX_ESUM<F32> |
+| PREFIX_ISUM<F32> |
+| PREFIX_ESUM<I32> |
+| PREFIX_ISUM<I32> |
+
+</details>
+
+<details>
 <summary>64-bit integer math</summary>
 
 According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes ~4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The IADD64 pipeline seems to interfere with the FADD32/IADD32 pipeline in the following way:
