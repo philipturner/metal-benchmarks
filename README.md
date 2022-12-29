@@ -104,11 +104,11 @@ Integer and complex pipelines (1.25x per ALU)
 
 Transcendental math pipelines (variable per ALU):
 - All can be accessed simultaneously (???).
-- ~10 cycles, 1.25x: Fast RSQRT32
+- ~10 cycles, 1.25x: RSQRT
 - ~12 cycles, 1.25x: SIN_PT_1
 - ~12 cycles, 1.25x: SIN_PT_2
-- ~5-6 cycles, 1.25-1.5x: Fast EXP2_32, Fast LOG2_32
-- ~6-8 cycles, 1.0-1.33x: Fast RECIP32
+- ~5-6 cycles, 1.25-1.5x: EXP2, LOG2
+- ~6-9 cycles, 1.0-1.5x: RECIP
 - TODO: Can multiple math operations happen simultaneously? Can they happen simultaneously to integer multiply?
 
 ---
@@ -126,6 +126,25 @@ Concurrency means the number of times each pipeline's circuitry is physically du
 ## Instruction Throughputs
 
 Throughput and latency are measured in cycles. If listed with a comma, throughputs were tested on multiple chips (A14, M1 Max). Latencies are recorded in two forms separated by a dash. First, half the best recorded throughput at 2 simds/core and ILP = 1. Second, the best recorded throughput at 4 simds/core and ILP = 1. The second is the most accurate. To find accurate latencies, benchmarks issue 250x the amount of work needed to fully occupy a core's register file.
+
+<details>
+<summary>Control group</summary>
+
+| No Operations | Throughput | Virtual Repetitions |
+| ------- | ---------- | ----- |
+| 2-4 simds, 16-bit | &ge;1.17 | 1440 |
+| 2-4 simds, 16-bit | &ge;3.34 | 720 |
+| 2-4 simds, 16-bit | &ge;6.68 | 360 |
+| 2-4 simds, 32-bit | &ge;1.70 | 1440 |
+| 2-4 simds, 32-bit | &ge;3.40 | 720 |
+| 2-4 simds, 32-bit | &ge;6.80 | 360 |
+| 2-4 simds, 32-bit | &ge;10.20 | 240 |
+| 2-4 simds, 32-bit | &ge;13.60 | 120 |
+
+
+_At a minimum, the numbers above should be subtracted from measured latencies._
+
+</details>
 
 <details>
 <summary>Floating-point performance</summary>
