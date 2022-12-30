@@ -39,14 +39,10 @@ Table of Contents
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | Max Threads | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
-| Max 32-Simds | 24-96 | n/a | 8-80 | 8-80 | 12-TBD | 8-64 | 8-32 | 8-48 |
-| Schedulers
 | Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| Shared BW/Cyc | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
-| L1 BW/Cyc | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
@@ -87,44 +83,48 @@ _IPC stands for instructions per clock. Integer IPC consists of adds and/or fuse
 
 Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. Any 32-bit operand invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling. This problem bottlenecks\* the core compute pipelines unless you use 16-bit operands.
 
-\* As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. Not sure whether Apple has 4 schedulers with single-issue (like very old Nvidia GPUs), 2 schedulers with dual-issue (like Ampere), or a hybrid setup that can do both. Latency benchmarks assume 4 schedulers.
+\* As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. I'm not sure whether Apple has 4 schedulers with single-issue (like very old Nvidia GPUs) or 2 schedulers with dual-issue (like Ampere). Perhaps some schedulers/ALUs deactivate to save power, except when recognizing certain instruction sequences. Latency benchmarks assume 4 schedulers.
 
-On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme would indicate mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power via emulation). We omit the A14 design for simplicity.
+On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme could utilize mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power via emulation). We omit the A14 design for simplicity.
 
 ---
 
-Core compute pipelines (F16/F32, "integer and conditional"):
-- Only two pipelines simultaneously utilized, except during FFMA32 and F/ICMPSEL32 (4 cycles). The F/IADD32 pipeline is used during IMAD32 (add after IMUL), IADD64 (32+32=33 chunk), FFMA32 (add after FMUL), and F/ICMPSEL32 (comparison). We don't depict this usage for simplicity.
-- 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
-- 2 cycles: FADD32, IADD32 fused with LSHIFT32(k=1-4)
-- 2 cycles: BITWISE32, select part of F/ICMPSEL32
-- 2 cycles: BITWISE32, select part of F/ICMPSEL32
-- 2 cycles: FMUL32, multiply part of FFMA32
-- 2 cycles: FMUL32, multiply part of FFMA32
-- 2 cycles: FFMA16, F/ICMPSEL16
-- 2 cycles: FFMA16, F/ICMPSEL16
+FP32, integer and conditional pipeline:
+- Only one sub-pipeline simultaneously utilized.
+- 2 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 2 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 2 cycles: BITWISE32
+- 2 cycles: FMUL/FFMA16, FMUL/FFMA32
 
-Int64 and transcendental pipelines ("integer and complex"):
-- Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are accessible simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
-- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FRACT
+FP32, integer and conditional pipeline:
+- Only one sub-pipeline simultaneously utilized.
+- 2 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 2 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 2 cycles: BITWISE32
+- 2 cycles: FMUL/FFMA16, FMUL/FFMA32
+
+Integer and complex math pipeline:
+- Only one sub-pipeline simultaneously utilized.
+- 4 cycles: IMAD32\*
+- 8 cycles: IMUL(32x32=64)
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
-- 4 cycles: IMUL32, 32x32=32 chunks of IMUL64
-- 8 cycles: IMUL(32x32=64), 32x32=64 chunk of IMUL64
+- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FRACT
 - 4 cycles: EXP2, LOG2
 - 6 cycles: RECIP
 - 8 cycles: RSQRT
-- 8 cycles: SIN_PT_1
-- 8 cycles: SIN_PT_2
+- 16 cycles: SIN_PT_1 + SIN_PT_2\*\*
 
 ---
 
-This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. Another confusing part: floating-point operations have 2 cycles latency. You can treat them as a single pipeline with 1 cycle latency. The following formulae explain this:
+\* You might imagine a way to exceed 128 Int OPs/cycle/core. Issue an IMAD32, then 3 subsequent IADD32 instructions. That would be 5 adds/multiplies issued in 4 cycles (160/cycle/core). However, this scheme does not work in practice. Perhaps the add part of IMAD32 occupies one of the dedicated IADD32 pipelines.
+
+\*\* SIN_PT_1 and SIN_PT_2 can execute concurrently, with both instructions staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
+
+Vocabulary Note: Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
-
-Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 ## Instruction Throughputs
 
@@ -160,7 +160,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | FFMA16 | 1, 1 | 2.97-3.35 | 2.18 |
 | FADD32 | 2, 1 | 3.50-3.90 | 2.20 |
 | FMUL32 | 2, 1 | 3.50-3.91 | 2.21 |
-| FFMA32 | 2, 1 | 5.84-6.18 | 4.48 |
+| FFMA32 | 2, 1 | 3.50-3.91 | 2.21 |
 | CONVERT(F->I32) | 4 | 3.78-5.36 | 3.66 |
 | RINT32 | 4 | 3.78-5.36 | 3.66 |
 | TRUNC32 | 4 | TBD | ~4 |
@@ -231,7 +231,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | IMAD((16x16=32)+32) | 4 | 4.34-5.67 | 3.97 |
 | IADD32 | 1, 1 | 3.51-3.91 | 2.21 |
 | IMUL32 | 4, 4 | 4.30-5.72 | 4.02 |
-| IMAD32 | 4, 4 | 7.13-7.67 | 5.97 |
+| IMAD32 | 4, 4 | 4.30-5.72 | 4.02 |
 | IMULHI32 | 8.01 | 10.59-11.53 | 9.83 |
 | IMUL(32x32=64) | 8.01 | 10.59-11.54 | 9.84 |
 | IADDSAT32 | 1.02 | 3.53-3.92 | 2.75 |
