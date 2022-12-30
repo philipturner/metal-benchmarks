@@ -354,6 +354,12 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD32 + 4 IADD16 | 9.20 |
 | IMAD32 + IMAD((32x32=32)+64) + 4 IADD16 | 11.16 |
 | IMAD((32x32=32)+64) + 4 IADD16 | 8.44 |
+| IADD(32+32=64) |
+| IADD64 + IMUL32 | 6.00 |
+| IADD64 + IMAD32 | 6.04 |
+| IADD64 + IMUL32 + LSHIFT32 | 10.36 |
+
+_The last entries clearly prove IADD64 runs (at least partially) concurrently to IMUL32. This is promising for FP64 emulation, allowing IMUL-heavy multiplications to run concurrently with IADD-heavy mantissa additions. However, the benefit may be dwarfed by bit shifts. These are required to properly align two mantissas before addition. Dynamic bit shifts take 4 cycles and run serially to IMUL. Luckily, the bottleneck in the complex-integer pipeline still leaves FP32 pipelines open to concurrent computation._
 
 | Instruction Sequence | Throughput |
 | -------------------------- | ------ |
@@ -422,8 +428,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 | Fast EXP2_32 + DIV32 | 8.72 |
 | Fast LOG2_32 + DIV32 | 9.68 |
 | Fast EXP2_32 + RINT32 + FADD32 | 10.46 |
-
-> \* There seems to be some kind of "mode thrashing" in the EXP2/LOG2 unit. Overhead decreases with 3 of 
 
 </details>
 
