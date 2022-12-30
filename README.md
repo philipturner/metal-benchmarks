@@ -16,10 +16,10 @@ This repository also contains open-source benchmarking scripts. They allow anyon
 | M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 |
 | A15 | Apple 8 | 1336 MHz | 5 | 1710 | 1710 | 855 |
 | M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 |
-| A16 | Apple 8 | &ge;1336 MHz | 5 | &ge;1710 | &ge;1710 | 855 |
-| M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | 3221 |
-| M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | 6800 |
-| M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | 13600 |
+| A16 | Apple 8 | &ge;1336 MHz | 5 | &ge;1710 | &ge;1710 | &ge;855 |
+| M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | &ge;3221 |
+| M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | &ge;6800 |
+| M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | &ge;13600 |
 
 _The M2 Pro and later statistics come from recent leaks from Apple's supply chain. They will be updated whenever new information comes out._
 
