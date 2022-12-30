@@ -85,7 +85,7 @@ Apple described each GPU core as having 128 ALUs. These generally correspond to 
 
 \* As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. I'm not sure whether Apple has 4 schedulers with single-issue (like very old Nvidia GPUs) or 2 schedulers with dual-issue (like Ampere). Perhaps some schedulers/ALUs deactivate to save power, except when recognizing certain instruction sequences. Latency benchmarks assume 4 schedulers.
 
-On A14, we might have separate F16 and F32 pipelines. This would reflect how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme could utilize mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines provide half the total F16 power via emulation). We omit the A14 design for simplicity.
+On A14, we likely have separate F16 and F32 pipelines. This reflects how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme utilizes mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines [provide half the total](https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993) F16 power via emulation). We omit the A14 design for simplicity.
 
 ---
 
@@ -582,6 +582,8 @@ https://github.com/dougallj/applegpu/issues/21
 https://chipsandcheese.com/2022/05/21/igpu-cache-setups-compared-including-m1/
 
 https://www.techspot.com/article/2151-nvidia-ampere-vs-amd-rdna2/
+
+https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
