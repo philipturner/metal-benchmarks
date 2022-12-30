@@ -161,7 +161,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | FFMA32 | 2, 1 | 5.84-6.18 | 4.48 |
 | CONVERT(F->I32) | 4 | 3.78-5.36 | 3.66 |
 | RINT32 | 4 | 3.78-5.36 | 3.66 |
-| TRUNC32 | 4 | TBD | TBD |
+| TRUNC32 | 4 | TBD | ~4 |
 | RECIP16 | 6 | TBD | 6.50 |
 | RECIP32 | 6 | 5.80-8.20 | 6.50 |
 | RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
@@ -183,8 +183,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
 | CONVERT(F->I64) | 7.11 | 10.30-12.67 | 240 |
-| FRACT32\* | &le;4.13 | TBD | TBD |
-| FRACT32 + BITWISE32 | 4.13 | 6.27-7.29 | 360-480 |
+| FRACT32 | 4.00 | 5.94-7.07 | 960 |
 | FREXP | TBD | TBD | TBD |
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
 | FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
@@ -208,12 +207,11 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | Precise SIN32 | 24.39 | 224.42-225.66 | 240 |
 | Precise SINPI32 | 29.08 | 56.16-64.09 | 48 |
 
-_\* FRACT32 does not appear to be a native instruction, according to the [G13 GPU Architecture Reference](https://dougallj.github.io/applegpu/docs.html). It could be implemented through TRUNC32 and FADD32 (TODO: test this)._
-
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
-| DIV | RECIP + FMUL32 |
-| TRIG_REDUCE | FMUL + FRACT + FFMA |
+| DIV32 | RECIP32 + FMUL32 |
+| FRACT32 | TRUNC32 + FADD32 |
+| TRIG_REDUCE | FMUL32 + FRACT32 + FFMA32 |
 | SIN32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
 | COS32 | TRIG_REDUCE + SIN_PT_1 + SIN_PT_2 |
 
