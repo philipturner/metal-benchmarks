@@ -584,6 +584,8 @@ https://chipsandcheese.com/2022/05/21/igpu-cache-setups-compared-including-m1/
 https://www.techspot.com/article/2151-nvidia-ampere-vs-amd-rdna2/
 
 https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993
+  
+https://forum.beyond3d.com/threads/apple-powervr-tbdr-gpu-architecture-speculation-thread.61873
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
