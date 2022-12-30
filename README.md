@@ -202,7 +202,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | EXP10_32 | 4.00 | 7.61-7.66 | 960 |
 | LOG10_32 | 4.00 | 7.61-7.66 | 960 |
 | Precise RECIP32 | 10.46 | 24.99-28.48 | 120 |
-| Precise DIV32 | 30.65 | TBD | 48 |
+| Precise DIV32 | &le;30.65 | TBD | 48 |
 | Precise SQRT32 | 15.03 | 34.27-37.12 | 72 |
 | Precise SIN32 | 24.39 | 224.42-225.66 | 240 |
 | Precise SINPI32 | 29.08 | 56.16-64.09 | 48 |
@@ -353,7 +353,6 @@ ulong mul64x64_64(ulong x, ulong y) {
 | 2 IMAD32 + 4 IADD16 | 9.20 |
 | IMAD32 + IMAD((32x32=32)+64) + 4 IADD16 | 11.16 |
 | IMAD((32x32=32)+64) + 4 IADD16 | 8.44 |
-| IADD(32+32=64) |
 | IADD64 + IMUL32 | 6.00 |
 | IADD64 + IMAD32 | 6.04 |
 | IADD64 + IMUL32 + LSHIFT32 | 10.36 |
