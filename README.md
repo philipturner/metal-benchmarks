@@ -38,7 +38,9 @@ Table of Contents
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Max Threads (Occupancy) | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
+| Max Threads | 768-3072 | 256-2560 | 256-2560 | 384-TBD | 256-2048 | 256-1024 | 256-1536 |
+| Max 32-Simds | 24-96 | n/a | 8-80 | 8-80 | 12-TBD | 8-64 | 8-32 | 8-48 |
+| Schedulers
 | Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
