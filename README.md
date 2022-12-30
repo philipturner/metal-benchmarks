@@ -104,7 +104,7 @@ Core compute pipelines (F16/F32, "integer and conditional"):
 
 Int64 and transcendental pipelines ("integer and complex"):
 - Only one pipeline simultaneously utilized. SIN_PT_1 and SIN_PT_2 are accessible simultaneously, like one unified pipeline staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
-- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FREXP
+- 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FRACT
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
 - 4 cycles: IMUL32, 32x32=32 chunks of IMUL64
 - 8 cycles: IMUL(32x32=64), 32x32=64 chunk of IMUL64
@@ -183,8 +183,9 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | -------------------------- | ------ | ------- | ---- |
 | CONVERT(F->I64) | 7.11 | 10.30-12.67 | 240 |
-| FRACT32 | &le;4.13 | TBD | TBD |
+| FRACT32\* | &le;4.13 | TBD | TBD |
 | FRACT32 + BITWISE32 | 4.13 | 6.27-7.29 | 360-480 |
+| FREXP | TBD | TBD | TBD |
 | ROUND_INF | 8.18 | 20.98-21.38 | 240 |
 | FMEDIAN16 | 6.54 | 15.00-16.41 | 120-240 |
 | FMEDIAN32 | 3.65 | 9.20-10.86 | 360-480 |
@@ -202,10 +203,12 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | EXP10_32 | 4.00 | 7.61-7.66 | 960 |
 | LOG10_32 | 4.00 | 7.61-7.66 | 960 |
 | Precise RECIP32 | 10.46 | 24.99-28.48 | 120 |
-| Precise DIV32 | 36.24 | TBD | 24 |
+| Precise DIV32 | 30.65 | TBD | 48 |
 | Precise SQRT32 | 15.03 | 34.27-37.12 | 72 |
 | Precise SIN32 | 24.39 | 224.42-225.66 | 240 |
 | Precise SINPI32 | 29.08 | 56.16-64.09 | 48 |
+
+_\* FRACT32 does not appear to be a native instruction, according to the [G13 GPU Architecture Reference](https://dougallj.github.io/applegpu/docs.html). It could be implemented through TRUNC32 and FADD32 (TODO: test this)._
 
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
