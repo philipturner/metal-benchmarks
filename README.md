@@ -116,9 +116,7 @@ Int64 and transcendental pipelines ("integer and complex"):
 
 ---
 
-This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. Also, the numbers for SIN_PT_1 and SIN_PT_2 are not ranges of "variable latency cycles". They're the upper and lower estimate of an unchanging latency. Possible flaws in the measurement technique make this uncertain.
-
-Although floating-point operations have 3 cycles latency, you can imagine them as a single pipeline with 1 cycle latency. The following formulae help:
+This model is somewhat oversimplified. Many pipelines share the same circuitry, such as the FFMA16 and FMUL32 pipelines. Another confusing part: floating-point operations have 2 cycles latency. You can treat them as a single pipeline with 1 cycle latency. The following formulae explain this:
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -294,11 +292,9 @@ According to the Metal Feature Set Tables, the A11 and later have "64-bit intege
 
 > Throughput &ge; 4(number IADD64s) + 1(number IADD32s) + 1(number FADD32s)
 
-This suggests that IADD64 hijacks the IADD32 pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
+Furthermore, it runs partially concurrently to IMUL32 - combined, the operations have better throughput than in isolation. This suggests that IADD64 hijacks the IADD32 pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
 
-With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle.
-
-MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
+With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle. Regarding mixed-precision IMUL, MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
 
 ```metal
 // 12 cycles - don't do this.
