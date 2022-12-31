@@ -28,9 +28,9 @@ _The M2 Pro and later statistics come from recent leaks from Apple's supply chai
 Table of Contents
 - [On-Chip Memory](#on-chip-memory)
 - [Operations per Second](#operations-per-second)
+- [ALU Bottlenecks](#alu-bottlenecks)
 - [ALU Layout](#alu-layout)
 - [Instruction Throughputs](#instruction-throughputs)
-- [ALU Bottlenecks](#alu-bottlenecks)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
 
@@ -79,11 +79,66 @@ _On Nvidia chips, all major transcendentals take the same amount of time. On App
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
 
+## ALU Bottlenecks
+
+In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
+
+> These tables reflect a sub-optimal shader setup. Later benchmarks reduced the absolute latency to 3 cycles (FFMA16, FADD32, FMUL32) and 6 cycles (FFMA32).
+
+<details>
+<summary>Tables for FMUL, FADD, IADD, FFMA</summary>
+
+| ILP | Occupancy | Instruction | F32/I32 Cycles | F16/I16 Cycles |
+| - | - | - | - | - |
+| 1 | 4 simds/core | FMUL, FADD, IADD | 6.60 | 3.92 |
+| 2 | 4 simds/core | FMUL, FADD, IADD | 5.59 | 2.49 |
+| 3 | 4 simds/core | FMUL, FADD, IADD | 5.14 | 2.55 |
+| 4 | 4 simds/core | FMUL, FADD, IADD | 2.86 | 1.78 |
+| 1 | 8 simds/core | FMUL, FADD, IADD | 3.44 | 2.16 |
+| 2 | 8 simds/core | FMUL, FADD, IADD | 3.08 | 1.46 |
+| 3 | 8 simds/core | FMUL, FADD, IADD | 2.78 | 1.47 |
+| 4 | 8 simds/core | FMUL, FADD, IADD | 1.58 | 1.26 |
+| 1 | 88 simds/core | FMUL, FADD, IADD | 1.84 | 1.56 |
+| 2 | 88 simds/core | FMUL, FADD, IADD | 1.73 | 1.05 |
+| 3 | 88 simds/core | FMUL, FADD, IADD | 1.37 | 1.04 |
+| 4 | 88 simds/core | FMUL, FADD, IADD | 1.01 | 1.02 |
+
+_ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
+
+| ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
+| - | - | - | - | - |
+| 1 | 4 simds/core | FFMA | 11.34 | 3.94 |
+| 2 | 4 simds/core | FFMA | 8.36 | 2.44 |
+| 3 | 4 simds/core | FFMA | 4.46 | 2.55 |
+| 4 | 4 simds/core | FFMA | 2.75 | 1.79 |
+| 1 | 8 simds/core | FFMA | 5.71 | 2.15 |
+| 2 | 8 simds/core | FFMA | 4.24 | 1.40 |
+| 3 | 8 simds/core | FFMA | 2.75 | 1.47 |
+| 4 | 8 simds/core | FFMA | 1.60 | 1.29 |
+| 1 | 88 simds/core | FFMA | 1.99 | 1.56 |
+| 2 | 88 simds/core | FFMA | 1.87 | 1.04 |
+| 3 | 88 simds/core | FFMA | 1.35 | 1.04 |
+| 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
+
+</details>
+
+The graphs below depict scalar instructions per cycle across the entire compute unit. This metric relates to the reciprocal of amortized cycles/instruction (throughput). FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
+
+| ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
+| - | - |
+| ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
+
 ## ALU Layout
 
-Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. Any 32-bit operand invokes a ~1-cycle penalty in the scheduler, until ILP approaches 4. In other words, the scheduler spends every other cycle idling. This problem bottlenecks\* the core compute pipelines unless you use 16-bit operands.
+Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU has schedulers capable of :
 
-\* As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. I'm not sure whether Apple has 4 schedulers with single-issue (like very old Nvidia GPUs) or 2 schedulers with dual-issue (like Ampere). Perhaps some schedulers/ALUs deactivate to save power, except when recognizing certain instruction sequences. Latency benchmarks assume 4 schedulers.
+- single-dispatching from &ge;3 simds
+- dual-dispatching from 2 simds
+- triple/quadruple-dispatching from 1 simd
+
+Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Quadruple-dispatching is probably lower-power, and required to fully utilize FP32/I32. Many workloads can work fine in this mode; the complex pipeline runs one instruction/simd every 4 cycles. This can be reformulated as one instruction/4 simds every 1 cycle.
+
+> As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. Apple's dual-dispatch from 2 simds mode is a remnant of the PowerVR architecture. It could only execute F32 instructions at 2 IPC anyway, so what's the point in dispatching from 4 simds concurrently? This scheme prevents fully utilizing I32 instructions (except when ILP=4), but GPU workloads are predominantly F32. It failed spectacularly when F32 got upgraded to 4 IPC of compute power.
 
 On A14, we likely have separate F16 and F32 pipelines. This reflects how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme utilizes mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines [provide half the total](https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993) F16 power via emulation). We omit the A14 design for simplicity.
 
@@ -91,17 +146,31 @@ On A14, we likely have separate F16 and F32 pipelines. This reflects how Metal F
 
 FP32, integer and conditional pipeline:
 - Only one sub-pipeline simultaneously utilized.
-- 2 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
-- 2 cycles: F/ICMPSEL16, F/ICMPSEL32
-- 2 cycles: BITWISE32
-- 2 cycles: FMUL/FFMA16, FMUL/FFMA32
+- 4 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 4 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 4 cycles: BITWISE32
+- 4 cycles: FMUL/FFMA16, FMUL/FFMA32
 
 FP32, integer and conditional pipeline:
 - Only one sub-pipeline simultaneously utilized.
-- 2 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
-- 2 cycles: F/ICMPSEL16, F/ICMPSEL32
-- 2 cycles: BITWISE32
-- 2 cycles: FMUL/FFMA16, FMUL/FFMA32
+- 4 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 4 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 4 cycles: BITWISE32
+- 4 cycles: FMUL/FFMA16, FMUL/FFMA32
+
+FP32, integer and conditional pipeline:
+- Only one sub-pipeline simultaneously utilized.
+- 4 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 4 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 4 cycles: BITWISE32
+- 4 cycles: FMUL/FFMA16, FMUL/FFMA32
+
+FP32, integer and conditional pipeline:
+- Only one sub-pipeline simultaneously utilized.
+- 4 cycles: F/IADD32 fusable with LSHIFT32(k=1-4)
+- 4 cycles: F/ICMPSEL16, F/ICMPSEL32
+- 4 cycles: BITWISE32
+- 4 cycles: FMUL/FFMA16, FMUL/FFMA32
 
 Integer and complex math pipeline:
 - Only one sub-pipeline simultaneously utilized.
@@ -112,15 +181,13 @@ Integer and complex math pipeline:
 - 4 cycles: EXP2, LOG2
 - 6 cycles: RECIP
 - 8 cycles: RSQRT
-- 16 cycles: SIN_PT_1 + SIN_PT_2\*\*
-
----
+- 10 cycles: SIN_PT_1 + SIN_PT_2
 
 \* You might imagine a way to exceed 128 Int OPs/cycle/core. Issue an IMAD32, then 3 subsequent IADD32 instructions. That would be 5 adds/multiplies issued in 4 cycles (160/cycle/core). However, this scheme does not work in practice. Perhaps the add part of IMAD32 occupies one of the dedicated IADD32 pipelines.
 
-\*\* SIN_PT_1 and SIN_PT_2 can execute concurrently, with both instructions staggered temporally. A fraction of the RECIP pipeline can run concurrently with EXP2 (around -1.28 cycles), LOG2 (-0.34 cycles), or RSQRT (-3.14 cycles).
+---
 
-Vocabulary Note: Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 2-cycle operation needs 2 pipelines/ALU to reach 1 cycle/instruction throughput.
+Vocabulary Note: Concurrency means the number of times each pipeline's circuitry is physically duplicated. For example, a 4-cycle operation needs 4 pipelines/ALU to reach 1 cycle/instruction throughput.
 
 > Little's Law: Concurrency = Latency / Throughput
 > 
@@ -169,8 +236,8 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | RSQRT16 | 8, 8 | 7.11-9.78 | 8.61 |
 | RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
 | Precise RSQRT32 | 8, 8 | 7.13-10.69 | 8.99 |
-| SIN_PT_1 | ~8 | TBD | ~8 |
-| SIN_PT_2 | ~8 | TBD | ~8 |
+| SIN_PT_1 | &lt;10 | TBD | &lt;10 |
+| SIN_PT_2 | &lt;10 | TBD | &lt;10 |
 | EXP2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | LOG2_16 | 4.00 | 5.38-5.79 | 4.62 |
 | EXP2_32 | 4.00 | 5.38-6.01 | 4.31 |
@@ -499,55 +566,6 @@ _The last entries clearly prove IADD64 runs (at least partially) concurrently to
 _\* Latency was best at 720 repetitions. Throughput was best at 1440 repetitions. Many genuine instruction sequences also have optimal throughput at more repetitions than latency. These are probably not genuine instruction sequences._
 
 </details>
-
-## ALU Bottlenecks
-
-In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
-
-> These tables reflect a sub-optimal shader setup. Later benchmarks reduced the absolute latency to 3 cycles (FFMA16, FADD32, FMUL32) and 6 cycles (FFMA32).
-
-<details>
-<summary>Tables for FMUL, FADD, IADD, FFMA</summary>
-
-| ILP | Occupancy | Instruction | F32/I32 Cycles | F16/I16 Cycles |
-| - | - | - | - | - |
-| 1 | 4 simds/core | FMUL, FADD, IADD | 6.60 | 3.92 |
-| 2 | 4 simds/core | FMUL, FADD, IADD | 5.59 | 2.49 |
-| 3 | 4 simds/core | FMUL, FADD, IADD | 5.14 | 2.55 |
-| 4 | 4 simds/core | FMUL, FADD, IADD | 2.86 | 1.78 |
-| 1 | 8 simds/core | FMUL, FADD, IADD | 3.44 | 2.16 |
-| 2 | 8 simds/core | FMUL, FADD, IADD | 3.08 | 1.46 |
-| 3 | 8 simds/core | FMUL, FADD, IADD | 2.78 | 1.47 |
-| 4 | 8 simds/core | FMUL, FADD, IADD | 1.58 | 1.26 |
-| 1 | 88 simds/core | FMUL, FADD, IADD | 1.84 | 1.56 |
-| 2 | 88 simds/core | FMUL, FADD, IADD | 1.73 | 1.05 |
-| 3 | 88 simds/core | FMUL, FADD, IADD | 1.37 | 1.04 |
-| 4 | 88 simds/core | FMUL, FADD, IADD | 1.01 | 1.02 |
-
-_ILP stands for instruction-level parallelism. It is the number of operations you could theoretically execute in parallel, on a superscalar processor._
-
-| ILP | Occupancy | Instruction | FP32 Cycles | FP16 Cycles |
-| - | - | - | - | - |
-| 1 | 4 simds/core | FFMA | 11.34 | 3.94 |
-| 2 | 4 simds/core | FFMA | 8.36 | 2.44 |
-| 3 | 4 simds/core | FFMA | 4.46 | 2.55 |
-| 4 | 4 simds/core | FFMA | 2.75 | 1.79 |
-| 1 | 8 simds/core | FFMA | 5.71 | 2.15 |
-| 2 | 8 simds/core | FFMA | 4.24 | 1.40 |
-| 3 | 8 simds/core | FFMA | 2.75 | 1.47 |
-| 4 | 8 simds/core | FFMA | 1.60 | 1.29 |
-| 1 | 88 simds/core | FFMA | 1.99 | 1.56 |
-| 2 | 88 simds/core | FFMA | 1.87 | 1.04 |
-| 3 | 88 simds/core | FFMA | 1.35 | 1.04 |
-| 4 | 88 simds/core | FFMA | 1.02 | 1.02 |
-
-</details>
-
-The graphs below depict scalar instructions per cycle across the entire compute unit. This metric relates to the reciprocal of amortized cycles/instruction (throughput). FADD, FMUL, FFMA, and IADD have the same latency/throughput characteristics. As long as FFMA is performed as `(x * y) + y`, it will only have two register dependencies. In this situation only, it behaves similarly to `FADD`.
-
-| ![Instructions per cycle (ILP = 1)](./Documentation/Instructions_Cycle_ILP_1.png) | ![Instructions per cycle (ILP = 2)](./Documentation/Instructions_Cycle_ILP_2.png) |
-| - | - |
-| ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
 ## Power Efficiency
 
