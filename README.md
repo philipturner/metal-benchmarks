@@ -626,6 +626,10 @@ https://patents.justia.com/patent/9727944
  
 https://patents.justia.com/patent/10114446
 
+https://patents.google.com/patent/US11422822B2/en
+
+https://patents.google.com/patent/US20210406031A1/en
+
 </details>
 
 <details>
