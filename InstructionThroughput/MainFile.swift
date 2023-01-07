@@ -16,7 +16,7 @@ struct Processor {
   }
   
   static let M1Max = Processor(cores: 32, frequency: 1296)
-  static let A15 = Processor(cores: 5, frequency: 1336)
+  static let A15 = Processor(cores: 5, frequency: 1338)
   static let A14 = Processor(cores: 4, frequency: 1278)
 }
 
