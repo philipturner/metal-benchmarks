@@ -16,7 +16,7 @@ This repository also contains open-source benchmarking scripts. They allow anyon
 | M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 |
 | A15 | Apple 8 | 1338 MHz | 5 | 1713 | 1713 | 856 |
 | M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 |
-| A16 | Apple 8 | &ge;1338 MHz | 5 | &ge;1713 | &ge;1713 | &ge;856 |
+| A16 | Apple 8 | 1398 MHz | 5 | 1789 | 1789 | 895 |
 | M2 Pro | Apple 9 | &ge;1398 MHz | 18-20 | &ge;6441 | &ge;6441 | &ge;3221 |
 | M2 Max | Apple 9 | &ge;1398 MHz | 38 | &ge;13600 | &ge;13600 | &ge;6800 |
 | M2 Ultra | Apple 9 | &ge;1398 MHz | 76 | &ge;27200 | &ge;27200 | &ge;13600 |
@@ -604,6 +604,8 @@ https://www.techspot.com/article/2151-nvidia-ampere-vs-amd-rdna2/
 https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993
   
 https://forum.beyond3d.com/threads/apple-powervr-tbdr-gpu-architecture-speculation-thread.61873
+
+https://twitter.com/Golden_Reviewer/status/1576802505752576000
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
