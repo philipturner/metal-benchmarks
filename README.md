@@ -43,8 +43,8 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| Shared Bandwidth/Cyc | 256 B | TBD | 512 B | 512 B | 512 B | 512 B | 512 B |
-| Global Bandwidth/Cyc | 128 B | TBD | 128 B | 128 B | 128 B | 128 B | 128 B |
+<!-- | Shared Bandwidth/Cyc | 256 B | TBD | 512 B | 512 B | 512 B | 512 B | 512 B | -->
+<!-- | Global Bandwidth/Cyc | 128 B | TBD | 128 B | 128 B | 128 B | 128 B | 128 B | -->
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
@@ -579,7 +579,9 @@ This sub-core concurrency only happens among commands within the same `MTLComput
 
 <img src="./Documentation/Power_Performance_M1_Max.png" alt="Graph of power vs. performance for an M1 Max at 1296 MHz" width="75%" />
 
-TODO: less/slower? threadgroup memory, turning off individual ALUs to save power
+_The smallest data point has a single simd active, consuming 800 mW of power. Yes, that's 1/1000 the power of an RTX 4090 Ti. The Apple GPU conserves power at the granularity of individual vector ALUs._
+
+<!-- Regarding threadgroup memory, the Apple GPU core has half as much as other vendors. VkFFT also measured it having slower bandwidth, but couldn't determine how slow. AMD and Nvidia GPUs have 32 threadgroup memory banks per core -->
 
 ## References
 
