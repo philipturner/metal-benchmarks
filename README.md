@@ -136,7 +136,7 @@ The graphs below depict scalar instructions per cycle across the entire compute 
 | - | - |
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
-_Note that ALU utilization maxes out at 24 simds/core. This is also the lowest occupancy you can create by over-allocating registers. Apple would rather you spill to device memory than create chances to decrease ALU utilization. The scheduler assumes that ALU utilization is determined entirely by the instruction mix, providing a straightforward way to predict power consumption._
+_Note that ALU utilization maxes out at 24 simds/core. This is also the lowest occupancy you can create by over-allocating registers. Apple would rather you spill to device memory than create chances to decrease ALU utilization. ALU utilization can be predicted reliably, just by scanning the instruction mix. This simplicity may help the GPU predict the minimum power needed to reach maximum performance.
 
 ## ALU Layout
 
