@@ -619,6 +619,8 @@ https://forum.beyond3d.com/threads/apple-powervr-tbdr-gpu-architecture-speculati
 
 https://twitter.com/Golden_Reviewer/status/1576802505752576000
 
+https://homes.cs.washington.edu/~wysem/publications/quals-gpgpu-vrf.pdf
+
 <details>
 <summary>Patents related to the Apple GPU</summary>
   
