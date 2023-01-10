@@ -43,8 +43,8 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| Register Cache | ~4 KB |
-| Register Cache BW/Cycle | ~512-1024 B |
+| Register Cache |  | 
+| Register Cache BW/Cycle | 512 B | 1024 B
 | SIMD Permute BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
@@ -138,7 +138,7 @@ The graphs below depict scalar instructions per cycle across the entire compute 
 | - | - |
 | ![Instructions per cycle (ILP = 3)](./Documentation/Instructions_Cycle_ILP_3.png) | ![Instructions per cycle (ILP = 4)](./Documentation/Instructions_Cycle_ILP_4.png) |
 
-_Note that ALU utilization maxes out at 24 simds/core. This is also the lowest occupancy you can create by over-allocating registers. Apple would rather you spill to device memory than create chances to decrease ALU utilization. ALU utilization can be predicted reliably, just by scanning the instruction mix. This simplicity may help the GPU predict the minimum power needed to reach maximum performance.
+_Note that ALU utilization maxes out at 24 simds/core. This is also the lowest occupancy you can create by over-allocating registers. Apple would rather you spill to device memory than create chances to decrease ALU utilization. ALU utilization can be predicted reliably, just by scanning the instruction mix. This simplicity may help the GPU predict the minimum power needed to reach maximum performance._
 
 ## ALU Layout
 
@@ -620,6 +620,8 @@ https://forum.beyond3d.com/threads/apple-powervr-tbdr-gpu-architecture-speculati
 https://twitter.com/Golden_Reviewer/status/1576802505752576000
 
 https://homes.cs.washington.edu/~wysem/publications/quals-gpgpu-vrf.pdf
+
+https://cccp.eecs.umich.edu/papers/jklooste-micro17.pdf
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
