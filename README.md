@@ -42,9 +42,14 @@ Table of Contents
 | Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-<!-- | Shared Bandwidth/Cyc | 256 B | TBD | 512 B | 512 B | 512 B | 512 B | 512 B | -->
-<!-- | Global Bandwidth/Cyc | 128 B | TBD | 128 B | 128 B | 128 B | 128 B | 128 B | -->
+| L1 Data Cache | ~12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+| Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Global BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Shared Bank Size | ~2 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
+| Shared Banks | ~32 | 32 | 32 | 32 | 32 | 32 | 32 |
+| Global Cache Line | ~128 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+
+_Numbers preceded by a tilde are uncertain. They are educated guesses, but haven't been confirmed through testing._
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
