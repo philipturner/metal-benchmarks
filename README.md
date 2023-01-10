@@ -43,7 +43,7 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 64 KB | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| SIMD Permute BW/Clock | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| SIMD Shuffle BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
@@ -56,37 +56,35 @@ _Numbers preceded by a tilde are uncertain. They are educated guesses, but haven
 
 ## Operations per Second
 
-TODO: Re-evaluate whether the M1's FP32 power is underutilized. Re-evaluate whether the schedulers have multiple modes, or it's just register cache bandwidth.
-
 The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. A few months before the M1 launched, Nvidia's Ampere GPUs doubled FP32 performance while keeping everything else constant. _<b> This event likely inspired Apple to take the same approach.</b>_ It happened early enough in the chip design process for Apple to revise the M1 architecture, but probably not the A14. _<b>The original design was optimized for FP16, explaining why the M1's extra FP32 power is notoriously underutilized.</b>_
 
 Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). AI advancements could continue in the Neural Engine, such as FP8.
 
 | Per Core-Cycle | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | "4" | 256 | 256 |
+| F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
 | F32 OPs (FMA) | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
 | F64 OPs (FMA) | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
-| F16 Adds      | 128 | 128 | 128 | 128 | 128 | "2" | 128 | 128 |
-| F32 Adds      | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
+| F16 Adds      | 128 | 128 | 128 | 128 | 128 | 2   | 128 | ~128 |
+| F32 Adds      | 64  | 128 | 64  | 64  | 128 | 128 | 64  | ~128 |
 | F64 Adds      | ~4e | ~4e | 4   | 4   | 2   | 4   | 2   | 2   |
-| F32 Exp2      | 32  | 32  | 32  | 32  | TBD | 32  | 16  | 16  |
+| F32 Exp2      | 32  | 32  | 32  | 32  | ~32 | 32  | 16  | 16  |
 | F32 Recip     | 21  | 21  | 32  | 32  | 25  | 32  | 16  | 16  |
 | F32 Rsqrt     | 16  | 16  | 32  | 32  | 20  | 32  | 16  | 16  |
 | F32 Sine      | 9   | 9   | 32  | 32  | TBD | 32  | 16  | 16  |
 
-_"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so reporting F64 emulation is appropriate._
+_"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
 
 | Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | I16 Adds | 128 | 128 | 128 | 128 | 128 | 64 | ~128 |
-| I16 Muls | 32  | TBD | 128 | 128 | TBD | 64 | 64  |
+| I16 Muls | 32  | TBD | 128 | 128 | 32  | 64 | 64  |
 | I32 Adds | 128 | 64  | 64  | 64  | 128 | 64 | ~128 |
-| I32 Muls | 32  | TBD | 16  | 16  | TBD | 64 | 64 |
-| I64 Adds | 32  | 16  | 21  | 16  | 42 | 21 | ~42 |
-| I64 Muls | 8   | TBD | 4   | 4   | TBD | TBD | ~13  |
-| Bitwise | 128 | - | - | - | 128 | 64 | 64 |
-| Bit editing | 32 | - | - | - | 64 | TBD | TBD, 64 |
+| I32 Muls | 32  | 16  | 16  | 16  | 32  | 64 | 64 |
+| I64 Adds | 32  | TBD  | ~32  | 16  | 32 | ~32 | ~32 |
+| I64 Muls | 8   | TBD | 4   | 4   | 8 | ~16 | ~16  |
+| I32 Bitwise | 128 | 64 | 64 | 64 | 128 | 64 | 64 |
+| I32 Bitshift | 32 | 64 | ~64 | ~64 | 64  | 64 | 64 |
 
 ## ALU Bottlenecks
 
@@ -141,6 +139,8 @@ _Note that ALU utilization maxes out at 24 simds/core. This is also the lowest o
 
 ## ALU Layout
 
+TODO: Re-evaluate whether the schedulers have multiple modes, or it's just register cache bandwidth.
+
 Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU has schedulers capable of:
 
 - single-dispatching from &ge;3 simds
@@ -149,7 +149,7 @@ Apple described each GPU core as having 128 ALUs. These generally correspond to 
 
 Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Quadruple-dispatching is probably lower-power, and required to fully utilize FP32/I32. Many workloads can work fine in this mode; the complex pipeline runs one instruction/simd every 4 cycles. This can be reformulated as one instruction/4 simds every 1 cycle.
 
-> As a reminder, the additional 32-bit pipelines on Ampere GPUs struggle to be fully utilized. Apple's dual-dispatch from 2 simds mode is a remnant of the PowerVR architecture. It could only execute F32 instructions at 2 IPC anyway, so what's the point in dispatching from 4 simds concurrently? This scheme prevents fully utilizing I32 instructions (except when ILP=4), but GPU workloads are predominantly F32. It failed spectacularly when F32 got upgraded to 4 IPC of compute power.
+> As a reminder, the additional 32-bit pipelines on Ampere/RDNA3 GPUs struggle to be fully utilized. Apple's dual-dispatch from 2 simds mode is a remnant of the PowerVR architecture. It could only execute F32 instructions at 2 IPC anyway, so what's the point in dispatching from 4 simds concurrently? This scheme prevents fully utilizing I32 instructions (except when ILP=4), but GPU workloads are predominantly F32. It failed spectacularly when F32 got upgraded to 4 IPC of compute power.
 
 On A14, we likely have separate F16 and F32 pipelines. This reflects how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme utilizes mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines [provide half the total](https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993) F16 power via emulation). We omit the A14 design for simplicity.
 
