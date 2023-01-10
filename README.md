@@ -84,7 +84,7 @@ _"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64
 | I32 Add | 128 | 64  | 64  | 64  | 128 | 64 | TBD, 128 |
 | I32 Mul | 32  | TBD | 16  | 16  | TBD | 64 | 64 |
 | I64 Add | 32  | 16  | 21  | 16  | 42 | 21 | TBD, 42 |
-| I64 Mul | 8   | TBD | 4   | 4   | TBD | 16 | 16  |
+| I64 Mul | 8   | TBD | 4   | 4   | TBD | TBD | TBD, 13  |
 | Bitwise | 128 | - | - | - | 128 | 64 | 64 |
 | Bit extract | 32 | - | - | - | 64 | TBD | TBD, 64 |
 
