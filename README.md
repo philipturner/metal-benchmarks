@@ -44,8 +44,8 @@ Table of Contents
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 | SIMD Permute BW/Clock | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Shared BW/Clock | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Global BW/Clock | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
+| Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
 | Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
@@ -56,40 +56,43 @@ _Numbers preceded by a tilde are uncertain. They are educated guesses, but haven
 
 ## Operations per Second
 
+TODO: Re-evaluate whether the M1's FP32 power is underutilized. Re-evaluate whether the schedulers have multiple modes, or it's just register cache bandwidth.
+
 The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half the FP32 processing power. A few months before the M1 launched, Nvidia's Ampere GPUs doubled FP32 performance while keeping everything else constant. _<b> This event likely inspired Apple to take the same approach.</b>_ It happened early enough in the chip design process for Apple to revise the M1 architecture, but probably not the A14. _<b>The original design was optimized for FP16, explaining why the M1's extra FP32 power is notoriously underutilized.</b>_
 
 Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which improves ALU utilization of existing FP32 pipelines (M1+) and FP16 pipelines (A14). AI advancements could continue in the Neural Engine, such as FP8.
 
-| Per Core | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| Per Core-Cycle | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| F16 OPs/Clock\* | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
-| F32 OPs/Clock\* | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| F64 OPs/Clock\* | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
-| F16 IPC       | 128 | 128 | 128 | 128 | 128 | 2   | 128 | 128 |
-| F32 IPC       | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
-| F64 IPC       | 0   | 0   | 4   | 4   | 2   | 4   | 2   | 2   |
-| F32 Exp2s/Clock | 32 | 32 | 32 | 32 | TBD | 32 | 16 | 16 |
-| F32 Recips/Clock | 21 | 21 | 32 | 32 | 25 | 32 | 16 | 16 |
-| F32 Rsqrts/Clock | 16 | 16 | 32 | 32 | 20 | 32 | 16 | 16 |
-| F32 Sines/Clock | 9 | 9 | 32 | 32 | TBD | 32 | 16 | 16 |
+| F16 OPs  | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
+| F32 OPs\* | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
+| F64 OPs\* | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
+| F16 Add   | 128 | 128 | 128 | 128 | 128 | 2   | 128 | 128 |
+| F32 Add   | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
+| F64 Add   | ~4e | ~4e | 4   | 4   | 2   | 4   | 2   | 2   |
+| F32 Exp2  | 32 | 32 | 32 | 32 | TBD | 32 | 16 | 16 |
+| F32 Recip | 21 | 21 | 32 | 32 | 25 | 32 | 16 | 16 |
+| F32 Rsqrt | 16 | 16 | 32 | 32 | 20 | 32 | 16 | 16 |
+| F32 Sine | 9 | 9 | 32 | 32 | TBD | 32 | 16 | 16 |
 
 _"e" means hypothetical throughput of emulated IEEE FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so reporting F64 emulation is appropriate._
 
 _\* Fused multiply-add_
 
-| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 OPs/Clock\* | 128 | 256 ??? | 256 ??? | 256 ??? | 0   | 128 | 128 |
-| I32 OPs/Clock\* | 128 | 128 ??? | 128 ??? | 256 ??? | 128 | 128 | 128 |
-| I64 OPs/Clock\* | 32  | 16  | 16  | 16  | 0   | 0   | 0   |
+| I16 OPs | 128 | 256 ??? | 256 ??? | 256 ??? | 0   | 0   | 0   |
+| I32 OPs (FMA) | 128 | 128 ??? | 128 ??? | 256 ??? | 128 | 128 | 128 |
+| I64 OPs (FMA) | 32  | 16  | 16  | 16  | 0   | 0   | 0   |
 | I16 IPC       | 128 | 128 | 128 | 256 | 256 | 0   | 0   | 
-| I32 IPC       | 128 | 64  | 64  | 128 | 128 | 64  | 128  |
-| I64 IPC       | 32  | 16  | 16  | 32  | 0   | 0   | 0   |
-| I16 Adds/Clock | 128 | 128 | 128 | 128 | 128 | 64 | 128 |
-| I32 Adds/Clock | 128 | 64  | 64 | 64 | 128 | 64 | 128 |
-| I32 Muls/Clock | 32  | TBD | 16 | 16 | 0   | 64 | 64 |
-| I64 Adds/Clock | 32  | 16  | 16 | 16 | 0   | 0  | 0  |
-| I64 Muls/Clock | 8   | TBD | 4  | 4  | 0   | 0  | 0  |
+| I32 IPC       | 128 | 64  | 64  | 64  | 128 | 64  | 128  |
+| I64 IPC       | 32  | 16  | 21  | 14  | 0   | 0   | 0   |
+| I16 Add | 128 | 128 | 128 | 128 | 0 | 0 | 0 |
+| I32 Add | 128 | 64  | 64  | 64  | 128 | 64 | 128 |
+| I64 Add | 32  | 16  | 16  | 16  | 0   | 0  | 0  |
+| I16 Mul | 32  | TBD | 128 | 128 | 0 | 0 | 0 |
+| I32 Mul | 32  | TBD | 16 | 16   | 0   | 64 | 64 |
+| I64 Mul | 8   | TBD | 4  | 4    | 0   | 0  | 0  |
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
 
@@ -599,6 +602,9 @@ _The smallest data point has a single simd active, consuming 800 mW of power. Ye
 
 ## References
 
+<details>
+<summary>Web pages</summary>
+
 https://github.com/dougallj/applegpu
 
 https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-143.pdf
@@ -628,6 +634,10 @@ https://twitter.com/Golden_Reviewer/status/1576802505752576000
 https://homes.cs.washington.edu/~wysem/publications/quals-gpgpu-vrf.pdf
   
 https://chipsandcheese.com/2023/01/07/microbenchmarking-amds-rdna-3-graphics-architecture/
+  
+https://chipsandcheese.com/2022/11/02/microbenchmarking-nvidias-rtx-4090/
+
+</details>
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
