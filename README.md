@@ -43,9 +43,9 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 64 KB | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
-| SIMD Permute BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
+| SIMD Permute BW/Clock | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Shared BW/Clock | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Global BW/Clock | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
 | Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
@@ -62,30 +62,38 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 
 | Per Core | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| F16 OPs/Clock | 256 | 256 | 256 | 256 | 256 | 4 | 256 | 256 |
-| F32 OPs/Clock | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| F64 OPs/Clock | 0   | 0   | 8   | 8   | 4  | 8   | 4   | 4   |
-| F16 IPC | 128 | 128 | 128 | 128 | 128 | 2 | 128 | 128 |
-| F32 IPC | 64 | 128 | 64 | 64 | 128 | 128 | 64 | 128 |
-| F64 IPC | 0 | 0 | 4 | 4 | 2 | 4 | 2 | 2 |
-| Transcendental IPC | 16-32 | 16-32 | TBD | 16 | TBD | 32 | 16 | 16 |
+| F16 OPs/Clock\* | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
+| F32 OPs/Clock\* | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
+| F64 OPs/Clock\* | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
+| F16 IPC       | 128 | 128 | 128 | 128 | 128 | 2   | 128 | 128 |
+| F32 IPC       | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
+| F64 IPC       | 0   | 0   | 4   | 4   | 2   | 4   | 2   | 2   |
+| F32 Exp2s/Clock | 32 | 32 | 32 | 32 | TBD | 32 | 16 | 16 |
+| F32 Recips/Clock | 21 | 21 | 32 | 32 | 25 | 32 | 16 | 16 |
+| F32 Rsqrts/Clock | 16 | 16 | 32 | 32 | 20 | 32 | 16 | 16 |
+| F32 Sines/Clock | 9 | 9 | 32 | 32 | TBD | 32 | 16 | 16 |
 
-_On Nvidia chips, all major transcendentals take the same amount of time. On Apple chips, throughput depends on the operation._
+_"e" means hypothetical throughput of emulated IEEE FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so reporting F64 emulation is appropriate._
+
+_\* Fused multiply-add_
 
 | Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 OPs/Clock | 128 | 256 | 256 | 256 | 0 | 0 | 0 |
-| I32 OPs/Clock | 128 | 128 | 128 | 256 | 128 | 128 | 128 |
-| I64 OPs/Clock | 32 | 16 | 16 | 16 | 0 | 0 | 0 |
-| I16 IPC | 128 | 128 | 128 | 256 | 256 | 0 | 0 | 0 |
-| I32 IPC | 128 | 64 | 64 | 128 | 128 | 64 | 64 |
-| I64 IPC | 32 | 16 | 16 | 32 | 0 | 0 | 0  |
-| I32 Adds/Clock | 128 | 64 | 64 | 64 | 128 | 64 | 64 |
-| I32 Muls/Clock | 32 | TBD | 16 | 16 | 0 | 64 | 64 |
-| I64 Adds/Clock | 32 | 16 | 16 | 16 | 0 | 0 | 0 |
-| I64 Muls/Clock | 8 | TBD | 4 | 4 | 0 | 0 | 0 |
+| I16 OPs/Clock\* | 128 | 256 ??? | 256 ??? | 256 ??? | 0   | 128 | 128 |
+| I32 OPs/Clock\* | 128 | 128 ??? | 128 ??? | 256 ??? | 128 | 128 | 128 |
+| I64 OPs/Clock\* | 32  | 16  | 16  | 16  | 0   | 0   | 0   |
+| I16 IPC       | 128 | 128 | 128 | 256 | 256 | 0   | 0   | 
+| I32 IPC       | 128 | 64  | 64  | 128 | 128 | 64  | 128  |
+| I64 IPC       | 32  | 16  | 16  | 32  | 0   | 0   | 0   |
+| I16 Adds/Clock | 128 | 128 | 128 | 128 | 128 | 64 | 128 |
+| I32 Adds/Clock | 128 | 64  | 64 | 64 | 128 | 64 | 128 |
+| I32 Muls/Clock | 32  | TBD | 16 | 16 | 0   | 64 | 64 |
+| I64 Adds/Clock | 32  | 16  | 16 | 16 | 0   | 0  | 0  |
+| I64 Muls/Clock | 8   | TBD | 4  | 4  | 0   | 0  | 0  |
 
 _IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
+
+_\* Either add or multiply-add_
 
 ## ALU Bottlenecks
 
