@@ -620,8 +620,8 @@ https://forum.beyond3d.com/threads/apple-powervr-tbdr-gpu-architecture-speculati
 https://twitter.com/Golden_Reviewer/status/1576802505752576000
 
 https://homes.cs.washington.edu/~wysem/publications/quals-gpgpu-vrf.pdf
-
-https://cccp.eecs.umich.edu/papers/jklooste-micro17.pdf
+  
+https://chipsandcheese.com/2023/01/07/microbenchmarking-amds-rdna-3-graphics-architecture/
 
 <details>
 <summary>Patents related to the Apple GPU</summary>
