@@ -64,39 +64,29 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 
 | Per Core-Cycle | A14 | M1, A15 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| F16 OPs  | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
-| F32 OPs\* | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| F64 OPs\* | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
-| F16 Add   | 128 | 128 | 128 | 128 | 128 | 2   | 128 | 128 |
-| F32 Add   | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
-| F64 Add   | ~4e | ~4e | 4   | 4   | 2   | 4   | 2   | 2   |
-| F32 Exp2  | 32 | 32 | 32 | 32 | TBD | 32 | 16 | 16 |
-| F32 Recip | 21 | 21 | 32 | 32 | 25 | 32 | 16 | 16 |
-| F32 Rsqrt | 16 | 16 | 32 | 32 | 20 | 32 | 16 | 16 |
-| F32 Sine | 9 | 9 | 32 | 32 | TBD | 32 | 16 | 16 |
+| F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | "4" | 256 | 256 |
+| F32 OPs (FMA) | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
+| F64 OPs (FMA) | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
+| F16 Add       | 128 | 128 | 128 | 128 | 128 | "2" | 128 | 128 |
+| F32 Add       | 64  | 128 | 64  | 64  | 128 | 128 | 64  | 128 |
+| F64 Add       | ~4e | ~4e | 4   | 4   | 2   | 4   | 2   | 2   |
+| F32 Exp2      | 32  | 32  | 32  | 32  | TBD | 32  | 16  | 16  |
+| F32 Recip     | 21  | 21  | 32  | 32  | 25  | 32  | 16  | 16  |
+| F32 Rsqrt     | 16  | 16  | 32  | 32  | 20  | 32  | 16  | 16  |
+| F32 Sine      | 9   | 9   | 32  | 32  | TBD | 32  | 16  | 16  |
 
-_"e" means hypothetical throughput of emulated IEEE FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so reporting F64 emulation is appropriate._
-
-_\* Fused multiply-add_
+_"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so reporting F64 emulation is appropriate._
 
 | Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 OPs | 128 | 256 ??? | 256 ??? | 256 ??? | 0   | 0   | 0   |
-| I32 OPs (FMA) | 128 | 128 ??? | 128 ??? | 256 ??? | 128 | 128 | 128 |
-| I64 OPs (FMA) | 32  | 16  | 16  | 16  | 0   | 0   | 0   |
-| I16 IPC       | 128 | 128 | 128 | 256 | 256 | 0   | 0   | 
-| I32 IPC       | 128 | 64  | 64  | 64  | 128 | 64  | 128  |
-| I64 IPC       | 32  | 16  | 21  | 14  | 0   | 0   | 0   |
-| I16 Add | 128 | 128 | 128 | 128 | 0 | 0 | 0 |
-| I32 Add | 128 | 64  | 64  | 64  | 128 | 64 | 128 |
-| I64 Add | 32  | 16  | 16  | 16  | 0   | 0  | 0  |
-| I16 Mul | 32  | TBD | 128 | 128 | 0 | 0 | 0 |
-| I32 Mul | 32  | TBD | 16 | 16   | 0   | 64 | 64 |
-| I64 Mul | 8   | TBD | 4  | 4    | 0   | 0  | 0  |
-
-_IPC stands for instructions per clock. Integer IPC consists of adds and/or fused multiply-adds, in whatever combination is fastest. Integer compare-select, which is two operations in one instruction, doesn't count._
-
-_\* Either add or multiply-add_
+| I16 Add | 128 | 128 | 128 | 128 | 128 | 64 | TBD, 128 |
+| I16 Mul | 32  | TBD | 128 | 128 | TBD | 64 | 64  |
+| I32 Add | 128 | 64  | 64  | 64  | 128 | 64 | TBD, 128 |
+| I32 Mul | 32  | TBD | 16  | 16  | TBD | 64 | 64 |
+| I64 Add | 32  | 16  | 21  | 16  | 42 | 21 | TBD, 42 |
+| I64 Mul | 8   | TBD | 4   | 4   | TBD | 16 | 16  |
+| Bitwise | 128 | - | - | - | 128 | 64 | 64 |
+| Bit extract | 32 | - | - | - | 64 | TBD | TBD, 64 |
 
 ## ALU Bottlenecks
 
