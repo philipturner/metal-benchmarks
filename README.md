@@ -50,7 +50,7 @@ Table of Contents
 | Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~2-4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks | ~16-32 | 32 | 32 | 32 | 32 | 32 | 32 |
-| Global Cache Line | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 
 _Numbers preceded by a tilde are uncertain. They are educated guesses, but haven't been confirmed through testing._
 
