@@ -79,14 +79,14 @@ _"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64
 
 | Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 Adds | 128 | 128 | 128 | 128 | 128 | 64 | TBD, 128 |
+| I16 Adds | 128 | 128 | 128 | 128 | 128 | 64 | ~128 |
 | I16 Muls | 32  | TBD | 128 | 128 | TBD | 64 | 64  |
-| I32 Adds | 128 | 64  | 64  | 64  | 128 | 64 | TBD, 128 |
+| I32 Adds | 128 | 64  | 64  | 64  | 128 | 64 | ~128 |
 | I32 Muls | 32  | TBD | 16  | 16  | TBD | 64 | 64 |
-| I64 Adds | 32  | 16  | 21  | 16  | 42 | 21 | TBD, 42 |
-| I64 Muls | 8   | TBD | 4   | 4   | TBD | TBD | TBD, 13  |
+| I64 Adds | 32  | 16  | 21  | 16  | 42 | 21 | ~42 |
+| I64 Muls | 8   | TBD | 4   | 4   | TBD | TBD | ~13  |
 | Bitwise | 128 | - | - | - | 128 | 64 | 64 |
-| Bit extract | 32 | - | - | - | 64 | TBD | TBD, 64 |
+| Bit editing | 32 | - | - | - | 64 | TBD | TBD, 64 |
 
 ## ALU Bottlenecks
 
