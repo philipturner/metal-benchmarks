@@ -587,9 +587,7 @@ This sub-core concurrency only happens among commands within the same `MTLComput
 
 <img src="./Documentation/Power_Performance_M1_Max.png" alt="Graph of power vs. performance for an M1 Max at 1296 MHz" width="75%" />
 
-_The smallest data point has a single simd active, consuming 800 mW of power. Yes, that's 1/1000 the power of an RTX 4090 Ti. The Apple GPU conserves power at the granularity of individual vector ALUs._
-
-<!-- Regarding threadgroup memory, the Apple GPU core has half as much as other vendors. VkFFT also measured it having slower bandwidth, but couldn't determine how slow. AMD and Nvidia GPUs have 32 threadgroup memory banks per core -->
+_The smallest data point has a single simd active, consuming 800 mW of power. Yes, that's 1/1000 the power of an RTX 4090 Ti. The Apple GPU conserves power at the granularity of individual vector ALUs. Instances of idleness might become rarer as ALU utilization approaches 100%. The scheduler would struggle to predict/compensate for them, therefore over-allocating power._
 
 ## References
 
