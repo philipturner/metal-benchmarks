@@ -43,6 +43,8 @@ Table of Contents
 | Shared Memory | 64 KB | 64 KB | 128 KB | 128 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache | ~8-12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+| Register Cache | ~4 KB |
+| Register Cache BW/Cycle | ~512-1024 B |
 | SIMD Permute BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
