@@ -45,10 +45,10 @@ Table of Contents
 | L1 Data Cache | ~12 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
 | SIMD Shuffle BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Global BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
+| L1D BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
-| Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| L1D Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 
 _Numbers preceded by a tilde are uncertain. They are educated guesses, but haven't been confirmed through testing._
 
