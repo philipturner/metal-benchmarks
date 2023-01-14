@@ -48,7 +48,7 @@ Table of Contents
 | L1D BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
-| L1D Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 
 _Numbers preceded by a tilde are uncertain. They are educated guesses, but haven't been confirmed through testing._
 
