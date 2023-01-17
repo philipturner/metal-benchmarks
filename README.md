@@ -184,12 +184,12 @@ FP32, integer and conditional pipeline:
 Integer and complex math pipeline:
 - Only one sub-pipeline simultaneously utilized.
 - 4 cycles: IMAD32\*
-- 8 cycles: IMUL(32x32=64)
 - 4 cycles: LSHIFT32, BITEXTRACT32, BITREV32, POPCOUNT32
 - 4 cycles: CONVERT(F->I), CONVERT(I->F), RINT, FRACT
 - 4 cycles: EXP2, LOG2
 - 6 cycles: RECIP
 - 8 cycles: RSQRT
+- 8 cycles: IMUL(32x32=64)
 - 10 cycles: SIN_PT_1 + SIN_PT_2
 
 \* You might imagine a way to exceed 128 Int OPs/cycle/core. Issue an IMAD32, then 3 subsequent IADD32 instructions. That would be 5 adds/multiplies issued in 4 cycles (160/cycle/core). However, this scheme does not work in practice. Perhaps the add part of IMAD32 occupies one of the dedicated IADD32 pipelines.
