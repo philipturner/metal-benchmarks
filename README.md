@@ -145,7 +145,7 @@ Apple described each GPU core as having 128 ALUs. These generally correspond to 
 - dual-dispatching from 2 simds
 - <s>triple/quadruple-dispatching from 1 simd</s> register cache bottlenecks mean you can treat dual-dispatch mode as quadruple-dispatching F32/I32 from one simd
 
-Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Many workloads can work fine in this mode; the complex pipeline runs one vector instruction/simd every 4 cycles (one/2 simds every 2 cycles). That pipeline is over-saturated even at ILP=1, while SIMD shuffle bandwidth is perfectly saturated.
+Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Many workloads can work fine in this mode; the complex pipeline runs one 32-wide instruction/simd every 4 cycles (one/2 simds every 2 cycles). That pipeline is over-saturated even at ILP=1, while SIMD shuffle bandwidth is perfectly saturated.
 
 > As a reminder, the additional 32-bit pipelines on Ampere/RDNA3 GPUs struggle to be fully utilized. Apple's dual-dispatch from 2 simds mode is a remnant of the PowerVR architecture. It could only execute F32 instructions at 2 IPC anyway, so what's the point in dispatching from 4 simds concurrently? This scheme prevents fully utilizing I32 instructions (except when ILP=4), but GPU workloads are predominantly F32. It failed spectacularly when F32 got upgraded to 4 IPC of compute power.
 
