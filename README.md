@@ -145,13 +145,13 @@ Apple described each GPU core as having 128 ALUs. These generally correspond to 
 
 - single-dispatching from &ge;3 simds
 - dual-dispatching from 2 simds
-- triple/quadruple-dispatching from 1 simd
+- <s>triple/quadruple-dispatching from 1 simd</s> register cache bottlenecks mean you can treat dual-dispatch mode as quadruple-dispatching F32 from one simd
 
-Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Quadruple-dispatching is probably lower-power, and required to fully utilize FP32/I32. Many workloads can work fine in this mode; the complex pipeline runs one instruction/simd every 4 cycles. This can be reformulated as one instruction/4 simds every 1 cycle.
+Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. <s>Quadruple-dispatching is probably lower-power, and required to fully utilize FP32/I32. Many workloads can work fine in this mode; the complex pipeline runs one instruction/simd every 4 cycles. This can be reformulated as one instruction/4 simds every 1 cycle.</s>
 
 > As a reminder, the additional 32-bit pipelines on Ampere/RDNA3 GPUs struggle to be fully utilized. Apple's dual-dispatch from 2 simds mode is a remnant of the PowerVR architecture. It could only execute F32 instructions at 2 IPC anyway, so what's the point in dispatching from 4 simds concurrently? This scheme prevents fully utilizing I32 instructions (except when ILP=4), but GPU workloads are predominantly F32. It failed spectacularly when F32 got upgraded to 4 IPC of compute power.
 
-On A14, we likely have separate F16 and F32 pipelines. This reflects how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme utilizes mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines [provide half the total](https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993) F16 power via emulation). We omit the A14 design for simplicity.
+On A14, we either have separate F16 and F32 pipelines or rate-limited F32 pipelines. This reflects how Metal Frame Capture shows separate statistics for "F16 utilization" and "F32 utilization". It also reflects Apple's statement of "twice the F32 pipelines" in their A15 video. This scheme utilizes mixed-precision F16/F32 compute similar to RDNA 2 (the F32 pipelines [provide half the total](https://www.realworldtech.com/forum/?threadid=197759&curpostid=197993) F16 power via emulation). We omit the A14 design for simplicity.
 
 ---
 
