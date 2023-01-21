@@ -132,13 +132,15 @@ The graphs below depict scalar instructions per cycle across the entire compute 
 
 _Note that ALU utilization maxes out at 24 simds/core. This is also the lowest occupancy you can create by over-allocating registers. Apple would rather you spill to device memory than create chances to decrease ALU utilization. ALU utilization can be predicted reliably, just by scanning the instruction mix. This simplicity may help the GPU predict the minimum power needed to reach maximum performance._
 
+Recently, someone pointed out a way to achieve 95% FP32 utilization with ILP=1. Perform a series of FFMAs in the form `(x * x) + 1`. This doubles throughput compared to (e.g. `(x * y) + 1`) because only one operand is live inside the register cache. The scheduler doesn't require extra bandwidth to fetch a `y` value. The halving of bandwidth makes it behave like FP16 with two operands. My instruction throughput benchmarks looped with several pieces of data per thread, probably impossible to fit inside the register cache. I never tried single-operand benchmarks like `(x + x)`, `(x * x)` because the compiler always optimized them away.
+
 ## ALU Layout
 
-Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU has schedulers capable of:
+Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU core has likey four schedulers, each dispatching one instruction from one simd per cycle. In real-world workloads, significant register cache bottlenecks mean it's best to pretend they have different modes:
 
-- single-dispatching from &ge;3 simds
+- single-dispatching from 3 simds
 - dual-dispatching from 2 simds
-- <s>triple/quadruple-dispatching from 1 simd</s> register cache bottlenecks mean you can treat dual-dispatch mode as quadruple-dispatching F32/I32 from one simd
+- quadruple-dispatching from 1 simd
 
 Single-dispatching only occurs at ILP=1 for 16-bit data types. Dual-dispatching is the preferred approach at low occupancy and/or low ILP, and required to fully utilize FP16/I16. Many workloads can work fine in this mode; the complex pipeline runs one 32-wide instruction/simd every 4 cycles (one/2 simds every 2 cycles). That pipeline is over-saturated even at ILP=1, while SIMD shuffle bandwidth is perfectly saturated.
 
@@ -196,6 +198,10 @@ Vocabulary Note: Concurrency means the number of times each pipeline's circuitry
 > Little's Law: Concurrency = Latency / Throughput
 > 
 > Cycles Throughput = Cycles Latency / (Pipelines/ALU)
+
+The schematic above is imaginary. In reality, each ALU has a single 4-stage pipeline. Each "integer and conditional pipeline" above is one of 4 slots in the pipeline. Throughput benchmarks below show FADD and FFMA potentially taking 2 cycles, while FCMPSEL takes 4. This explains how FP16 FADD throughput at ILP=1 saturates at 8 simds/core (2/scheduler) and not 16 simds/core (4/scheduler). We could adjust the mental model to represent one very complex pipeline with different latencies for different instructions. Doing so will not change most performance patterns it predicts.
+
+Nonetheless, it's helpful to understand whether hardware is being physically duplicated. The 4 FP32/I32 "integer and conditional pipeline" instances above (512/core) share a common multiplier (128/core), each taking a single cycle to multiply two mantissas. The "integer and complex math pipeline" instances (128/core) actually forward to a set of SFUs (special function units, 32/core). These accept instructions every cycle, but appear as 4 cycles because they're shared among schedulers. Very complex transcendental instructions (RECIP, SIN) have pipeline depths larger than 4 cycles. However, only 4 numbers can reside in the pipeline simultaneously. This makes them appear like 4 separate ALUs, each processing only one value simultaneously.
 
 ## Instruction Throughputs
 
