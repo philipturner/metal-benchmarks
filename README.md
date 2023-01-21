@@ -68,7 +68,7 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | F32 Rsqrt     | 16  | 16  | 32  | 32  | 20  | 32  | 16  | 16  |
 | F32 Sine      | 9   | 9   | 32  | 32  | TBD | 32  | 16  | 16  |
 
-_"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MUL at 1:52, FMA at 1:68. It does not consider optimized dot product functions, which have higher throughput by spending less time unpacking mantissas. We can also sacrifice exponent bits (non-IEEE e8m48) to quadruple the throughput. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
+_"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MUL at 1:52, FMA at 1:68. It does not consider optimized dot product functions, which have higher throughput by spending less time unpacking mantissas. We can also sacrifice exponent bits (non-IEEE e8m48) to triple the throughput. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
 
 | Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
