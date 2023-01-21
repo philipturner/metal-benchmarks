@@ -136,7 +136,7 @@ Recently, someone pointed out a way to achieve 95% FP32 utilization with ILP=1. 
 
 ## ALU Layout
 
-Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU core has likey four schedulers, each dispatching one instruction from one simd per cycle. In real-world workloads, significant register cache bottlenecks mean it's best to pretend they have different modes:
+Apple described each GPU core as having 128 ALUs. These generally correspond to all the pipelines necessary to sustain one scalar instruction/cycle. Integer pipelines process both I32 and U32 with the same latency. Most pipelines can accept 16-bit operands or write 16-bit results, with zero additional cost. The Apple GPU core has four schedulers, each dispatching one instruction from one simd (32 threads) per cycle. In real-world workloads, significant register cache bottlenecks mean it's best to pretend they have different modes:
 
 - single-dispatching from 3 simds
 - dual-dispatching from 2 simds
