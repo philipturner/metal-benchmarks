@@ -43,8 +43,8 @@ Table of Contents
 | SIMD Shuffle BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | L1D BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
-| Shared Bank Size | TBD | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
-| Shared Banks | TBD | 32 | 32 | 32 | 32 | 32 | 32 |
+| Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
+| Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
 | Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
@@ -59,16 +59,16 @@ Future chips will likely retain the same ratio of F32:F16:I32 compute power (mos
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
 | F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
 | F32 OPs (FMA) | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| F64 OPs (FMA) | ~3e | ~3e | 8   | 8   | 4   | 8   | 4   | 4   |
+| F64 OPs (FMA) | &le;3.8e | &le;3.8e | 8   | 8   | 4   | 8   | 4   | 4   |
 | F16 Adds      | 128 | 128 | 128 | 128 | 128 | 2   | 128 | ~128 |
 | F32 Adds      | 64  | 128 | 64  | 64  | 128 | 128 | 64  | ~128 |
-| F64 Adds      | ~4e | ~4e | 4   | 4   | 2   | 4   | 2   | 2   |
+| F64 Adds      | &le;3.6e | &le;3.6e | 4   | 4   | 2   | 4   | 2   | 2   |
 | F32 Exp2      | 32  | 32  | 32  | 32  | ~32 | 32  | 16  | 16  |
 | F32 Recip     | 21  | 21  | 32  | 32  | 25  | 32  | 16  | 16  |
 | F32 Rsqrt     | 16  | 16  | 32  | 32  | 20  | 32  | 16  | 16  |
 | F32 Sine      | 9   | 9   | 32  | 32  | TBD | 32  | 16  | 16  |
 
-_"e" means hypothetical throughput of emulated IEEE-compliant FP64 - MUL at 1:64, ADD at 1:32, FMA at 1:80. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
+_"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MUL at 1:52, FMA at 1:68. It does not consider optimized dot product functions, which have higher throughput by spending less time unpacking mantissas. We can also sacrifice exponent bits (non-IEEE e8m48) to quadruple the throughput. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
 
 | Per Core-Cycle | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
