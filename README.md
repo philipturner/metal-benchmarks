@@ -7,18 +7,18 @@ This repository also contains open-source benchmarking scripts. They allow anyon
 <details>
 <summary>Overview of Apple-designed GPUs</summary>
 
-| Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 |
-| --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: |
-| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | 654 |
-| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | 1309 |
-| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | 2654 |
-| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | 5308 |
-| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 |
-| A15 | Apple 8 | 1338 MHz | 5 | 1713 | 1713 | 856 |
-| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 |
-| A16 | Apple 8 | ~1398 MHz | 5 | ~1789 | ~1789 | ~895 |
-| M2 Pro | Apple 8 | 1398 MHz | 19 | 6800 | 6800 | 3400 |
-| M2 Max | Apple 8 | 1398 MHz | 38 | 13600 | 13600 | 6800 |
+| Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 | L2 Cache | L3 Cache |
+| --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: | -------: | -------: |
+| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | 654 | TBD | 16 MB |
+| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | 1309 | 768 KB | 8 MB |
+| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | 2654 | 256 KB | 24 MB |
+| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | 5308 | 512 KB | 48 MB |
+| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 | 1 MB | 96 MB |
+| A15 | Apple 8 | 1338 MHz | 5 | 1713 | 1713 | 856 | TBD | 32 MB |
+| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 | ~1.5 MB | 8 MB |
+| A16 | Apple 8 | ~1398 MHz | 5 | ~1789 | ~1789 | ~895 | TBD | 24 MB |
+| M2 Pro | Apple 8 | 1398 MHz | 19 | 6800 | 6800 | 3400 | ~512 KB | 24 MB |
+| M2 Max | Apple 8 | 1398 MHz | 38 | 13600 | 13600 | 6800 | ~1 MB | 48 MB |
 
 </details>
 
@@ -39,7 +39,7 @@ Table of Contents
 | Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory | 64 KB | 64 KB | 64 KB | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache | ~8 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-128 KB |
+| L1 Data Cache | 8 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
 | SIMD Shuffle BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
 | L1D BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
