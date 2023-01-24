@@ -591,11 +591,13 @@ _The smallest data point has a single simd active, consuming 800 mW of power. Ye
 
 Apple GPUs have much smaller data caches than other vendors. The L1 is 8 KB, smaller than Vega (16 KB) and RDNA 3 (32 KB). Instruction cache is smaller than recent discrete GPUs. The L2 is tremendously small and varies wildly across their lineup. The M1 started with 768 KB, then shot down to 256 KB for the M1 Pro. It then rose intuitively to 1 MB for the M1 Ultra. The M2 generation is similar, with each chip maybe doubling capacity. For comparison, even the measly RTX 3050 has 2 MB of L2 cache.
 
-By minimizing L1D, L1I, and L2, Apple reduces the amount of static power necessary for operation\*.  Smaller cache sizes consume less power, even less so for larger GPUs. The massive SLC, memory bandwidth, and incredibly low latency of the L2 makes up for less data cache. Low-latency L2 also minimizes the impact of L1I spills. For multi-cycle instructions, the GPU can reach 100% utilization\*\* while thrashing the L1I cache. I have not tested what happens when an executable overflows the L2 cache. Hyper-low latency L2 also creates a scheme where you need less L1D, making 8 KB possible.
+By minimizing L1D, L1I, and L2, Apple reduces the amount of static power necessary for operation\*.  Smaller cache sizes consume less power, even less so for larger GPUs. The massive SLC, memory bandwidth, and incredibly low latency of the L2 makes up for less data cache. Low-latency\*\* L2 also minimizes the impact of L1I spills. For multi-cycle instructions, the GPU can reach 100% utilization\*\*\* while thrashing the L1I cache. I have not tested what happens when an executable overflows the L2 cache.
 
->\* They also reduce the amount of threadgroup memory bandwidth. Addressing circuitry probably cannot scale power consumption at the resolution of nanoseconds. The solution: make less of it.
+>\* Apple also reduces the amount of threadgroup memory bandwidth. Addressing circuitry probably cannot scale power consumption at the resolution of nanoseconds. The solution: make less of it. Instead, invest in industry-leading SIMD shuffle bandwidth and matrix instructions!
 
->\*\* I have not tested this extrapolation, but it seems logical based on behavior of FFMA32.
+>\*\* Hyper-low latency L2 also creates a scheme where you need less L1D, making 8 KB possible.
+
+>\*\*\* I have not tested this extrapolation, but it seems logical based on behavior of FFMA32.
 
 One strange pattern, is smaller GPUs getting progressively larger cache sizes. The M2 has much more L2 than the M1 Pro, and the A-series chips have much larger L3 than base M-series chips (the same as M1 Pro). This helps to make up for lower bandwidth. Apple likely had to trade off between losing energy efficiency to L2 thrashing, and losing energy efficiency to extra static L2 power.
 
