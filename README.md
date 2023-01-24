@@ -589,6 +589,14 @@ This sub-core concurrency only happens among commands within the same `MTLComput
 
 _The smallest data point has a single simd active, consuming 800 mW of power. Yes, that's 1/1000 the power of an RTX 4090 Ti. The Apple GPU conserves power at the granularity of individual vector ALUs. Instances of idleness might become rarer as ALU utilization approaches 100%. The scheduler would struggle to predict/compensate for them, therefore over-allocating power._
 
+Apple GPUs have much smaller data caches than other vendors. The L1 is 8 KB, smaller than Vega (16 KB) and RDNA 3 (32 KB). Instruction cache is smaller than recent discrete GPUs. The L2 is tremendously small and varies wildly across their lineup. The M1 started with 768 KB, then shot down to 256 KB for the M1 Pro. It then rose intuitively to 1 MB for the M1 Ultra. The M2 generation is similar, with each chip maybe doubling capacity. For comparison, even the measly RTX 3050 has 2 MB of L2 cache.
+
+My minimizing things like L1D, L1I, and L2D data, Apple reduces the amount of static power necessary for operation. They also reduce the amount of threadgroup memory bandwidth, as that addressing circuitry cannot adjust power consumption with extremely fine granularity. Smaller cache sizes consume less power, even less so for larger GPUs. The massive SLC, memory bandwidth, and incredibly low latency of the L2 makes up for less data cache. Low-latency L2 also minimizes the impact of L1I spills. For multi-cycle instructions, the GPU can reach 100% utilization\* while thrashing the L1I cache. I have not tested what happens when an executable overflows the L2 cache. Hyper-low latency L2 also creates a scheme where you need less L1D, making 8 KB possible.
+
+>\* I have not tested this extrapolation, but it seems logical based on behavior of FFMA32.
+
+One strange pattern, is smaller GPUs getting progressively larger cache sizes. The M2 has much more L2 than the M1 Pro, and the A-series chips have much larger L3 than base M-series chips (the same as M1 Pro). This helps to make up for lower bandwidth. Apple likely had to trade off between losing energy efficiency to L2 thrashing, and losing energy efficiency to extra static L2 power.
+
 ## References
 
 <details>
