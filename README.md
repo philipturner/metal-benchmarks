@@ -599,7 +599,7 @@ By minimizing L1D, L1I, and L2, Apple reduces the amount of static power necessa
 
 >\*\*\* I have not tested this extrapolation, but it seems logical based on behavior of FFMA32.
 
-One strange pattern, is smaller GPUs getting progressively larger cache sizes. The M2 has much more L2 than the M1 Pro, and the A-series chips have much larger L3 than base M-series chips (the same as M1 Pro). This helps to make up for lower bandwidth. Apple likely had to trade off between losing energy efficiency to L2 thrashing, and losing energy efficiency to extra static L2 power.
+One strange pattern, is smaller GPUs having larger cache sizes. The M1 has much more L2 than the M1 Pro, and the A14 has much larger L3 than M1. Extra cache helps to make up for lower bandwidth. Apple likely had to trade off between losing energy efficiency to L2 thrashing, and losing energy efficiency to extra static L2 power.
 
 ## References
 
