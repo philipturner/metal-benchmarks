@@ -370,13 +370,13 @@ _\* To check for overflow, you only need one integer comparison. The overflowed 
 <details>
 <summary>64-bit integer math</summary>
 
-According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". It turns out that Apple has hardware-accelerated 64-bit integer multiplication and addition. It takes ~4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. However, requiring a single assembly instruction reduces executable size. The IADD64 pipeline seems to interfere with the FADD32/IADD32 pipeline in the following way:
+According to the Metal Feature Set Tables, the A11 and later have "64-bit integer math". The GPU takes 4 cycles to add two 64-bit integers, the same time it would take to emulate through 32-bit. The IADD64 operation interferes FADD32/IADD32 in the following way:
 
 > Throughput &ge; 4(number IADD64s) + 1(number IADD32s) + 1(number FADD32s)
 
-Furthermore, it runs partially concurrently to IMUL32 - combined, the operations have better throughput than in isolation. This suggests that IADD64 hijacks the IADD32 pipeline to perform segments of the IADD64 addition. The FADD32 pipeline also uses this circuitry to add floating point mantissas.
+The number of optimal repetitions is 360, instead of 1440 like native instructions. This strongly suggests that IADD64 occurs via emulation (4 instructions). However, IMUL64 utilizes specialized hardware. IMUL(32x32=64) takes 8 cycles and IMAD32 takes 4 cycles. An IMUL(64x64=64) can be accomplished through one IMUL(32x32=64) and two IMAD32 instructions, taking 16 cycles. The 8-cycle expanded multiplication is the "hardware acceleration" that makes IMUL64 faster than pure emulation. The GPU may also accelerate 64-bit bitshifts, but I have not tested this theory.
 
-With 4 cycles for IMAD32 and 8 cycles for IMAD((32x32=64)+64=64), emulating IMUL64 would take 20 cycles. Hardware performs this in 16 cycles, and is therefore native. This may be slower than emulation on AMD, where IMAD32 takes 1 cycle. Regarding mixed-precision IMUL, MUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into MUL32 and MULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at no additional cost.
+IMUL(32x32=64) only takes 8 cycles with the following Metal code. Do not explicitly split it into IMUL32 and IMULHI32, which takes 12 cycles. A 64-bit addition can also be fused into this multiply, at zero amortized cost.
 
 ```metal
 // 12 cycles - don't do this.
