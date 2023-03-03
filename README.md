@@ -33,19 +33,19 @@ Table of Contents
 
 ## On-Chip Memory
 
-| Per Core | Apple 7, 8 | GCN 5 | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| Max Threads | 768-3072 | 256-2560 | 256-2048 | 384-??? | 256-2048 | 256-1024 | 256-1536 |
-| Register File | 384 KB | 256 KB | 256 KB | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory | 64 KB | 64 KB | 64 KB | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
-| L1 Instruction Cache | 12 KB | 32 KB | 32 KB | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache | 8 KB | 16 KB | 16 KB | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
-| SIMD Shuffle BW/Cycle | 256 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| Shared BW/Cycle | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B | 128 B |
-| L1D BW/Cycle | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B | 64 B |
-| Shared Bank Size | ~4 B | 4 B | 4 B | 4 B | 4 B | 4 B | 4 B |
-| Shared Banks | ~16 | 32 | 32 | 32 | 32 | 32 | 32 |
-| Global Cache Line | 128 B | 64 B | 128 B | 128 B | 128 B | 128 B | 128 B |
+| Per Core              | Apple 7, 8 | Vega     | RDNA 1    | RDNA 2   | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| --------              | ---------- | -----    | --------- | ------   | ------ | ------ | ------ | ----------- |
+| Max Threads           | 768-3072   | 256-2560 | 256-2560  | 256-2048 | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
+| Register File         | 384 KB     | 256 KB   | 256 KB    | 256 KB   | 384 KB | 256 KB | 256 KB | 256 KB |
+| Shared Memory         | 64 KB      | 64 KB    | 64 KB     | 64 KB    | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
+| L1 Instruction Cache  | 12 KB      | 32 KB    | 32 KB     | 32 KB    | 32 KB | 8 KB | 12 KB | 32 KB |
+| L1 Data Cache         | 8 KB       | 16 KB    | 16 KB     | 32 KB    | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
+| SIMD Shuffle BW/Cycle | 256 B      | 128 B    | 128 B     | 128 B    | 128 B | 128 B | 128 B | 128 B |
+| Shared BW/Cycle       | 64 B       | 128 B    | 128 B     | 128 B    | 128 B | 128 B | 128 B | 128 B |
+| L1D BW/Cycle          | 64 B       | 64 B     | 64 B      | 64 B     | 64 B | 64 B | 64 B | 64 B |
+| Shared Bank Size      | ~4 B       | 4 B      | 4 B       | 4 B      | 4 B | 4 B | 4 B | 4 B |
+| Shared Banks          | ~16        | 32       | 32        | 32       | 32 | 32 | 32 | 32 |
+| Global Cache Line     | 128 B      | 64 B     | 128 B     | 128 B    | 128 B | 128 B | 128 B | 128 B |
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
@@ -637,6 +637,10 @@ https://homes.cs.washington.edu/~wysem/publications/quals-gpgpu-vrf.pdf
 https://chipsandcheese.com/2023/01/07/microbenchmarking-amds-rdna-3-graphics-architecture/
   
 https://chipsandcheese.com/2022/11/02/microbenchmarking-nvidias-rtx-4090/
+
+https://gpuopen.com/learn/rgp_1_14/
+
+https://gpuopen.com/wp-content/uploads/2019/08/RDNA_Architecture_public.pdf
 
 </details>
 
