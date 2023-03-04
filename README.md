@@ -47,7 +47,7 @@ Table of Contents
 | Shared Banks          | ~16        | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
-> \* 256-2560 on RDNA 1, 256-2048 on RDNA 2.
+> \* 256-2560 on RDNA 1, 256-2048 on RDNA 2. The maximum, but not minimum, threads should be halved in wave32 mode.
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
