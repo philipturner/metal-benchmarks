@@ -28,6 +28,7 @@ Table of Contents
 - [ALU Bottlenecks](#alu-bottlenecks)
 - [ALU Layout](#alu-layout)
 - [Instruction Throughputs](#instruction-throughputs)
+- [Nanite Atomics](#nanite-atomics)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
 
@@ -578,6 +579,20 @@ _The last entries clearly prove IADD64 runs (at least partially) concurrently to
 _\* Latency was best at 720 repetitions. Throughput was best at 1440 repetitions. Many genuine instruction sequences also have optimal throughput at more repetitions than latency. These are probably not genuine instruction sequences._
 
 </details>
+
+## Nanite Atomics
+
+> Apple plans for hardware features several years before they’re implemented. Apple may have added atomic UInt64 min/max precisely to get Nanite running on M2. In early 2020 they saw the UE5 demo and wanted AS to support it for the planned “Metal/Macs for gaming” focus. Then relations with Epic derailed (late 2020) but the chip design was already established.
+>
+> This explains why they strangely added only one 64-bit atomic instruction when they could have added all of Shader Model 6.6 functionality.
+>
+> &mdash; Philip Turner, September 2022
+
+The Apple GPU architecture only supports 32-bit atomics on pointer values, while other architectures support texture atomics or 64-bit atomics. The latter two are required to run the current implementation of Nanite in Unreal Engine 5 (UE5). Nanite is a very novel rendering algorithm that removes the need for static LOD on vertex meshes. Rendering infinitely detailed meshes requires subpixel resolution and rasterizing pixels entirely in software. To implement a software-rasterized depth buffer, UE5 performs 64-bit atomic comparisons. The depth value is the upper 32 bits; the color is the lower 32. This algorithm is an example of a larger trend toward using GPGPU in rendering.
+
+There was recently a discovery that Nanite can run entirely on 32-bit buffer atomics, at a 2.5x bandwidth/5x latency cost. However, Apple added hardware acceleration to the M2 series of GPUs for Nanite atomics. This includes a single instruction for non-returning UInt64 min or max. It does not include the wider set of atomic instructions typically useful for GPGPU, although such instructions were effectively emulated in the [prototypical metal-float64](https://github.com/philipturner/metal-float64). The A15 and A16, part of the same GPU family as M2, do not support Nanite atomics. Hopefully the A17 will gain support in the next series of chips.
+
+For further information, see [ue5-nanite-macos/AtomicsWorkaround](https://github.com/philipturner/ue5-nanite-macos/blob/main/AtomicsWorkaround/README.md) and the [associated thread](https://forums.unrealengine.com/t/lumen-nanite-on-macos/508411/92) on Unreal Engine forums.
 
 ## Power Efficiency
 
