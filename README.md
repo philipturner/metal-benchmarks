@@ -41,6 +41,7 @@ Table of Contents
 | Shared Memory         | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache  | 12 KB      | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache         | 8 KB       | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
+| SIMD Matmul BW/Cycle  | ~512-768 B | n/a      | n/a        | n/a   | n/a   | n/a   | n/a   |
 | SIMD Shuffle BW/Cycle | 256 B      | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
 | Shared BW/Cycle       | 64 B       | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
 | L1D BW/Cycle          | 64 B       | 64 B     | 64 B       | 64 B | 64 B | 64 B | 64 B |
