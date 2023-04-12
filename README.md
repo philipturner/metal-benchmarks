@@ -41,15 +41,28 @@ Table of Contents
 | Shared Memory         | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | L1 Instruction Cache  | 12 KB      | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | L1 Data Cache         | 8 KB       | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
-| SIMD Matmul BW/Cycle  | ~512-768 B | n/a      | n/a        | n/a   | n/a   | n/a   | n/a   |
-| SIMD Shuffle BW/Cycle | 256 B      | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
-| Shared BW/Cycle       | 64 B       | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
-| L1D BW/Cycle          | 64 B       | 64 B     | 64 B       | 64 B | 64 B | 64 B | 64 B |
 | Shared Bank Size      | ~4 B       | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks          | ~16        | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
+| Per Core              | Apple 7, 8 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| --------              | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
+| Register Cache BW/Cycle | ~1536-2048 B | 768 B | 768 B | 1536 B | 768 B | 1536 B | 1536 B |
+| SIMD Matmul BW/Cycle  | ~512-768 B | n/a      | n/a        | n/a   | n/a   | n/a   | n/a   |
+| SIMD Shuffle BW/Cycle | 256 B      | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
+| Shared BW/Cycle       | 64 B       | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
+| L1D BW/Cycle          | 64 B       | 64 B     | 64 B       | 64 B | 64 B | 64 B | 64 B |
+| L2D BW/Cycle          | ~32 B\*\*  | -        | -          | -   | -   | -   | -   |
+| L3D BW\*\*            | ~2x RAM    | -        | ~3.26x RAM | ~5.52x RAM | - | - | - |
+| RAM BW/Cycle\*\*\*    | ~7.7-9.9 B | -        | ~2.8 B  | ~4.0 B | - | - | - |
+
 > \* 256-2560 on RDNA 1, 256-2048 on RDNA 2. The maximum, but not minimum, threads should be halved in wave32 mode.
+>
+> \*\* I lack enough evidence, but I suspect Apple's M2-based GPUs could have double the L2 bandwidth. This would match the doubling of L2 capacity and anticipation of transformer models with larger memory needs. To make a proper comparison, I need to benchmark L2 on M2 Pro/Max and compare to M1 Pro/Max. Unfortunately, I only own the latter.
+>
+> \*\*\* Ratio of last-level cache bandwidth to global memory bandwidth, in GB/s. This is independent of the number of GPU cores.
+>
+> \*\*\*\* Using the RAM:GPU core ratio for the largest GPU with this architecture. For Apple silicon, the figures come from the more modern LPDDR5-based chips.
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
