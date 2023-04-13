@@ -100,6 +100,17 @@ _"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MU
 | I32 Bitwise | 128 | 64 | 64 | 64 | 128 | 64 | 64 |
 | I32 Bitshift | 32 | 64 | ~64 | ~64 | 64  | 64 | 64 |
 
+| Per Core-Cycle | A7 - A10 | A11 - A13 | A14 | A15+, M1+ |
+| -------------- | -------- | --------- | --- | --------- |
+| Matrix FFMA8   | 0        | 0         | 0   | 0         |
+| Matrix FFMA16  | 64\*     | 128\*     | 128\* | 128\*     |
+| Matrix FFMA32  | ~16      | ~32       | ~56.9-64 | 102.4 |
+| Matrix FFMA64  | 0        | 0         | 0   | 0         |
+
+_Matrix FFMA means floating-point throughput inside a matrix multiplication kernel. One FFMA is two computations._
+
+_\*These numbers need to be verified. [This repository](https://github.com/philipturner/metal-stream-k-matmul) explains the theory behind the numbers. If the theory is true, Apple would have little motivation to implement simdgroup\_matrix on earlier chips. Their massive FP16 processing power could be utilized to inference neural networks, especially with a weak neural engine. But with the Apple 7 generation, Apple wanted their M1 chips to be usable with TensorFlow. Imagine saying the chip has 2.6 TFLOPS in theory, but only 0.7 TFLOPS in practice!_
+
 ## ALU Bottlenecks
 
 In low-occupancy situations, or situations with heavy register dependencies, F16/I16 is significantly faster than F32/I32. For back-to-back dependent FMUL, there's a 0.84-cycle throughput penalty for a 32-bit register dependency (1.84 total). When switching to a 16-bit register, that's a 0.56-cycle throughput penalty (1.56 total). In a minimum-occupancy situation, combined latencies are 6.6 and 3.9 cycles. The gap widens to 11.3 vs 3.9 for low-occupancy FMA. Now it makes sense why Apple pushes for half-precision in Metal.
