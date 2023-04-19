@@ -4,13 +4,6 @@ This document thoroughly explains the Apple GPU microarchitecture, focusing on i
 
 This repository also contains open-source benchmarking scripts. They allow anyone to reproduce and verify the author's claims about performance. A [complementary library](https://github.com/philipturner/applegpuinfo) reports the hardware specifications of any Apple-designed GPU.
 
-<details>
-<summary>Overview of Apple-designed GPUs</summary>
-
-
-
-</details>
-
 Table of Contents
 - [Overview](#overview)
 - [On-Chip Memory](#on-chip-memory)
