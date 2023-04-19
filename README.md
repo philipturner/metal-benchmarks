@@ -2,27 +2,17 @@
 
 This document thoroughly explains the Apple GPU microarchitecture, focusing on its GPGPU performance. Details include latencies for each ALU assembly instruction, cache sizes, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the Apple GPU, helping people diagnose bottlenecks in real-world software. It also compares Apple silicon to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
 
-This repository also contains open-source benchmarking scripts. They allow anyone to reproduce and verify the author's claims about performance.
+This repository also contains open-source benchmarking scripts. They allow anyone to reproduce and verify the author's claims about performance. A [complementary library](https://github.com/philipturner/applegpuinfo) reports the hardware specifications of any Apple-designed GPU.
 
 <details>
 <summary>Overview of Apple-designed GPUs</summary>
 
-| Apple GPU | Generation | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GOPS I16/I32 | L2 Cache | L3 Cache |
-| --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: | -------: | -------: |
-| A14 | Apple 7 | 1278 MHz | 4 | 654 | 1309 | 654 | TBD | 16 MB |
-| M1 | Apple 7 | 1278 MHz | 8 | 2617 | 2617 | 1309 | 768 KB | 8 MB |
-| M1 Pro | Apple 7 | 1296 MHz | 16 | 5308 | 5308 | 2654 | 256 KB | 24 MB |
-| M1 Max | Apple 7 | 1296 MHz | 32 | 10620 | 10620 | 5308 | 512 KB | 48 MB |
-| M1 Ultra | Apple 7 | 1296 MHz | 64 | 21230 | 21230 | 10620 | 1 MB | 96 MB |
-| A15 | Apple 8 | 1338 MHz | 5 | 1713 | 1713 | 856 | TBD | 32 MB |
-| M2 | Apple 8 | 1398 MHz | 10 | 3579 | 3579 | 1789 | ~1.5 MB | 8 MB |
-| A16 | Apple 8 | ~1398 MHz | 5 | ~1789 | ~1789 | ~895 | TBD | 24 MB |
-| M2 Pro | Apple 8 | 1398 MHz | 19 | 6800 | 6800 | 3400 | ~512 KB | 24 MB |
-| M2 Max | Apple 8 | 1398 MHz | 38 | 13600 | 13600 | 6800 | ~1 MB | 48 MB |
+
 
 </details>
 
 Table of Contents
+- [Overview](#overview)
 - [On-Chip Memory](#on-chip-memory)
 - [Operations per Second](#operations-per-second)
 - [ALU Bottlenecks](#alu-bottlenecks)
@@ -31,6 +21,33 @@ Table of Contents
 - [Nanite Atomics](#nanite-atomics)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
+
+## Overview
+
+| Apple GPU | Family | Clock Speed | Cores | GFLOPS F32 | GFLOPS F16 | GIPS | L2 Cache | L3 Cache |
+| --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: | -------: | -------: |
+| A7       | Apple 1 |   450 MHz |  4 |
+| A8       | Apple 2 |   533 MHz |  4 |
+| A9       | Apple 3 |   650 MHz |  6 |
+| A9X      | Apple 3 |   650 MHz | 12 |
+| A10      | Apple 3 |   900 MHz |  6 |
+| A10X     | Apple 3 |  1000 MHz | 12 |
+| A11      | Apple 4 |  1066 MHz |  3 |   409 |   819 |   409 |     TBD |  4 MB |
+| A12      | Apple 5 |  1128 MHz |  4 |   578 |  1155 |   578 |     TBD |  8 MB |
+| A12Z     | Apple 5 |  1128 MHz |  8 |  1155 |  2310 |  1155 |     TBD |  8 MB |
+| A13      | Apple 6 |  1230 MHz |  4 |   630 |  1260 |   630 |     TBD | 16 MB |
+| A14      | Apple 7 |  1278 MHz |  4 |   654 |  1309 |   654 |     TBD | 16 MB |
+| M1       | Apple 7 |  1278 MHz |  8 |  2617 |  2617 |  1309 |  768 KB |  8 MB |
+| M1 Pro   | Apple 7 |  1296 MHz | 16 |  5308 |  5308 |  2654 |  256 KB | 24 MB |
+| M1 Max   | Apple 7 |  1296 MHz | 32 | 10617 | 10617 |  5308 |  512 KB | 48 MB |
+| M1 Ultra | Apple 7 |  1296 MHz | 64 | 21233 | 21233 | 10617 |    1 MB | 96 MB |
+| A15      | Apple 8 |  1338 MHz |  5 |  1713 |  1713 |   856 |     TBD | 32 MB |
+| M2       | Apple 8 |  1398 MHz | 10 |  3579 |  3579 |  1789 | ~1.5 MB |  8 MB |
+| M2 Pro   | Apple 8 |  1398 MHz | 19 |  6800 |  6800 |  3400 | ~512 KB | 24 MB |
+| M2 Max   | Apple 8 |  1398 MHz | 38 | 13600 | 13600 |  6800 |   ~1 MB | 48 MB |
+| A16      | Apple 8 | ~1398 MHz |  5 | ~1789 | ~1789 |  ~895 |     TBD | 24 MB |
+
+_GIPS means billions of shader instructions per second, in the fastest precision. On Apple 7 and later, GIPS equals the number of IADD32 operations that can occur each second._
 
 ## On-Chip Memory
 
