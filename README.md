@@ -19,37 +19,41 @@ Table of Contents
 
 Legend:
 - GPU: the Apple GPU being described
-- Family: the generation, read as "Apple (insert the number)"
+  - P = Pro
+  - M = Max
+  - U = Ultra
+- Gen: the generation/[`MTLGPUFamily`](https://developer.apple.com/documentation/metal/mtlgpufamily), read as "Apple (insert the number)"
 - GHz: clock frequency in billions of Hz
 - Cores: number of independent processors (similar to CPU cores)
-- GOPS F32: billions of FLOPS with Float32
-- GOPS F16: billions of FLOPS with Float16
+- GOPS32: billions of FLOPS with Float32
+- GOPS16: billions of FLOPS with Float16
 - GIPS: billions of shader instructions per second, in either F16 or I32
-- L2 $: level-2 data cache
-- L3 $: level-3 data cache
+- L2 $: level-2 data cache in KB
+  - Dash = unknown
+- L3 $: level-3 data cache in MB
 
-| GPU | Family | GHz | Cores | GOPS F32 | GOPS F16 | GIPS | L2 $ | L3 $ |
+| GPU | Gen | GHz | Cores | GOPS32 | GOPS16 | GIPS | L2 $ | L3 $ |
 | --------- | ---------- | ----------: | ----: | ---------: | ---------: | -----------: | -------: | -------: |
-| A7       | 1 |  0.450 |  4 |   115 |   230 |   115 |     TBD |  4 MB |
-| A8       | 2 |  0.533 |  4 |   136 |   273 |   136 |     TBD |  4 MB |
-| A9       | 3 |  0.650 |  6 |   250 |   499 |   250 |     TBD |  4 MB |
-| A9X      | 3 |  0.650 | 12 |   499 |   998 |   499 |     TBD |  0 MB |
-| A10      | 3 |  0.900 |  6 |   346 |   691 |   346 |     TBD |  4 MB |
-| A10X     | 3 |  1.000 | 12 |   768 |  1536 |   768 |     TBD |  0 MB |
-| A11      | 4 |  1.066 |  3 |   409 |   819 |   409 |     TBD |  4 MB |
-| A12      | 5 |  1.128 |  4 |   578 |  1155 |   578 |     TBD |  8 MB |
-| A12Z     | 5 |  1.128 |  8 |  1155 |  2310 |  1155 |     TBD |  8 MB |
-| A13      | 6 |  1.230 |  4 |   630 |  1260 |   630 |     TBD | 16 MB |
-| A14      | 7 |  1.278 |  4 |   654 |  1309 |   654 |     TBD | 16 MB |
-| M1       | 7 |  1.278 |  8 |  2617 |  2617 |  1309 |  768 KB |  8 MB |
-| M1 Pro   | 7 |  1.296 | 16 |  5308 |  5308 |  2654 |  256 KB | 24 MB |
-| M1 Max   | 7 |  1.296 | 32 | 10617 | 10617 |  5308 |  512 KB | 48 MB |
-| M1 Ultra | 7 |  1.296 | 64 | 21233 | 21233 | 10617 |    1 MB | 96 MB |
-| A15      | 8 |  1.338 |  5 |  1713 |  1713 |   856 |     TBD | 32 MB |
-| M2       | 8 |  1.398 | 10 |  3579 |  3579 |  1789 | ~1.5 MB |  8 MB |
-| M2 Pro   | 8 |  1.398 | 19 |  6800 |  6800 |  3400 | ~512 KB | 24 MB |
-| M2 Max   | 8 |  1.398 | 38 | 13600 | 13600 |  6800 |   ~1 MB | 48 MB |
-| A16      | 8 | ~1.398 |  5 | ~1789 | ~1789 |  ~895 |     TBD | 24 MB |
+| A7       | 1 |  0.450 |  4 |   115 |   230 |   115 |     - |  4M |
+| A8       | 2 |  0.533 |  4 |   136 |   273 |   136 |     - |  4M |
+| A9       | 3 |  0.650 |  6 |   250 |   499 |   250 |     - |  4M |
+| A9X      | 3 |  0.650 | 12 |   499 |   998 |   499 |     - |   0 |
+| A10      | 3 |  0.900 |  6 |   346 |   691 |   346 |     - |  4M |
+| A10X     | 3 |  1.000 | 12 |   768 |  1536 |   768 |     - |   0 |
+| A11      | 4 |  1.066 |  3 |   409 |   819 |   409 |     - |  4M |
+| A12      | 5 |  1.128 |  4 |   578 |  1155 |   578 |     - |  8M |
+| A12Z     | 5 |  1.128 |  8 |  1155 |  2310 |  1155 |     - |  8M |
+| A13      | 6 |  1.230 |  4 |   630 |  1260 |   630 |     - | 16M |
+| A14      | 7 |  1.278 |  4 |   654 |  1309 |   654 |     - | 16M |
+| M1       | 7 |  1.278 |  8 |  2617 |  2617 |  1309 |  768K |  8M |
+| M1 P     | 7 |  1.296 | 16 |  5308 |  5308 |  2654 |  256K | 24M |
+| M1 M     | 7 |  1.296 | 32 | 10617 | 10617 |  5308 |  512K | 48M |
+| M1 U     | 7 |  1.296 | 64 | 21233 | 21233 | 10617 |    1M | 96M |
+| A15      | 8 |  1.338 |  5 |  1713 |  1713 |   856 |     - | 32M |
+| M2       | 8 |  1.398 | 10 |  3579 |  3579 |  1789 | ~1.5M |  8M |
+| M2 P     | 8 |  1.398 | 19 |  6800 |  6800 |  3400 | ~512K | 24M |
+| M2 M     | 8 |  1.398 | 38 | 13600 | 13600 |  6800 |   ~1M | 48M |
+| A16      | 8 | ~1.398 |  5 | ~1789 | ~1789 |  ~895 |     - | 24M |
 
 ## On-Chip Memory
 
