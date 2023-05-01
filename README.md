@@ -12,6 +12,7 @@ Table of Contents
 - [ALU Layout](#alu-layout)
 - [Instruction Throughputs](#instruction-throughputs)
 - [Nanite Atomics](#nanite-atomics)
+- [Ray Tracing Acceleration](#ray-tracing-acceleration)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
 
@@ -643,6 +644,12 @@ The Apple GPU architecture only supports 32-bit atomics on pointer values, while
 There was a recent discovery that Nanite can run entirely on 32-bit buffer atomics, at a 2.5x bandwidth/5x latency cost. However, Apple added hardware acceleration to the M2 series of GPUs for Nanite atomics. This includes a single instruction for non-returning UInt64 min or max. It does not include the wider set of atomic instructions typically useful for GPGPU, although such instructions were effectively emulated in the [prototypical metal-float64](https://github.com/philipturner/metal-float64). The A15 and A16, part of the same GPU family as M2, do not support Nanite atomics. Hopefully the A17 will gain support in the next series of chips.
 
 For further information, see [ue5-nanite-macos/AtomicsWorkaround](https://github.com/philipturner/ue5-nanite-macos/blob/main/AtomicsWorkaround/README.md) and the [associated thread](https://forums.unrealengine.com/t/lumen-nanite-on-macos/508411/92) on Unreal Engine forums.
+
+## Ray Tracing Acceleration
+
+The Apple GPU has hardware acceleration for ray-box intersections, hidden in plain sight. It's part of a general-purpose instruction, unique to the Apple GPU, that can also accelerate control flow operations. Similar to how `simdgroup_matrix` came along with industry-leading SIMD-group reductions.
+
+This section is currently a stub; see [the MacRumors thread](https://forums.macrumors.com/threads/apple-silicon-in-sciences.2374458/post-32135763) for the latest information.
 
 ## Power Efficiency
 
