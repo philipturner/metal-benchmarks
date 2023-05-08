@@ -408,7 +408,7 @@ _\* When the shift amount is unknown at compile time, LSHIFT32 and RSHIFT32 appe
 | Instruction Sequence | Actual Instructions |
 | -------------------------- | ------ |
 | IMADHI16 | IMUL32 + REG_MOVE\* |
-| IADD(32+32=64) | IADD32 + ICMPSEL32\* + IMMEDIATE_MOVE32 |
+| IADD(32+32=64) | IADD32 + ICMPSEL32\*\* + IMMEDIATE_MOVE32 |
 | IADD(64+32=64) | IADD32 + ICMPSEL32 + IADD32 |
 | IADD64 | IADD32 + ICMPSEL32 + IADD32 + IADD32 |
 | IMUL64 | ~6 instructions |
@@ -417,7 +417,7 @@ _\* When the shift amount is unknown at compile time, LSHIFT32 and RSHIFT32 appe
 
 _\* Register move may be implemented through an instruction that adds zero._
 
-_\* To check for overflow, you only need one integer comparison. The overflowed sum is always smaller than either input._
+_\*\* To check for overflow, you only need one integer comparison. The overflowed sum is always smaller than either input._
 
 </details>
 
