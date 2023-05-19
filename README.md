@@ -124,16 +124,14 @@ _"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MU
 | I32 Bitwise | 128 | 64 | 64 | 64 | 128 | 64 | 64 |
 | I32 Bitshift | 32 | 64 | ~64 | ~64 | 64  | 64 | 64 |
 
-| Per Core-Cycle | A7 - A10 | A11 - A13 | A14 | A15+, M1+ |
-| -------------- | -------- | --------- | --- | --------- |
-| Matrix FFMA8   | 0        | 0         | 0   | 0         |
-| Matrix FFMA16  | 64\*     | 128\*     | 128\* | 128\*     |
-| Matrix FFMA32  | ~16      | ~32       | ~56.9-64 | 102.4 |
-| Matrix FFMA64  | 0        | 0         | 0   | 0         |
+| Per Core-Cycle | A11 - A13 | A14   | A15+, M1+ |
+| -------------- | --------- | ----- | --------- |
+| Matrix FFMA8   | 0         |  0    | 0         |
+| Matrix FFMA16  | 83.7      |  TBD  | TBD       |
+| Matrix FFMA32  | 43.6      | ~56.9 | 102.4     |
+| Matrix FFMA64  | 0         |  0    | 0         | 
 
 _Matrix FFMA means floating-point throughput inside a matrix multiplication kernel. One FFMA is two computations._
-
-_\*These numbers need to be verified. [This repository](https://github.com/philipturner/metal-stream-k-matmul) explains the theory behind the numbers. If the theory is true, Apple would have little motivation to implement simdgroup\_matrix on earlier chips. Their massive FP16 processing power could be utilized to inference neural networks, especially with a weak neural engine. But with the Apple 7 generation, Apple wanted their M1 chips to be usable with TensorFlow. Imagine saying the chip has 2.6 TFLOPS in theory, but only 0.7 TFLOPS in practice!_
 
 ## ALU Bottlenecks
 
@@ -587,7 +585,7 @@ _The last entries clearly prove IADD64 runs (at least partially) concurrently to
 | PREFIX_ISUM\<I32\> | 13.01 | 23.05-26.48 | 24.78 |
 | PREFIX_EPROD\<F32\> | 11.57 | 20.07-23.63 | 21.93 |
 | PREFIX_IPROD\<F32\> | 12.60 | 23.91-25.96 | 24.26 |
-| MATMUL\<F16x8x8\> | &le;20.87 | TBD | ~40 |
+| MATMUL\<F16x8x8\> | TBD       | TBD | TBD |
 | MATMUL\<F32x8x8\> | &le;20.14 | TBD | ~40 |
 
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
