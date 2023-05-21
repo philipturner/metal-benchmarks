@@ -58,27 +58,26 @@ Legend:
 
 ## On-Chip Memory
 
-| Per Core              | Apple 7, 8 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| --------              | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
-| Max Threads           | 768-3072   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
-| Register File         | 384 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory         | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
-| L1 Instruction Cache  | 12 KB      | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
-| L1 Data Cache         | 8 KB       | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
-| Shared Bank Size      | ~2-4 B     | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
-| Shared Banks          | ~16-32     | 32       | 32         | 32 | 32 | 32 | 32 |
-| Global Cache Line     | 128 B      | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
+| Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
+| Max Threads           | 768-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
+| Register File         | 384 KB     | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
+| Shared Memory         | 64 KB      | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
+| Instruction Cache     | 12 KB      | TBD        | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
+| Data Cache            | 8 KB       | 512 KB     | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
+| Shared Bank Size      | 4 B        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
+| Shared Banks          | 16         | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
+| Global Cache Line     | 128 B      | 64 B       | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
-| Per Core              | Apple 7, 8 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| --------              | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
-| Register Cache BW/Cycle | ~2048 B  | 768 B | 768 B | 1536 B | 768 B | 1536 B | 1536 B |
-| SIMD Matmul BW/Cycle  | ~768 B     | n/a      | n/a        | n/a   | n/a   | n/a   | n/a   |
-| SIMD Shuffle BW/Cycle | 256 B      | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
-| Shared BW/Cycle       | 64 B       | 128 B    | 128 B      | 128 B | 128 B | 128 B | 128 B |
-| L1D BW/Cycle          | 64 B       | 64 B     | 64 B       | 64 B | 64 B | 64 B | 64 B |
-| L2D BW/Cycle          | ~32 B      | -        | -          | -   | -   | -   | -   |
-| L3D BW/Cycle\*\*    | ~15.4-19.8 B | -      | ~9.3 B | ~22.1 B | - | - | - |
-| RAM BW/Cycle\*\*\*  | ~7.7-9.9 B | -        | ~2.8 B  | ~4.0 B | - | - | - |
+| Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
+| Register Cache BW/Cycle | ~2048 B  | 768 B      | 768 B    | 768 B      | 1536 B | 768 B | 1536 B | 1536 B |
+| SIMD Shuffle BW/Cycle | 256 B      | TBD        | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
+| Shared BW/Cycle       | 64 B       | 64 B       | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
+| On-Core Data BW/Cycle | 64 B       | 64 B       | 64 B     | 64 B       |   64 B |  64 B |   64 B |   64 B |
+| On-GPU Data BW/Cycle  | ~32 B      | n/a        | -        | -          |    -   | -     | -      | -      |
+| SLC BW/Cycle\*\*      | ~15.4-19.8 B | -        | -        | ~9.3 B     | ~22.1 B | n/a  | n/a    | n/a    |
+| RAM BW/Cycle\*\*\*    | ~7.7-9.9 B | -          | -        | ~2.8 B     | ~4.0 B | -     | -      | -      |
 
 > \* 256-2560 on RDNA 1, 256-2048 on RDNA 2. The maximum, but not minimum, threads should be halved in wave32 mode.
 >
@@ -98,31 +97,31 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 
 Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but probably not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which decreases register pressure and improves ALU utilization in existing FP32 pipelines. AI advancements could continue in the Neural Engine, such as FP8.
 
-| Per Core-Cycle | A14 | M1, A15 | Vega | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
+| Per Core-Cycle | A14 | M1, A15 | Intel Gen9 | Vega | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
-| F32 OPs (FMA) | 128 | 256 | 128 | 128 | 256 | 256 | 128 | 256 |
-| F64 OPs (FMA) | &le;3.8e | &le;3.8e | 8   | 8   | 4   | 8   | 4   | 4   |
-| F16 Adds      | 128 | 128 | 128 | 128 | 128 | 2   | 128 | ~128 |
-| F32 Adds      | 64  | 128 | 64  | 64  | 128 | 128 | 64  | ~128 |
-| F64 Adds      | &le;3.6e | &le;3.6e | 4   | 4   | 2   | 4   | 2   | 2   |
-| F32 Exp2      | 32  | 32  | 32  | 32  | ~32 | 32  | 16  | 16  |
-| F32 Recip     | 21  | 21  | 32  | 32  | 25  | 32  | 16  | 16  |
-| F32 Rsqrt     | 16  | 16  | 32  | 32  | 20  | 32  | 16  | 16  |
-| F32 Sine      | 9   | 9   | 32  | 32  | TBD | 32  | 16  | 16  |
+| F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
+| F32 OPs (FMA) | 128 | 256 | 128 | 128 | 128 | 256 | 256 | 128 | 256 |
+| F64 OPs (FMA) | &le;3.8e | &le;3.8e | 32 | 8   | 8   | 4   | 8   | 4   | 4   |
+| F16 Adds      | 128 | 128 | 128 | 128 | 128 | 128 | 2   | 128 | ~128 |
+| F32 Adds      | 64  | 128 | 64 | 64  | 64  | 128 | 128 | 64  | ~128 |
+| F64 Adds      | &le;3.6e | &le;3.6e | 16 | 4   | 4   | 2   | 4   | 2   | 2   |
+| F32 Exp2      | 32  | 32  | TBD | 32  | 32  | ~32 | 32  | 16  | 16  |
+| F32 Recip     | 21  | 21  | TBD | 32  | 32  | 25  | 32  | 16  | 16  |
+| F32 Rsqrt     | 16  | 16  | TBD | 32  | 32  | 20  | 32  | 16  | 16  |
+| F32 Sine      | 9   | 9   | TBD | 32  | 32  | TBD | 32  | 16  | 16  |
 
 _"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MUL at 1:52, FMA at 1:68. It does not consider optimized dot product functions, which have higher throughput by spending less time unpacking mantissas. We can also sacrifice exponent bits (non-IEEE e8m48) to triple the throughput. Many GPUs emulate I64 arithmetic, so it also makes sense to report emulated F64 performance._
 
 | Per Core-Cycle | Apple 7, 8 | Vega | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | -------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
-| I16 Adds | 128 | 128 | 128 | 128 | 128 | 64 | ~128 |
-| I16 Muls | 32  | TBD | 128 | 128 | 32  | 64 | 64  |
-| I32 Adds | 128 | 64  | 64  | 64  | 128 | 64 | ~128 |
-| I32 Muls | 32  | 16  | 16  | 16  | 32  | 64 | 64 |
-| I64 Adds | 32  | TBD  | ~32  | 16  | 32 | ~32 | ~32 |
-| I64 Muls | 8   | TBD | 4   | 4   | 8 | ~16 | ~16  |
-| I32 Bitwise | 128 | 64 | 64 | 64 | 128 | 64 | 64 |
-| I32 Bitshift | 32 | 64 | ~64 | ~64 | 64  | 64 | 64 |
+| I16 Adds | 128 | 128 | 128 | 128 | 128 | 128 | 64 | ~128 |
+| I16 Muls | 32  | TBD | TBD | 128 | 128 | 32  | 64 | 64  |
+| I32 Adds | 128 | 64 | 64  | 64  | 64  | 128 | 64 | ~128 |
+| I32 Muls | 32  | TBD | 16  | 16  | 16  | 32  | 64 | 64 |
+| I64 Adds | 32  | TBD | TBD  | ~32  | 16  | 32 | ~32 | ~32 |
+| I64 Muls | 8   | TBD | TBD | 4   | 4   | 8 | ~16 | ~16  |
+| I32 Bitwise | 128 | TBD | 64 | 64 | 64 | 128 | 64 | 64 |
+| I32 Bitshift | 32 | TBD | 64 | ~64 | ~64 | 64  | 64 | 64 |
 
 | Per Core-Cycle | A11 - A13 | A14   | A15+, M1+ |
 | -------------- | --------- | ----- | --------- |
