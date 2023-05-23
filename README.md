@@ -98,7 +98,7 @@ The A14 and M1 come from the Apple 7 GPU family. However, the A14 core has half 
 Future chips will likely retain the same ratio of F32:F16:I32 compute power (most vendors recently converged on 256 FP32 OPs/clock). The microarchitecture may become mostly "frozen" as Moore's Law grinds to a halt. Future improvements will include hardware-accelerated ray tracing, but probably not tensor cores. Apple's "tensor core" is the `simdgroup_matrix` instruction, which decreases register pressure and improves ALU utilization in existing FP32 pipelines. AI advancements could continue in the Neural Engine, such as FP8.
 
 | Per Core-Cycle | A14 | M1, A15 | Intel Gen9 | Vega | RDNA 1, 2 | RDNA 3 | Pascal | Turing | Ampere, Ada |
-| -------- | ------- | ------- | ----- | --------- | ------ | ------ | ------ | ----------- |
+| -------------- | --- | ------- | ---------- | ---- | --------- | ------ | ------ | ------ | ----------- |
 | F16 OPs (FMA) | 256 | 256 | 256 | 256 | 256 | 256 | 4   | 256 | 256 |
 | F32 OPs (FMA) | 128 | 256 | 128 | 128 | 128 | 256 | 256 | 128 | 256 |
 | F64 OPs (FMA) | &le;3.8e | &le;3.8e | 32 | 8   | 8   | 4   | 8   | 4   | 4   |
@@ -126,8 +126,8 @@ _"e" means throughput of emulated IEEE-compliant FP59 (e11m48) - ADD at 1:36, MU
 | Per Core-Cycle | A11 - A13 | A14   | A15+, M1+ |
 | -------------- | --------- | ----- | --------- |
 | Matrix FFMA8   | 0         |  0    | 0         |
-| Matrix FFMA16  | 83.7      |  TBD  | TBD       |
-| Matrix FFMA32  | 43.6      | ~56.9 | 102.4     |
+| Matrix FFMA16  | 83.7      |  TBD  | 102.5     |
+| Matrix FFMA32  | 43.6      | ~56.9 | 101.7     |
 | Matrix FFMA64  | 0         |  0    | 0         | 
 
 _Matrix FFMA means floating-point throughput inside a matrix multiplication kernel. One FFMA is two computations._
@@ -584,8 +584,8 @@ _The last entries clearly prove IADD64 runs (at least partially) concurrently to
 | PREFIX_ISUM\<I32\> | 13.01 | 23.05-26.48 | 24.78 |
 | PREFIX_EPROD\<F32\> | 11.57 | 20.07-23.63 | 21.93 |
 | PREFIX_IPROD\<F32\> | 12.60 | 23.91-25.96 | 24.26 |
-| MATMUL\<F16x8x8\> | TBD       | TBD | TBD |
-| MATMUL\<F32x8x8\> | &le;20.14 | TBD | ~40 |
+| MATMUL\<8x8xF16\> | &le;19.98 | TBD | ~40 |
+| MATMUL\<8x8xF32\> | &le;20.14 | TBD | ~40 |
 
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | --- | --- | --- | --- |
