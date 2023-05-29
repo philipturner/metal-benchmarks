@@ -13,6 +13,7 @@ Table of Contents
 - [Instruction Throughputs](#instruction-throughputs)
 - [Nanite Atomics](#nanite-atomics)
 - [Ray Tracing Acceleration](#ray-tracing-acceleration)
+- [SIMD Futures](#simd-futures)
 - [Power Efficiency](#power-efficiency)
 - [References](#references)
 
@@ -641,12 +642,85 @@ The Apple GPU architecture only supports 32-bit atomics on pointer values, while
 There was a recent discovery that Nanite can run entirely on 32-bit buffer atomics, at a 2.5x bandwidth/5x latency cost. However, Apple added hardware acceleration to the M2 series of GPUs for Nanite atomics. This includes a single instruction for non-returning UInt64 min or max. It does not include the wider set of atomic instructions typically useful for GPGPU, although such instructions were effectively emulated in the [prototypical metal-float64](https://github.com/philipturner/metal-float64). The A15 and A16, part of the same GPU family as M2, do not support Nanite atomics. Hopefully the A17 will gain support in the next series of chips.
 
 For further information, see [ue5-nanite-macos/AtomicsWorkaround](https://github.com/philipturner/ue5-nanite-macos/blob/main/AtomicsWorkaround/README.md) and the [associated thread](https://forums.unrealengine.com/t/lumen-nanite-on-macos/508411/92) on Unreal Engine forums.
-
+  
 ## Ray Tracing Acceleration
 
 The Apple GPU has hardware acceleration for ray-box intersections, hidden in plain sight. It's part of a general-purpose instruction, unique to the Apple GPU, that can also accelerate control flow operations. Similar to how `simdgroup_matrix` came along with industry-leading SIMD-group reductions.
 
 This section is currently a stub; see [the MacRumors thread](https://forums.macrumors.com/threads/apple-silicon-in-sciences.2374458/post-32135763) for the latest information.
+  
+## SIMD Futures
+  
+`metal_simdgroup_future` and `metal_simdgroup_async` are two Metal headers leaked in Xcode 14.2. They expose instructions that hide latency during matrix multiplications. They sometimes cause undefined behavior\* when simds within a threadgroup try to communicate. Perhaps that's why Apple removed the API before Xcode 14.3. The newer compiler not only lacks the headers; it is impossible to access the instructions through `__asm("@air.symbol")`. However, one can generate an AIR file containing the symbols through Xcode 14.2's `metal` tool. Future versions of Xcode will transform the AIR into a Metal binary without errors.
+
+> This statement may be false, but verifying it requires extensive testing.
+
+The instructions also provide a means to read/write edges of unaligned matrices, without going out of bounds.
+
+```metal
+// To respect Apple's copyright license, the bulk of the headers will
+// not be shown. Rather, just C++ symbols which a Metal developer could 
+// have reasonably used between Xcode 14.2-14.3, and which now exist in 
+// their custom shader code. The presented symbols officially come from
+// that developer's code, not Apple's headers.
+//
+// No API starting with an underscore will be shown here. The underscore 
+// hints that it's private API, which the Metal compiler uses to
+// construct the public API. A developer following best practices would
+// not have delved into such undocumented details of the compiler.
+//
+// Furthermore, the code is reformatted to be more presentable. It is
+// not directly copied and pasted from the header files.
+
+enum class simdgroup_async_copy_clamp_mode {
+  clamp_to_zero = 0,
+  clamp_to_edge = 1
+};
+
+template <>
+struct simdgroup_future<void> {
+  void wait() const thread;
+}
+
+template <typename T>
+simdgroup_future<void> simdgroup_async_copy(
+  threadgroup T *dst,
+  const device T *src,
+  ulong n_elements);
+
+template <typename T>
+simdgroup_future<void> simdgroup_async_copy(
+  device T *dst,
+  const threadgroup T *src,
+  ulong n_elements);
+
+template <typename T>
+simdgroup_future<void> simdgroup_async_copy(
+  threadgroup T *dst,
+  ulong dst_elements_per_row,
+  ulong dst_element_stride,
+  ulong2 dst_tile_dimensions,
+  
+  const device T *src,
+  ulong src_elements_per_row,
+  ulong src_element_stride,
+  ulong2 src_tile_dimensions,
+  long2 offset_in_src_tile,
+  simdgroup_async_copy_clamp_mode clamp_mode = clamp_to_zero);
+
+template <typename T>
+simdgroup_future<void> simdgroup_async_copy(
+  device T *dst,
+  ulong dst_elements_per_row,
+  ulong dst_element_stride,
+  ulong2 dst_tile_dimensions,
+  long2 offset_in_dst_tile,
+  
+  const threadgroup T *src,
+  ulong src_elements_per_row,
+  ulong src_element_stride,
+  ulong2 src_tile_dimensions);
+```
 
 ## Power Efficiency
 
