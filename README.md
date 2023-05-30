@@ -657,6 +657,9 @@ This section is currently a stub; see [the MacRumors thread](https://forums.macr
 
 The instructions also provide a means to read/write edges of unaligned matrices, without going out of bounds.
 
+<details>
+<summary>C++ Code</summary>
+
 ```metal
 // To respect Apple's copyright license, the bulk of the headers will
 // not be shown. Rather, just C++ symbols which a Metal developer could 
@@ -721,6 +724,8 @@ simdgroup_future<void> simdgroup_async_copy(
   ulong src_element_stride,
   ulong2 src_tile_dimensions);
 ```
+
+</details>
 
 ## Power Efficiency
 
