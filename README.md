@@ -585,8 +585,8 @@ _The last entries clearly prove IADD64 runs (at least partially) concurrently to
 | PREFIX_ISUM\<I32\> | 13.01 | 23.05-26.48 | 24.78 |
 | PREFIX_EPROD\<F32\> | 11.57 | 20.07-23.63 | 21.93 |
 | PREFIX_IPROD\<F32\> | 12.60 | 23.91-25.96 | 24.26 |
-| MATMUL\<8x8xF16\> | ~16-17 | TBD | ~32-34 |
-| MATMUL\<8x8xF32\> | ~18-19 | TBD | ~36-38 |
+| MATMUL\<8x8xF16\> | ~17 | TBD | ~34 |
+| MATMUL\<8x8xF32\> | ~18 | TBD | ~36 |
 
 | Instruction Sequence | Throughput | Raw Latency | Optimal Repetitions |
 | --- | --- | --- | --- |
