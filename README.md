@@ -61,14 +61,16 @@ Legend:
 
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
-| Max Threads           | 768-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
-| Register File         | 384 KB     | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
+| Max Threads           | TBD-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
+| Register File         | TBD        | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
 | Shared Memory         | 64 KB      | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | Instruction Cache     | 12 KB      | TBD        | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | Data Cache            | 8 KB       | 512 KB     | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
 | Shared Bank Size      | 4 B        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks          | 16         | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B       | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
+
+> \*Multiple sources of evidence support two polar opposite conclusions: an extremely tiny register file (192 KB, 384 threads min), or a large one (384 KB, 768 threads min). Neither hypothesis can be proven with existing benchmarks, so design algorithms for the worst-case scenario (192 KB).
 
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
