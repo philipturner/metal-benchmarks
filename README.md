@@ -70,7 +70,7 @@ Legend:
 | Shared Banks          | 16         | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B       | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
-> \*Multiple sources of evidence support two polar opposite conclusions: an extremely tiny register file (192 KB, 384 threads min), or a large one (384 KB, 768 threads min). Neither hypothesis can be proven with existing benchmarks, so design algorithms for the worst-case scenario (192 KB).
+> \*Multiple sources of evidence support two polar opposite conclusions: an extremely tiny register file (208 KB, 384 threads min), or a large one (384 KB, 768 threads min). Neither hypothesis can be proven with existing benchmarks, so design algorithms for the worst-case scenario (208 KB).
 
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
