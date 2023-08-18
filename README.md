@@ -61,20 +61,17 @@ Legend:
 
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
-| Max Threads           | TBD-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
-| Register File         | TBD        | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory         | 64 KB      | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
+| Max Threads           | 384-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
+| Register File         | ~208 KB    | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
+| Shared Memory         | ~52-60 KB  | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | Instruction Cache     | 12 KB      | TBD        | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | Data Cache            | 8 KB       | 512 KB     | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
 | Shared Bank Size      | 4 B        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
 | Shared Banks          | 16         | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B       | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
-> \*Multiple sources of evidence support two polar opposite conclusions: an extremely tiny register file (208 KB, 384 threads min), or a large one (384 KB, 768 threads min). Neither hypothesis can be proven with existing benchmarks, so design algorithms for the worst-case scenario (208 KB).
-
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
-| Register Cache BW/Cycle | ~2048 B  | 768 B      | 768 B    | 768 B      | 1536 B | 768 B | 1536 B | 1536 B |
 | SIMD Shuffle BW/Cycle | 256 B      | TBD        | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
 | Shared BW/Cycle       | 64 B       | 64 B       | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
 | On-Core Data BW/Cycle | 64 B       | 64 B       | 64 B     | 64 B       |   64 B |  64 B |   64 B |   64 B |
@@ -88,9 +85,13 @@ Legend:
 >
 > \*\*\* Using the RAM:GPU core ratio for the largest GPU with this architecture. For Apple silicon, the figures come from the more modern LPDDR5-based chips.
 
+<!--
+
 Like all GPUs, the Apple architecture has several levels of memory hierarchy. Each one makes a tradeoff between size and bandwidth. With few exceptions, each subsequent level halves bandwidth and more than doubles in size. Compared to other architectures, Apple has less memory in the upper levels and more memory in the lower levels. The L1 and L2 are much smaller than other vendors. There is some discontinuity in L2 and L3 cache size between chips in the same family, as explained [below](#power-efficiency).
 
 The larger register size makes up for the smaller lower-level cache sizes. For example, a variant of the FlashAttention algorithm could use registers as "extended threadgroup memory". Some matrix blocks could remain locally accessible to only one SIMD-group, while other blocks are temporarily shuffled into the narrow threadgroup memory. Only half of the data needs to be streamed from the low-bandwidth threadgroup memory when multiplying blocks. The larger register file also increases occupancy, and therefore efficiency. In addition, RAM size and RAM bandwidth/core-cycle are relatively high compared to AMD and Nvidia. The latter is mostly because Apple chooses a much lower GPU clock speed.
+
+-->
 
 <img src="./Documentation/Instruction_Cache_M1_Max.png" alt="Graph of executable size vs. performance for an M1 Max at 92% occupancy" width="75%" />
 
