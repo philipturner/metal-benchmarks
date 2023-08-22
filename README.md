@@ -371,6 +371,7 @@ _At a minimum, the numbers above should be subtracted from measured latencies. H
 | BITINSERT32\*\* | &le;4.42 | TBD | TBD |
 | BITWISE32 | 1.06 | TBD | TBD |
 | BITREV32 | 4.00 | 3.76-5.32 | 3.62 |
+| BITINTERLEAVE16 | 4 | TBD | TBD |
 | POPCOUNT32 | 4.00 | 3.76-5.32 | 3.62 |
 | IMAX32 | 1, 1 | 6.11-6.44 | 4.74 |
 | IMIN32 | 1, 1 | 6.11-6.44 | 4.74 |
