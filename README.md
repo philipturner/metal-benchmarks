@@ -63,7 +63,7 @@ Legend:
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
 | Max Threads           | 384-3072   | 448-1792   | 256-2560 | 256-2048\* | 384-2048 | 256-2048 | 256-1024 | 256-1536 |
 | Register File         | ~208 KB    | 224 KB     | 256 KB   | 256 KB     | 384 KB | 256 KB | 256 KB | 256 KB |
-| Shared Memory         | ~52-60 KB  | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
+| Shared Memory         | ~60 KB     | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | Instruction Cache     | 12 KB      | TBD        | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | Data Cache            | 8 KB       | 512 KB     | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
 | Shared Bank Size      | 4 B        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
