@@ -66,14 +66,14 @@ Legend:
 | Shared Memory         | ~60 KB     | 64 KB      | 64 KB    | 64 KB      | 64 KB | 96 KB | 32-64 KB | 8-100 KB |
 | Instruction Cache     | 12 KB      | TBD        | 32 KB    | 32 KB      | 32 KB | 8 KB | 12 KB | 32 KB |
 | Data Cache            | 8 KB       | 512 KB     | 16 KB    | 32 KB      | 32 KB | 24-48 KB | 32-64 KB | 28-120 KB |
-| Shared Bank Size      | 4 B        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
-| Shared Banks          | 16         | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
+| Shared Bank Size      | TBD        | 4 B        | 4 B      | 4 B        | 4 B | 4 B | 4 B | 4 B |
+| Shared Banks          | TBD        | 16         | 32       | 32         | 32 | 32 | 32 | 32 |
 | Global Cache Line     | 128 B      | 64 B       | 64 B     | 128 B      | 128 B | 128 B | 128 B | 128 B |
 
 | Per Core              | Apple 7, 8 | Intel Gen9 | Vega     | RDNA 1, 2  | RDNA 3 | Pascal | Turing | Ampere, Ada |
 | --------              | ---------- | ---------- | -----    | ---------- | ------ | ------ | ------ | ----------- |
 | SIMD Shuffle BW/Cycle | 256 B      | TBD        | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
-| Shared BW/Cycle       | 64 B       | 64 B       | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
+| Shared BW/Cycle       | TBD        | 64 B       | 128 B    | 128 B      |  128 B | 128 B |  128 B |  128 B |
 | On-Core Data BW/Cycle | 64 B       | 64 B       | 64 B     | 64 B       |   64 B |  64 B |   64 B |   64 B |
 | On-GPU Data BW/Cycle  | ~32 B      | n/a        | -        | -          |    -   | -     | -      | -      |
 | SLC BW/Cycle\*\*      | ~15.4-19.8 B | -        | -        | ~9.3 B     | ~22.1 B | n/a  | n/a    | n/a    |
