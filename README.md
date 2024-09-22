@@ -28,7 +28,12 @@ Legend:
   - U = Ultra
 - Gen: the generation/[`MTLGPUFamily`](https://developer.apple.com/documentation/metal/mtlgpufamily), read as "Apple (insert the number)"
 - GHz: clock frequency in billions of Hz
-- Cores: number of independent processors (similar to CPU cores)
+- Cores: number of independent processors
+  - GPU cores are identical to CPU cores, in both transistor count and I/O bus width.
+  - It's unfortunate that most vendors don't call a core a "core".
+    - Nvidia: "core" when it's ARM architecture, but "SM" when it's Ampere architecture.
+    - AMD: "core" when it's x86 architecture, but "1/2 WGP" when it's RDNA architecture.
+    - Intel: "core" when it's x86 architecture, but "Xe core(?)" when it's Arc Alchemist architecture.
 - GOPS32: billions of FLOPS with Float32
 - GOPS16: billions of FLOPS with Float16
 - GIPS: billions of shader instructions per second, in either F16 or I32
