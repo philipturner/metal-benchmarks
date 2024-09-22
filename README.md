@@ -23,12 +23,7 @@ All of the data below deals exclusively with the GPU. The CPU cores have no rele
 - GPU cores are identical to CPU cores, in both transistor count and I/O bus width.
   - They only differ in compute power. A single GPU core has ~1/3 the frequency and ~8x the parallelism.
   - Multiply these together, and you figure out a GPU core is roughly ~2.67x more powerful than a CPU core. Assuming it reaches 100% ALU utilization, which is rarely the case.
-  - On bandwidth bound tasks, the GPU has no advantage over the CPU. Because its I/O bus width is the same (32 bytes). The 8x increase in parallelism (within the core) cannot help when the bottleneck is core I/O (outside the core).
-- GPUs have higher arithmetic intensity, because to reach full utilization, you need ~8x more computations per byte transfer. Most algorithms fail to achieve such extremely high A.I.
-  - Notable exceptions are matrix multiplication and ray tracing. This is why GPUs are frequently used for AI (A.I. - arithmetic intensity - get it?) and real-time rendering.
-  - Molecular mechanical methods have excellent arithmetic intensity, especially for nonbonded forces (the higher the cutoff, the higher the calculations/atom). This repository was originally created to fix bottlenecks with Apple GPUs in [OpenMM](https://openmm.org/). The author has since moved on to considering custom MM simulators written from scratch, because they are so easy to code.
-  - Quantum mechanical methods are poorly suited for GPUs. Cheap methods like atomic-orbital tight-binding lack enough parallelism (AMX coprocessor on the CPU comes in handy though). Expensive methods like parameter-free ab initio (wavelets, real-space with adaptive mesh refinement) are bandwidth bound. The author read ~1000 pages of ab initio literature to understand how it works, and gave up because it's too complex to code.
-  - Algorithms with the highest arithmetic intensity are often the easiest to code. Super complex software stacks rarely work with GPUs. Many are only possible with Nvidia' highly proprietary CUDA (nvfortran, cuLitho, GAUSSIAN 2016) and the performance is worse than advertised. Don't be discouraged by niche use cases enabled with the CUDA/HIP ecosystem. Be able to write the GPU shader from scratch, on whatever API works for your GPU architecture. Otherwise don't use the software at all.
+  - On bandwidth bound tasks, the GPU has no advantage over the CPU. Because its I/O bus width is the same (32 bytes). The 8x increase in parallelism (within the core) cannot help when the bottleneck is core I/O (outside the core).\*
 - It's unfortunate that most vendors don't call a core a "core".
   - Nvidia: "core" when it's ARM architecture, but "SM" when it's Ampere architecture.
   - AMD: "core" when it's x86 architecture, but "1/2 WGP" when it's RDNA architecture.
@@ -37,6 +32,12 @@ All of the data below deals exclusively with the GPU. The CPU cores have no rele
   - Pieces of silicon die spanning ~2 mm^2 (or whatever the correct measurement is).
   - Pieces of silicon die spanning ~512 KB of registers/L1 and 32 bytes/cycle of L2 bandwidth.
   - Out-of-order processors with a SIMD vector execution width of 128&ndash;1024 bits and ~4 vector pipelines running simultaneously.
+
+\*GPUs have higher arithmetic intensity, because to reach full utilization, you need ~8x more computations per byte transfer. Most algorithms fail to achieve such extremely high A.I.
+  - Notable exceptions are matrix multiplication and ray tracing. This is why GPUs are frequently used for AI (A.I. - arithmetic intensity - get it?) and real-time rendering.
+  - Molecular mechanical methods have excellent arithmetic intensity, especially for nonbonded forces (the higher the cutoff, the higher the calculations/atom). This repository was originally created to fix bottlenecks with Apple GPUs in [OpenMM](https://openmm.org/). The author has since moved on to considering custom MM simulators written from scratch, because they are so easy to code.
+  - Quantum mechanical methods are poorly suited for GPUs. Cheap methods like atomic-orbital tight-binding lack enough parallelism (AMX coprocessor on the CPU comes in handy though). Expensive methods like parameter-free ab initio (wavelets, real-space with adaptive mesh refinement) are bandwidth bound. The author read ~1000 pages of ab initio literature to understand how it works, and gave up because it's too complex to code.
+  - Algorithms with the highest arithmetic intensity are often the easiest to code. Super complex software stacks rarely work with GPUs. Many are only possible with Nvidia' highly proprietary CUDA (nvfortran, cuLitho, GAUSSIAN 2016) and the performance is worse than advertised. Don't be discouraged by niche use cases enabled with the CUDA/HIP ecosystem. Be able to write the GPU shader from scratch, on whatever API works for your GPU architecture. Otherwise don't use the software at all.
 
 Legend:
 - GPU: the Apple GPU being described
