@@ -19,6 +19,8 @@ Table of Contents
 
 ## Overview
 
+> Note: All of the data below deals exclusively with the GPU. The CPU cores have no relevance to the data below, and the tables don't contain any data about CPU core count. Please do not open an issue refuting the core count statistics. They are correct.
+
 Legend:
 - GPU: the Apple GPU being described
   - P = Pro
