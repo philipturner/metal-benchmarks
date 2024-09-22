@@ -1,6 +1,6 @@
 # Metal Benchmarks
 
-This document thoroughly explains the Apple GPU microarchitecture, focusing on its GPGPU performance. Details include latencies for each ALU assembly instruction, cache sizes, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the Apple GPU, helping people diagnose bottlenecks in real-world software. It also compares Apple silicon to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
+This document thoroughly explains the M1 and M2 GPU families, focusing on its GPGPU performance. Details include latencies for each ALU assembly instruction, cache sizes, and the number of unique instruction pipelines. This document enables evidence-based reasoning about performance on the Apple GPU, helping people diagnose bottlenecks in real-world software. It also compares Apple silicon to generations of AMD and Nvidia microarchitectures, showing where it might exhibit different performance patterns. Finally, the document examines how Apple's design choices improve power efficiency compared to other vendors.
 
 This repository also contains open-source benchmarking scripts. They allow anyone to reproduce and verify the author's claims about performance. A [complementary library](https://github.com/philipturner/applegpuinfo) reports the hardware specifications of any Apple-designed GPU.
 
