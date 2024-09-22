@@ -19,7 +19,16 @@ Table of Contents
 
 ## Overview
 
-> Note: All of the data below deals exclusively with the GPU. The CPU cores have no relevance to the data below, and the tables don't contain any data about CPU core count. Please do not open an issue refuting the core count statistics. They are correct.
+All of the data below deals exclusively with the GPU. The CPU cores have no relevance to the data below, and the tables don't contain any data about CPU core count. Please do not open an issue refuting the core count statistics. They are correct.
+- GPU cores are identical to CPU cores, in both transistor count and I/O bus width.
+- It's unfortunate that most vendors don't call a core a "core".
+  - Nvidia: "core" when it's ARM architecture, but "SM" when it's Ampere architecture.
+  - AMD: "core" when it's x86 architecture, but "1/2 WGP" when it's RDNA architecture.
+  - Intel: "core" when it's x86 architecture, but "Xe core(?)" when it's Arc Alchemist architecture.
+- Only Apple calls CPU cores and GPU cores what they are. Cores.
+  - Pieces of silicon die spanning ~2 mm^2 (or whatever the correct measurement is).
+  - Pieces of silicon die spanning ~512 KB of registers/L1 and 32 bytes/cycle of L2 bandwidth.
+  - Out-of-order processors with a SIMD vector execution width of 128&ndash;1024 bits and ~4 vector pipelines running simultaneously.
 
 Legend:
 - GPU: the Apple GPU being described
@@ -29,11 +38,6 @@ Legend:
 - Gen: the generation/[`MTLGPUFamily`](https://developer.apple.com/documentation/metal/mtlgpufamily), read as "Apple (insert the number)"
 - GHz: clock frequency in billions of Hz
 - Cores: number of independent processors
-  - GPU cores are identical to CPU cores, in both transistor count and I/O bus width.
-  - It's unfortunate that most vendors don't call a core a "core".
-    - Nvidia: "core" when it's ARM architecture, but "SM" when it's Ampere architecture.
-    - AMD: "core" when it's x86 architecture, but "1/2 WGP" when it's RDNA architecture.
-    - Intel: "core" when it's x86 architecture, but "Xe core(?)" when it's Arc Alchemist architecture.
 - GOPS32: billions of FLOPS with Float32
 - GOPS16: billions of FLOPS with Float16
 - GIPS: billions of shader instructions per second, in either F16 or I32
